@@ -58,7 +58,7 @@ A **Diploid** is an ordered pair `(chrom0, chrom1)` of Haploids. Order matters, 
 going to bite us in §4, so remember that.
 
 In vectorized form this is naturally an `(N, 2, 9)` `uint8` array for a population of `N` individuals: axis 0 =
-individual, axis 1 = chromosome slot, axis 2 = locus. (The shipped browser sim, `badge-genetics-sim.html`,
+individual, axis 1 = chromosome slot, axis 2 = locus. (The shipped browser sim, [`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html),
 flattens this to a single `Uint8Array` of length `N * 2 * 9`; a NumPy reference implementation is in §10.)
 
 ```
@@ -443,7 +443,7 @@ parallel and looking at the aggregate.
 
 ## 10. Reference Implementation Sketch
 
-The shipped simulator is JavaScript, in `badge-genetics-sim.html`, using a single flat `Uint8Array` for the
+The shipped simulator is JavaScript, in [`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html), using a single flat `Uint8Array` for the
 population. The sketch below is a NumPy reference of the same math - a second implementation is useful for
 cross-checking, and NumPy makes the array-transform shape of each step easier to read than the flattened JS
 version. Every function is a pure array transform.

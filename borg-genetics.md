@@ -18,7 +18,7 @@ Gray-code trick — still applies.
 
 We just add one twist.
 
-The **borg** tab in `badge-genetics-sim.html` runs the same genetic simulator, but replaces panmictic random
+The **borg** tab in [`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html) runs the same genetic simulator, but replaces panmictic random
 pairing with a fixed second partner in every mating: **ROOT**. ROOT is itself a diploid — two chromosomes,
 same nine loci as anyone else — and every mating event in the borg regime is `(some colony member, ROOT)`.
 Every colony member is a diploid too; that never changes. What changes is the pairing rule and the fact
@@ -203,7 +203,7 @@ Some quick predictions to test against the sim:
 
 The whole regime is one class extending `Population` with a rewritten `step()`. Everything else is inherited.
 
-Code below quoted verbatim from `badge-genetics-sim.html`. Note that the shipped source names its two
+Code below quoted verbatim from [`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html). Note that the shipped source names its two
 scratch buffers `_egg` and `_sperm` — labels for "the gamete that ends up in slot 0" and "the gamete that ends up in slot 1".
 There is no biological sex in the model.
 
@@ -281,7 +281,7 @@ experiments:
 
 ## 8. Source Provenance
 
-Everything in this document is behavior of `class BorgPopulation` in `badge-genetics-sim.html` (§1
+Everything in this document is behavior of `class BorgPopulation` in [`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html) (§1
 implementation, ~line 1371) plus the borg-specific pieces of `initPopulation()` (~line 2218) and the borg
 view configuration (~line 2166). The genetics primitives (`meiosis`, `mutate`, `phenotype`, `haploidFromType`,
 Gray-code LUTs, rate tables) are unchanged from popsim and are the browser port of the Rust genetics core

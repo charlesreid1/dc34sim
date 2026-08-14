@@ -4,7 +4,7 @@ A browser-native Monte Carlo simulator of the DEF CON 34 badge genetics system.
 
 Live at **[dc34sim.com](https://dc34sim.com)**.
 
-> **Want the standalone, browser-native static HTML page so you can tinker with it and run it locally?** It lives on the `gh-pages` branch. Grab just that branch with:
+> **Want the standalone, browser-native static HTML page so you can tinker with it and run it locally?** It lives on the `gh-pages` branch — [view it on GitHub](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html), or grab just that branch with:
 >
 > ```
 > git clone -b gh-pages --single-branch https://github.com/charlesreid1/dc34sim.git
