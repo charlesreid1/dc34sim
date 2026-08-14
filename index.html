@@ -299,7 +299,7 @@
   .footer {
     margin-top: 1.25rem;
     font-size: 0.68rem;
-    color: var(--fg-faint);
+    color: var(--fg);
     text-align: center;
     letter-spacing: 0.1em;
   }
@@ -2715,8 +2715,8 @@ function buildGeneRows() {
   hdr.className = "gene-header";
   hdr.innerHTML =
     `<div></div>` +
-    `<div class="chrom-lbl">[chrom0]</div>` +
-    `<div class="chrom-lbl">[chrom1]</div>` +
+    `<div class="chrom-lbl">[haplo0]</div>` +
+    `<div class="chrom-lbl">[haplo1]</div>` +
     `<div class="pheno-lbl">phenome</div>` +
     `<div></div>`;
   container.appendChild(hdr);
