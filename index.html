@@ -1,1 +1,3065 @@
-<h2>hello world</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DC34 :: BADGE GENETICS TERMINAL</title>
+<!--
+  DC34 badge genetics population simulator.
+
+  This is a browser-native Monte Carlo of the DEF CON 34 badge genetics
+  system, distilled per synthetic-population-genetics.md. It ports the
+  genetics core from dc34-api/src/lib.rs to JavaScript, wraps it in a
+  seeded RNG so runs are reproducible, and renders each individual as a
+  5x5 animated cell in a 100x100 grid (10,000 badges).
+
+  Everything is client-side. No dependencies. Open the file, watch the
+  population evolve.
+-->
+<style>
+  :root {
+    /* DEF CON 34 official palette (accents only — chrome stays near-black
+     * so LED tiles read cleanly and the Human blue band doesn't fight the UI).
+     *   #0d294a  navy         (2955C)
+     *   #017FA4  teal         (314C)   -- dim UI text/borders
+     *   #105F66  dark teal    (5473C)  -- faint dashes
+     *   #6CCDB8  mint         (3248C)  -- primary foreground
+     *   #f1b435  gold         (143C)   -- warn accent
+     *   #E0004E  magenta-red  (1925C)  -- error accent
+     */
+    --bg: #000;
+    --fg: #6CCDB8;
+    --fg-dim: #017FA4;
+    --fg-faint: #105F66;
+    --err: #E0004E;
+    --warn: #f1b435;
+    --panel-bg: #000;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Courier New", Courier, monospace;
+    min-height: 100vh;
+  }
+  body {
+    padding: 1.25rem 1rem 3rem;
+    background-image:
+      radial-gradient(rgba(108,205,184,0.05) 1px, transparent 1px),
+      linear-gradient(180deg, #060a10 0%, #000 100%);
+    background-size: 3px 3px, 100% 100%;
+  }
+  .crt {
+    position: relative;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem 1.5rem;
+    border: 1px solid var(--fg-dim);
+    box-shadow: 0 0 20px rgba(108,205,184,0.25), inset 0 0 40px rgba(108,205,184,0.05);
+  }
+  pre.banner {
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.7);
+    font-size: 0.66rem;
+    line-height: 1.05;
+    margin: 0 0 0.5rem;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tagline {
+    color: var(--fg-dim);
+    font-size: 0.85rem;
+    margin: 0 0 1rem;
+    letter-spacing: 0.05em;
+  }
+  hr.sep {
+    border: none;
+    border-top: 1px dashed var(--fg-faint);
+    margin: 0.9rem 0;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(520px, auto) 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  @media (max-width: 1080px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+  .panel {
+    border: 1px solid var(--fg-dim);
+    padding: 0.85rem 1rem 1rem;
+    background: var(--panel-bg);
+  }
+  .panel h2 {
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--fg);
+    margin: 0 0 0.6rem;
+    padding: 0 0 0.35rem;
+    border-bottom: 1px dashed var(--fg-faint);
+  }
+  .panel h2 .hint {
+    float: right;
+    color: var(--fg-dim);
+    font-weight: normal;
+    letter-spacing: 0.05em;
+  }
+  label {
+    display: block;
+    color: var(--fg-dim);
+    font-size: 0.72rem;
+    margin: 0.55rem 0 0.15rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  select, input[type="text"], input[type="number"] {
+    width: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--fg-dim);
+    padding: 0.45rem 0.6rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    caret-color: var(--fg);
+  }
+  select:focus, input:focus {
+    border-color: var(--fg);
+    box-shadow: 0 0 8px rgba(108,205,184,0.5);
+  }
+  select option { background: var(--bg); color: var(--fg); }
+  button {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--fg);
+    padding: 0.5rem 0.9rem;
+    font-family: inherit;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  button:hover:not(:disabled) {
+    background: var(--fg);
+    color: var(--bg);
+    box-shadow: 0 0 10px rgba(108,205,184,0.55);
+  }
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: var(--fg-dim);
+    color: var(--fg-dim);
+  }
+  button.warn { border-color: var(--warn); color: var(--warn); }
+  button.warn:hover { background: var(--warn); color: var(--bg); }
+  .btn-row {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+  .status {
+    margin-top: 0.85rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px dashed var(--fg-faint);
+    font-size: 0.78rem;
+    color: var(--fg);
+    white-space: pre-wrap;
+    min-height: 2.4rem;
+  }
+  #grid-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  #grid {
+    display: block;
+    image-rendering: pixelated;
+    border: 1px solid var(--fg-dim);
+    background: #000;
+    box-shadow: 0 0 15px rgba(108,205,184,0.18);
+    cursor: crosshair;
+  }
+  .specimen-wrap {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .specimen-wrap .send-to-vim {
+    margin-left: auto;
+    align-self: flex-start;
+    flex: 0 0 auto;
+  }
+  #specimen, #borg-specimen {
+    border: 1px solid var(--fg-dim);
+    background: #000;
+    image-rendering: pixelated;
+    flex: 0 0 auto;
+  }
+  /* Specimen / ROOT / vim gene info blocks all use the same 3-column table
+     (locus | chrom0 | chrom1 | phenome). Style them together so borg and
+     vim gene inherit the same layout + coloring popsim's inspector uses. */
+  #specimen-info, #borg-specimen-info {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  #specimen-info .k, #borg-specimen-info .k { color: var(--fg); text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #specimen-info .geno, #borg-specimen-info .geno { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.55); }
+  #specimen-info .pheno, #borg-specimen-info .pheno { color: var(--err); text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
+  #specimen-info .locus, #borg-specimen-info .locus { color: var(--fg); text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #specimen-info .note, #borg-specimen-info .note { color: #ffffff; text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
+  .hist-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  .hist {
+    border: 1px dashed var(--fg-faint);
+    padding: 0.5rem 0.6rem;
+  }
+  .hist .title {
+    color: var(--fg);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.25rem;
+  }
+  .hist canvas { display: block; image-rendering: pixelated; }
+  .hist .caption {
+    color: var(--fg-dim);
+    font-size: 0.66rem;
+    margin-top: 0.2rem;
+  }
+  .type-legend {
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+    margin-top: 0.35rem;
+    line-height: 1.5;
+  }
+  .type-legend .sw {
+    display: inline-block;
+    width: 10px; height: 10px;
+    margin: 0 0.25rem 0 0.5rem;
+    vertical-align: middle;
+    border: 1px solid var(--fg-faint);
+  }
+  .type-letters {
+    display: grid;
+    grid-template-columns: repeat(8, 32px);
+    width: 256px;
+    font-size: 0.7rem;
+    color: var(--fg);
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+  .type-letters span {
+    display: block;
+  }
+  .type-legend-table {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    column-gap: 0.5rem;
+    row-gap: 0.1rem;
+    margin-top: 0.35rem;
+    font-size: 0.68rem;
+    color: var(--fg-dim);
+    align-items: center;
+  }
+  .type-legend-table .letter {
+    color: var(--fg);
+    font-weight: bold;
+    text-align: center;
+    min-width: 0.8rem;
+  }
+  .type-legend-table .sw {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border: 1px solid var(--fg-faint);
+    margin: 0;
+    vertical-align: middle;
+  }
+  .type-legend-table .name {
+    color: var(--fg-dim);
+  }
+  .type-legend-table .pct {
+    color: var(--fg);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .footer {
+    margin-top: 1.25rem;
+    font-size: 0.68rem;
+    color: var(--fg-faint);
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+  .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+  .running {
+    display: inline-block;
+    padding: 0 0.4rem;
+    color: var(--warn);
+    border: 1px solid var(--warn);
+    letter-spacing: 0.1em;
+    font-size: 0.72rem;
+  }
+  .console {
+    margin-top: 0.6rem;
+    max-height: 8rem;
+    overflow-y: auto;
+    border: 1px dashed var(--fg-faint);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+    white-space: pre-wrap;
+    line-height: 1.4;
+  }
+  .console .ok { color: var(--fg); }
+  .console .warn { color: var(--warn); }
+  .console .err { color: var(--err); }
+
+  /* Terminal-style tab bar */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--fg-dim);
+    margin: 0 0 1rem;
+  }
+  .tab {
+    background: var(--bg);
+    color: var(--fg-dim);
+    border: 1px solid var(--fg-dim);
+    border-bottom: none;
+    padding: 0.5rem 1.1rem;
+    font-family: inherit;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    margin-right: -1px;      /* collapse adjacent borders */
+    margin-bottom: -1px;     /* sit on the strip line */
+    position: relative;
+    transition: background 0.1s, color 0.1s;
+  }
+  .tab:hover:not(.active) {
+    color: var(--fg);
+  }
+  .tab.active {
+    background: var(--bg);
+    color: var(--fg);
+    border-color: var(--fg);
+    border-bottom: 1px solid var(--bg);   /* overrides the strip's baseline */
+    box-shadow: 0 -2px 8px rgba(108,205,184,0.25);
+    z-index: 1;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Vim-gene tab */
+  #vim-specimen {
+    border: 1px solid var(--fg-dim);
+    background: #000;
+    image-rendering: pixelated;
+    display: block;
+  }
+  #vim-specimen-info {
+    margin-top: 0.6rem;
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  #vim-specimen-info .k     { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #vim-specimen-info .val   { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85); }
+  #vim-specimen-info .geno  { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.55); }
+  #vim-specimen-info .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
+  #vim-specimen-info .locus { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #vim-specimen-info .note  { color: #ffffff;     text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
+
+  /* Borg ROOT panel — same structure as popsim specimen inspector,
+     dressed in warn-gold with a shimmering border. */
+  .root-panel {
+    border-color: var(--warn) !important;
+    animation: root-shimmer 2.4s ease-in-out infinite;
+  }
+  @keyframes root-shimmer {
+    0%, 100% { box-shadow: 0 0 8px rgba(241,180,53,0.35), inset 0 0 12px rgba(241,180,53,0.05); }
+    50%      { box-shadow: 0 0 22px rgba(241,180,53,0.75), inset 0 0 20px rgba(241,180,53,0.12); }
+  }
+  .root-panel h2 {
+    border-bottom-color: var(--warn) !important;
+    color: var(--warn);
+    text-shadow: 0 0 6px rgba(241,180,53,0.7);
+  }
+  .root-panel h2 .hint { color: var(--warn); opacity: 0.75; }
+  #queen-wrap {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  #root-specimen {
+    border: 1px solid var(--warn);
+    background: #000;
+    image-rendering: pixelated;
+    box-shadow: 0 0 12px rgba(241,180,53,0.5);
+    flex: 0 0 auto;
+  }
+  /* ROOT info block — same rules as #specimen-info so the layout matches. */
+  #root-info {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  #root-info .k     { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #root-info .geno  { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.55); }
+  #root-info .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
+  #root-info .locus { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #root-info .note  { color: #ffffff;     text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
+  .queen-crown {
+    color: var(--warn);
+    text-shadow: 0 0 6px rgba(241,180,53,0.85);
+    letter-spacing: 0.1em;
+  }
+
+  .seed-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    margin: 0.5rem 0 0.9rem;
+    flex-wrap: wrap;
+  }
+  .seed-row select { flex: 1 1 auto; min-width: 8rem; }
+  .seed-row button { white-space: nowrap; }
+
+  .gene-row {
+    display: grid;
+    /* name | chrom0-primary | chrom0-num | chrom1-primary | chrom1-num | pheno-val | annot */
+    grid-template-columns: 6rem 1fr 3.5rem 1fr 3.5rem 3.5rem 7rem;
+    column-gap: 0.4rem;
+    align-items: center;
+    padding: 0.35rem 0;
+    border-bottom: 1px dashed var(--fg-faint);
+  }
+  .gene-row:last-child { border-bottom: none; }
+  .gene-row .gene-name {
+    /* Locus label: same glowing green as the specimen inspector's .locus. */
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.75);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  /* chrom0/chrom1 number inputs get the .geno gold treatment so the
+     genotype byte reads as data, not UI chrome. */
+  .gene-row input[type="number"] {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--warn);
+    text-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.55);
+    border-color: var(--warn);
+    text-align: right;
+  }
+  .gene-row select {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--warn);
+    text-shadow: 0 0 6px rgba(241,180,53,0.85);
+    border-color: var(--warn);
+  }
+  /* Phenome value: big glowing red like the specimen inspector's .pheno. */
+  .gene-row .pheno-val {
+    color: var(--err);
+    text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6);
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .gene-row .gene-annot {
+    color: var(--fg);
+    font-size: 0.72rem;
+    line-height: 1.3;
+  }
+  .gene-row .gene-annot .note {
+    color: #ffffff;
+    text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5);
+  }
+  /* Header row above the gene-rows: [chrom0] [chrom1] ---phenome---
+     styled to match the specimen inspector's headers. */
+  .gene-header {
+    display: grid;
+    grid-template-columns: 6rem 1fr 3.5rem 1fr 3.5rem 3.5rem 7rem;
+    column-gap: 0.4rem;
+    padding: 0.2rem 0 0.3rem;
+    border-bottom: 1px solid var(--fg-dim);
+    color: var(--fg);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-shadow: 0 0 6px rgba(108,205,184,0.6);
+  }
+  .gene-header .chrom-lbl {
+    grid-column: span 2;
+    text-align: center;
+  }
+  .gene-header .pheno-lbl {
+    text-align: right;
+    color: var(--fg);
+  }
+
+  /* Range slider */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 20px;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--fg-faint);
+    border: 1px solid var(--fg-dim);
+  }
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    background: var(--fg-faint);
+    border: 1px solid var(--fg-dim);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 16px;
+    background: var(--fg);
+    border: 1px solid var(--fg);
+    margin-top: -7px;
+    box-shadow: 0 0 6px rgba(108,205,184,0.6);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 10px;
+    height: 16px;
+    background: var(--fg);
+    border: 1px solid var(--fg);
+    border-radius: 0;
+    box-shadow: 0 0 6px rgba(108,205,184,0.6);
+  }
+
+  /* Hue-strip background for hue_base / hue_bound sliders */
+  .range-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  .range-wrap input[type="range"] { position: relative; z-index: 1; }
+  .range-wrap .hue-strip {
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 6px;
+    margin-top: -3px;
+    background: linear-gradient(to right,
+      hsl(0,100%,50%), hsl(45,100%,50%), hsl(90,100%,50%),
+      hsl(135,100%,50%), hsl(180,100%,50%), hsl(225,100%,50%),
+      hsl(270,100%,50%), hsl(315,100%,50%), hsl(360,100%,50%));
+    border: 1px solid var(--fg-dim);
+    opacity: 0.55;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .range-wrap .tick {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    width: 2px;
+    background: var(--warn);
+    box-shadow: 0 0 4px rgba(241,180,53,0.8);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .nibble-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: 0.4rem;
+    align-items: end;
+  }
+  .nibble-row .nibble-cell { display: flex; flex-direction: column; }
+  .nibble-row .nibble-label {
+    color: var(--fg-faint);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .nibble-row .nibble-op {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 3px;
+  }
+  .nibble-row .nibble-op-glyph {
+    color: var(--fg);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 4px rgba(108,205,184,0.5);
+    line-height: 1;
+    padding-top: 2px;
+  }
+</style>
+</head>
+<body>
+<main class="crt">
+<pre class="banner">
+ ____   ____ _____ _  _      ____    _    ____   ____ _____    ____ _____ _   _ _____ _____ ___ ____ ____
+|  _ \ / ___|___ /| || |    | __ )  / \  |  _ \ / ___| ____|  / ___| ____| \ | | ____|_   _|_ _/ ___/ ___|
+| | | | |     |_ \| || |_   |  _ \ / _ \ | | | | |  _|  _|   | |  _|  _| |  \| |  _|   | |  | | |   \___ \
+| |_| | |___ ___) |__   _|  | |_) / ___ \| |_| | |_| | |___  | |_| | |___| |\  | |___  | |  | | |___ ___) |
+|____/ \____|____/   |_|    |____/_/   \_\____/ \____|_____|  \____|_____|_| \_|_____| |_| |___\____|____/
+
+                            &lt;&lt; POPULATION GENETICS TERMINAL // v3.14 &gt;&gt;
+</pre>
+<p class="tagline">// diploid genome :: nine loci :: monte carlo evolution <span class="blink">_</span></p>
+
+<hr class="sep">
+
+<div class="tabs" role="tablist">
+  <button class="tab active" data-tab="popsim"   role="tab" aria-selected="true">popsim</button>
+  <button class="tab"        data-tab="vim-gene" role="tab" aria-selected="false">vim gene</button>
+  <button class="tab"        data-tab="borg"     role="tab" aria-selected="false">borg</button>
+</div>
+
+<div id="tab-popsim" class="tab-panel active">
+<div class="layout">
+  <div id="grid-wrap">
+    <div class="panel">
+      <h2>&gt; population field <span class="hint">10,000 individuals :: click a cell to inspect</span></h2>
+      <canvas id="grid" width="600" height="600"></canvas>
+      <div class="status" id="grid-status">[ idle ]</div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; specimen inspector <span class="hint">click any cell above</span></h2>
+      <div class="specimen-wrap">
+        <canvas id="specimen" width="120" height="120"></canvas>
+        <div id="specimen-info">[ no specimen selected ]</div>
+        <button id="btn-send-to-vim" class="send-to-vim" disabled>send to vim gene</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; allele frequency spectra</h2>
+      <div class="hist-row">
+        <div class="hist">
+          <div class="title">// BADGE-TYPE COMPOSITION</div>
+          <canvas id="hist-type" width="256" height="60"></canvas>
+          <div class="type-letters" id="type-letters"></div>
+          <div class="caption" id="type-legend"></div>
+        </div>
+        <div class="hist">
+          <div class="title">// HUE_BASE (phenotype)</div>
+          <canvas id="hist-hue" width="256" height="60"></canvas>
+          <div class="caption" id="hist-hue-cap">gap 21-31 highlighted red</div>
+        </div>
+        <div class="hist">
+          <div class="title">// SATURATION (phenotype)</div>
+          <canvas id="hist-sat" width="256" height="60"></canvas>
+          <div class="caption">additive-dominant, drifts toward 255</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CHASER (phenotype "lin")</div>
+          <canvas id="hist-chaser" width="256" height="60"></canvas>
+          <div class="caption" id="hist-chaser-cap">shooting-star variant &lt; 88 highlighted</div>
+        </div>
+        <div class="hist">
+          <div class="title">// HUE_RATEDIR (phenotype)</div>
+          <canvas id="hist-hue-ratedir" width="256" height="60"></canvas>
+          <div class="caption">hue cycle rate + direction</div>
+        </div>
+        <div class="hist">
+          <div class="title">// HUE_BOUND (phenotype)</div>
+          <canvas id="hist-hue-bound" width="256" height="60"></canvas>
+          <div class="caption">hue interval upper bound</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CD_RATE (phenotype)</div>
+          <canvas id="hist-cd-rate" width="256" height="60"></canvas>
+          <div class="caption">chaser rate</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CD_DIR (phenotype)</div>
+          <canvas id="hist-cd-dir" width="256" height="60"></canvas>
+          <div class="caption">chaser direction</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CD_PERIOD (phenotype)</div>
+          <canvas id="hist-cd-period" width="256" height="60"></canvas>
+          <div class="caption">chaser period (0-6)</div>
+        </div>
+        <div class="hist">
+          <div class="title">// NONLIN (phenotype)</div>
+          <canvas id="hist-nonlin" width="256" height="60"></canvas>
+          <div class="caption">gamma rolloff &gt; 127</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="controls-col">
+    <div class="panel">
+      <h2>&gt; control</h2>
+
+      <label>&gt; population size</label>
+      <select id="popsize">
+        <option value="2500">2,500  (50 x 50)</option>
+        <option value="10000" selected>10,000 (100 x 100)</option>
+        <option value="22500">22,500 (150 x 150)</option>
+        <option value="30000">30,000 (~DC34)</option>
+      </select>
+
+      <label>&gt; badge-type mix preset</label>
+      <select id="mix-preset">
+        <option value="defcon34" selected>DEFCON_34 (guesstimate)</option>
+        <option value="all_human">ALL_HUMAN</option>
+        <option value="no_humans">NO_HUMANS</option>
+        <option value="uber_invasion">UBER_INVASION (25%)</option>
+        <option value="goon_heavy">GOON_HEAVY (50%)</option>
+        <option value="hunt_shooting_star">HUNT_SHOOTING_STAR (Human+Uber)</option>
+        <option value="uniform">UNIFORM (12.5% each)</option>
+      </select>
+
+      <label>&gt; mutation rate</label>
+      <select id="mutation-rate">
+        <option value="Baseline" selected>Baseline    (25.0%)</option>
+        <option value="Elevated">Elevated    (39.1%)</option>
+        <option value="Radioactive">Radioactive (54.7%)</option>
+        <option value="Apocalyptic">Apocalyptic (93.8%)</option>
+      </select>
+
+      <label>&gt; nonlin phenotype expression</label>
+      <select id="nonlin-mode">
+        <option value="shipped" selected>SHIPPED (asymmetric, chaser+nonlin)</option>
+        <option value="symmetric">SYMMETRIC (nonlin+nonlin, hypothetical fix)</option>
+      </select>
+
+      <label>&gt; inbreeding pass</label>
+      <select id="inbreeding-mode">
+        <option value="on" selected>ON  (same-type = extra mutation)</option>
+        <option value="off">OFF (no assortative penalty)</option>
+      </select>
+
+      <label>&gt; badge animation</label>
+      <select id="anim-mode">
+        <option value="on" selected>ON  (chaser + hue cycle live)</option>
+        <option value="off">OFF (static frame, saves CPU)</option>
+      </select>
+
+      <label>&gt; tile style</label>
+      <select id="tile-style">
+        <option value="ring7" selected>RING_7  (7x7 face, 18-LED badge)</option>
+        <option value="packed5">PACKED_5 (stylized 5x5 fill)</option>
+      </select>
+
+      <label>&gt; rng seed</label>
+      <input type="text" id="seed-input" value="0xDC34" spellcheck="false" autocapitalize="off">
+
+      <div class="btn-row">
+        <button id="btn-reset">reset</button>
+        <button id="btn-step">step +1</button>
+        <button id="btn-step10">+10</button>
+        <button id="btn-step100">+100</button>
+        <button id="btn-run">run</button>
+        <button id="btn-pause" class="warn" disabled>pause</button>
+      </div>
+
+      <div class="status" id="main-status">[ ready ]</div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; console</h2>
+      <div class="console" id="console"></div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; notes</h2>
+      <div style="font-size:0.72rem;color:var(--fg-dim);line-height:1.55;">
+        <p style="margin:0.2rem 0;">// see
+        <a href="https://github.com/charlesreid1/dc34sim/blob/main/synthetic-population-genetics.md" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">synthetic-population-genetics.md</a> for background.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /#tab-popsim -->
+
+<div id="tab-vim-gene" class="tab-panel">
+<div class="layout">
+  <div id="vim-left">
+    <div class="panel">
+      <h2>&gt; specimen preview <span class="hint">240x240 :: live</span></h2>
+      <canvas id="vim-specimen" width="240" height="240"></canvas>
+      <div id="vim-specimen-info">[ specimen ready ]</div>
+      <label>&gt; tile style</label>
+      <select id="vim-tile-style">
+        <option value="ring7" selected>RING_7  (7x7 face, 18-LED badge)</option>
+        <option value="packed5">PACKED_5 (stylized 5x5 fill)</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="vim-right">
+    <div class="panel">
+      <h2>&gt; vim gene <span class="hint">diploid editor :: 2 x 9 bytes</span></h2>
+
+      <label>&gt; seed from</label>
+      <div class="seed-row">
+        <select id="vim-seed-type">
+          <option value="Uber">UBER</option>
+          <option value="Other">OTHER</option>
+          <option value="Community">COMMUNITY</option>
+          <option value="Village">VILLAGE</option>
+          <option value="CtfContest">CTF/CONTEST</option>
+          <option value="Human" selected>HUMAN</option>
+          <option value="Goon">GOON</option>
+          <option value="None">NONE</option>
+        </select>
+        <button id="vim-btn-randomize">randomize</button>
+        <button id="vim-btn-load-popsim" disabled>load popsim selection</button>
+        <button id="vim-btn-load-borg" disabled>load borg selection</button>
+      </div>
+
+      <div id="vim-gene-rows"></div>
+
+      <label>&gt; nonlin phenotype expression</label>
+      <select id="vim-nonlin-mode">
+        <option value="shipped" selected>SHIPPED (asymmetric, chaser+nonlin)</option>
+        <option value="symmetric">SYMMETRIC (nonlin+nonlin, hypothetical fix)</option>
+      </select>
+
+      <div class="status" id="vim-status">[ ready ]</div>
+    </div>
+  </div>
+</div>
+</div><!-- /#tab-vim-gene -->
+
+<div id="tab-borg" class="tab-panel">
+<div class="layout">
+  <div id="borg-grid-wrap">
+    <div class="panel root-panel">
+      <h2>&gt; <span class="queen-crown">ROOT</span> <span class="hint">frozen diploid :: assimilated into every mating</span></h2>
+      <div id="queen-wrap">
+        <canvas id="root-specimen" width="120" height="120"></canvas>
+        <div id="root-info">[ ROOT not initialized ]</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; population field <span class="hint">10,000 individuals :: click a cell to inspect</span></h2>
+      <canvas id="borg-grid" width="600" height="600"></canvas>
+      <div class="status" id="borg-grid-status">[ idle ]</div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; specimen inspector <span class="hint">click any cell above</span></h2>
+      <div class="specimen-wrap">
+        <canvas id="borg-specimen" width="120" height="120"></canvas>
+        <div id="borg-specimen-info">[ no specimen selected ]</div>
+        <button id="borg-btn-send-to-vim" class="send-to-vim" disabled>send to vim gene</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; allele frequency spectra</h2>
+      <div class="hist-row">
+        <div class="hist">
+          <div class="title">// BADGE-TYPE COMPOSITION</div>
+          <canvas id="borg-hist-type" width="256" height="60"></canvas>
+          <div class="type-letters" id="borg-type-letters"></div>
+          <div class="caption" id="borg-type-legend"></div>
+        </div>
+        <div class="hist">
+          <div class="title">// HUE_BASE (phenotype)</div>
+          <canvas id="borg-hist-hue" width="256" height="60"></canvas>
+          <div class="caption" id="borg-hist-hue-cap">gap 21-31 highlighted red</div>
+        </div>
+        <div class="hist">
+          <div class="title">// SATURATION (phenotype)</div>
+          <canvas id="borg-hist-sat" width="256" height="60"></canvas>
+          <div class="caption">additive-dominant, drifts toward 255</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CHASER (phenotype "lin")</div>
+          <canvas id="borg-hist-chaser" width="256" height="60"></canvas>
+          <div class="caption" id="borg-hist-chaser-cap">shooting-star variant &lt; 88 highlighted</div>
+        </div>
+        <div class="hist">
+          <div class="title">// HUE_RATEDIR (phenotype)</div>
+          <canvas id="borg-hist-hue-ratedir" width="256" height="60"></canvas>
+          <div class="caption">hue cycle rate + direction</div>
+        </div>
+        <div class="hist">
+          <div class="title">// HUE_BOUND (phenotype)</div>
+          <canvas id="borg-hist-hue-bound" width="256" height="60"></canvas>
+          <div class="caption">hue interval upper bound</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CD_RATE (phenotype)</div>
+          <canvas id="borg-hist-cd-rate" width="256" height="60"></canvas>
+          <div class="caption">chaser rate</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CD_DIR (phenotype)</div>
+          <canvas id="borg-hist-cd-dir" width="256" height="60"></canvas>
+          <div class="caption">chaser direction</div>
+        </div>
+        <div class="hist">
+          <div class="title">// CD_PERIOD (phenotype)</div>
+          <canvas id="borg-hist-cd-period" width="256" height="60"></canvas>
+          <div class="caption">chaser period (0-6)</div>
+        </div>
+        <div class="hist">
+          <div class="title">// NONLIN (phenotype)</div>
+          <canvas id="borg-hist-nonlin" width="256" height="60"></canvas>
+          <div class="caption">gamma rolloff &gt; 127</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="borg-controls-col">
+    <div class="panel">
+      <h2>&gt; control</h2>
+
+      <label>&gt; population size</label>
+      <select id="borg-popsize">
+        <option value="2500">2,500  (50 x 50)</option>
+        <option value="10000" selected>10,000 (100 x 100)</option>
+        <option value="22500">22,500 (150 x 150)</option>
+        <option value="30000">30,000 (~DC34)</option>
+      </select>
+
+      <label>&gt; badge-type mix preset</label>
+      <select id="borg-mix-preset">
+        <option value="defcon34" selected>DEFCON_34 (guesstimate)</option>
+        <option value="all_human">ALL_HUMAN</option>
+        <option value="no_humans">NO_HUMANS</option>
+        <option value="uber_invasion">UBER_INVASION (25%)</option>
+        <option value="goon_heavy">GOON_HEAVY (50%)</option>
+        <option value="hunt_shooting_star">HUNT_SHOOTING_STAR (Human+Uber)</option>
+        <option value="uniform">UNIFORM (12.5% each)</option>
+      </select>
+
+      <label>&gt; mutation rate</label>
+      <select id="borg-mutation-rate">
+        <option value="Baseline">Baseline    (25.0%)</option>
+        <option value="Elevated">Elevated    (39.1%)</option>
+        <option value="Radioactive" selected>Radioactive (54.7%)</option>
+        <option value="Apocalyptic">Apocalyptic (93.8%)</option>
+      </select>
+
+      <label>&gt; nonlin phenotype expression</label>
+      <select id="borg-nonlin-mode">
+        <option value="shipped" selected>SHIPPED (asymmetric, chaser+nonlin)</option>
+        <option value="symmetric">SYMMETRIC (nonlin+nonlin, hypothetical fix)</option>
+      </select>
+
+      <label>&gt; badge animation</label>
+      <select id="borg-anim-mode">
+        <option value="on" selected>ON  (chaser + hue cycle live)</option>
+        <option value="off">OFF (static frame, saves CPU)</option>
+      </select>
+
+      <label>&gt; tile style</label>
+      <select id="borg-tile-style">
+        <option value="ring7" selected>RING_7  (7x7 face, 18-LED badge)</option>
+        <option value="packed5">PACKED_5 (stylized 5x5 fill)</option>
+      </select>
+
+      <label>&gt; rng seed</label>
+      <input type="text" id="borg-seed-input" value="0xB4D6E" spellcheck="false" autocapitalize="off">
+
+      <div class="btn-row">
+        <button id="borg-btn-reset">reset</button>
+        <button id="borg-btn-step">step +1</button>
+        <button id="borg-btn-step10">+10</button>
+        <button id="borg-btn-step100">+100</button>
+        <button id="borg-btn-run">run</button>
+        <button id="borg-btn-pause" class="warn" disabled>pause</button>
+      </div>
+
+      <div class="status" id="borg-main-status">[ ready ]</div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; notes</h2>
+      <div style="font-size:0.72rem;color:var(--fg-dim);line-height:1.55;">
+        <p style="margin:0.2rem 0;">// see
+        <a href="https://github.com/charlesreid1/dc34sim/blob/main/synthetic-population-genetics.md" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">synthetic-population-genetics.md</a>
+        and
+        <a href="https://github.com/charlesreid1/dc34sim/blob/main/borg-genetics.md" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">borg-genetics.md</a> for background.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /#tab-borg -->
+
+<p class="footer">
+  // dc34 badge genetics :: pure browser simulation :: seeded &amp; reproducible ::
+  <a href="https://github.com/charlesreid1/dc34sim" target="_blank" rel="noopener" style="color:var(--fg-dim);text-decoration:underline;">source</a> //
+</p>
+</main>
+
+<script>
+"use strict";
+
+/* ==========================================================================
+ * CONSOLE HELPER
+ * ========================================================================== */
+const consoleEl = document.getElementById("console");
+function clog(msg, kind) {
+  const line = document.createElement("div");
+  if (kind) line.className = kind;
+  line.textContent = msg;
+  consoleEl.appendChild(line);
+  consoleEl.scrollTop = consoleEl.scrollHeight;
+}
+
+/* ==========================================================================
+ * SEEDED RNG (xoshiro128** — small, fast, good statistical properties)
+ * ========================================================================== */
+class Rng {
+  constructor(seed) { this.reseed(seed); }
+  reseed(seed) {
+    // splitmix32 to expand a single seed into 4x u32 state
+    let x = seed >>> 0;
+    const sm = () => {
+      x = (x + 0x9e3779b9) >>> 0;
+      let z = x;
+      z = Math.imul(z ^ (z >>> 16), 0x85ebca6b) >>> 0;
+      z = Math.imul(z ^ (z >>> 13), 0xc2b2ae35) >>> 0;
+      return (z ^ (z >>> 16)) >>> 0;
+    };
+    this.s0 = sm(); this.s1 = sm(); this.s2 = sm(); this.s3 = sm();
+    if ((this.s0 | this.s1 | this.s2 | this.s3) === 0) this.s0 = 1;
+  }
+  // core xoshiro128** — returns a u32
+  next() {
+    const result = (Math.imul(this._rotl(Math.imul(this.s1, 5) >>> 0, 7), 9) >>> 0);
+    const t = (this.s1 << 9) >>> 0;
+    this.s2 ^= this.s0;
+    this.s3 ^= this.s1;
+    this.s1 ^= this.s2;
+    this.s0 ^= this.s3;
+    this.s2 ^= t;
+    this.s3 = this._rotl(this.s3, 11);
+    return result >>> 0;
+  }
+  _rotl(x, k) { return ((x << k) | (x >>> (32 - k))) >>> 0; }
+  // Uniform u8
+  u8() { return this.next() & 0xff; }
+  // Uniform int in [0, n)
+  below(n) {
+    // Fast path when n divides 2^32 evenly (no bias, no rejection needed).
+    // This covers all the common cases (n=2 for coin flips, n=256 for u8s).
+    if ((n & (n - 1)) === 0) return this.next() % n;
+    // Rejection sampling for the general case. Note: keep `bound` as a plain
+    // number (not >>> 0) — for n that divides 2^32, the correct bound is
+    // 2^32, which can't be represented as a u32.
+    const bound = 0x100000000 - (0x100000000 % n);
+    let r;
+    do { r = this.next(); } while (r >= bound);
+    return r % n;
+  }
+  // Uniform int in [lo, hi] inclusive
+  rangeInclusive(lo, hi) { return lo + this.below(hi - lo + 1); }
+  // Fair coin — returns 0 or 1
+  coin() { return (this.next() & 1) | 0; }
+  // Float in [0, 1)
+  float() { return this.next() / 0x100000000; }
+}
+
+// Convert seed string ("0xDEADBEEF", "42", "hello") to u32
+function seedFromString(s) {
+  s = (s || "").trim();
+  if (/^0x[0-9a-fA-F]+$/.test(s)) return (parseInt(s.slice(2), 16) >>> 0) || 1;
+  if (/^\d+$/.test(s)) return (parseInt(s, 10) >>> 0) || 1;
+  // fnv-1a for arbitrary strings
+  let h = 0x811c9dc5 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h || 1;
+}
+
+/* ==========================================================================
+ * GENETICS CORE (ported from dc34-api/src/lib.rs)
+ * ========================================================================== */
+
+// Badge types — index matches Rust discriminant.
+const BADGE_TYPES = ["Uber","Other","Community","Village","CtfContest","Human","Goon","None"];
+const BT = Object.fromEntries(BADGE_TYPES.map((n, i) => [n, i]));
+
+// Per-type allele generation ranges (transcribed from lib.rs :102-173).
+// Each entry: [lo, hi] inclusive.
+const TYPE_RANGES = {
+  Uber:        { hue: [220,255], sat: [130,255], chaser: [0,45],   nonlin: [0,44],  cd_dir: [0,45],  cd_period_max: 3 },
+  Other:       { hue: [160,192], sat: [16,255],  chaser: [0,255],  nonlin: [0,90],  cd_dir: [0,255], cd_period_max: 6 },
+  Community:   { hue: [32,80],   sat: [32,160],  chaser: [90,255], nonlin: [0,255], cd_dir: [0,255], cd_period_max: 2 },
+  Village:     { hue: [80,128],  sat: [32,160],  chaser: [90,255], nonlin: [0,255], cd_dir: [0,45],  cd_period_max: 4 },
+  CtfContest:  { hue: [192,220], sat: [16,255],  chaser: [90,255], nonlin: [0,90],  cd_dir: [0,255], cd_period_max: 6 },
+  Human:       { hue: [128,160], sat: [32,255],  chaser: [90,255], nonlin: [0,255], cd_dir: [0,255], cd_period_max: 5 },
+  Goon:        { hue: [0,20],    sat: [160,255], chaser: [90,255], nonlin: [0,255], cd_dir: [0,255], cd_period_max: 4 },
+  None:        { hue: [128,160], sat: [32,255],  chaser: [90,255], nonlin: [0,255], cd_dir: [0,255], cd_period_max: 4 },
+};
+
+// Locus indices — the order matches Rust struct layout.
+const L = { cd_period:0, cd_rate:1, cd_dir:2, sat:3, hue_ratedir:4, hue_base:5, hue_bound:6, chaser:7, nonlin:8 };
+const N_LOCI = 9;
+
+// Meiosis linkage groups (see synthetic-population-genetics.md §3):
+const GROUPS = [[0,1,2], [3], [4,5,6], [7], [8]];
+
+// Mutation rate values (u8, from lib.rs :178-184)
+const RATE_VALUE = { None:0, Baseline:64, Elevated:100, Radioactive:140, Apocalyptic:240 };
+// Mutation bit-change masks (from lib.rs :196-205)
+const RATE_BITS  = { None:0, Baseline:0x01, Elevated:0x03, Radioactive:0x07, Apocalyptic:0x1F };
+
+// Gray-code LUTs
+const GRAY_ENC = new Uint8Array(256);
+const GRAY_DEC = new Uint8Array(256);
+(function initGray() {
+  for (let n = 0; n < 256; n++) GRAY_ENC[n] = (n ^ (n >> 1)) & 0xff;
+  for (let n = 0; n < 256; n++) GRAY_DEC[GRAY_ENC[n]] = n;
+})();
+
+// Create a fresh Haploid for a given badge type. Writes into `out` at `off..off+9`.
+function haploidFromType(out, off, typeIdx, rng) {
+  const t = BADGE_TYPES[typeIdx];
+  const r = TYPE_RANGES[t];
+  out[off + L.cd_period]   = rng.rangeInclusive(0, r.cd_period_max);
+  out[off + L.cd_rate]     = rng.u8();
+  out[off + L.cd_dir]      = rng.rangeInclusive(r.cd_dir[0], r.cd_dir[1]);
+  out[off + L.sat]         = rng.rangeInclusive(r.sat[0], r.sat[1]);
+  out[off + L.hue_ratedir] = rng.u8();
+  let hbase = rng.rangeInclusive(r.hue[0], r.hue[1]);
+  if (typeIdx === BT.Goon) hbase = 0;  // Goon override
+  out[off + L.hue_base]    = hbase;
+  const hboundLo = hbase;
+  let hbound = rng.rangeInclusive(hboundLo, r.hue[1]);
+  if (typeIdx === BT.Uber) hbound = 255;  // Uber override
+  out[off + L.hue_bound]   = hbound;
+  out[off + L.chaser]      = rng.rangeInclusive(r.chaser[0], r.chaser[1]);
+  out[off + L.nonlin]      = rng.rangeInclusive(r.nonlin[0], r.nonlin[1]);
+}
+
+// Meiosis: from a diploid (2*9 bytes at parentOff) pick one haploid gamete
+// according to the 5 linkage groups. Writes to `out` at `outOff..outOff+9`.
+function meiosis(pop, parentOff, out, outOff, rng) {
+  for (let g = 0; g < GROUPS.length; g++) {
+    const pick = rng.coin();               // 0 or 1
+    const chromOff = parentOff + pick * N_LOCI;
+    const loci = GROUPS[g];
+    for (let i = 0; i < loci.length; i++) {
+      const li = loci[i];
+      out[outOff + li] = pop[chromOff + li];
+    }
+  }
+}
+
+// Mutation: per-locus Bernoulli + Gray-code bit flip. Modifies `gam` in place.
+function mutate(gam, off, rateName, rng) {
+  const val = RATE_VALUE[rateName];
+  if (val === 0) return;
+  const bits = RATE_BITS[rateName];
+  for (let li = 0; li < N_LOCI; li++) {
+    // Bernoulli: roll a u8, compare < val.
+    if (rng.u8() < val) {
+      const shift = rng.below(8);
+      const mask = (bits << shift) & 0xff;   // matches Rust u8 truncation
+      const enc  = GRAY_ENC[gam[off + li]];
+      const flipped = (enc ^ mask) & 0xff;
+      let newVal = GRAY_DEC[flipped];
+      if (li === L.cd_period) newVal = newVal % 7;   // post-process
+      gam[off + li] = newVal;
+    }
+  }
+}
+
+// Phenotype: express diploid (2*9 bytes at off) into a haploid phenotype (9 bytes)
+// written to `out` at outOff..outOff+9. `nonlinMode` = "shipped" or "symmetric".
+function phenotype(pop, off, out, outOff, nonlinMode) {
+  const a0 = off, b0 = off + N_LOCI;
+  const a_cdp = pop[a0 + L.cd_period], b_cdp = pop[b0 + L.cd_period];
+  const a_cdr = pop[a0 + L.cd_rate],   b_cdr = pop[b0 + L.cd_rate];
+  const a_cdd = pop[a0 + L.cd_dir],    b_cdd = pop[b0 + L.cd_dir];
+  const a_sat = pop[a0 + L.sat],       b_sat = pop[b0 + L.sat];
+  const a_hrd = pop[a0 + L.hue_ratedir], b_hrd = pop[b0 + L.hue_ratedir];
+  const a_hb  = pop[a0 + L.hue_base],  b_hb  = pop[b0 + L.hue_base];
+  const a_hbd = pop[a0 + L.hue_bound], b_hbd = pop[b0 + L.hue_bound];
+  const a_ch  = pop[a0 + L.chaser],    b_ch  = pop[b0 + L.chaser];
+  const a_nl  = pop[a0 + L.nonlin],    b_nl  = pop[b0 + L.nonlin];
+
+  const sat_add = (x, y) => (x + y > 255 ? 255 : (x + y) & 0xff);
+
+  out[outOff + L.cd_period]   = Math.min(6, ((a_cdp + b_cdp) >> 1));
+  out[outOff + L.cd_rate]     = ((a_cdr + b_cdr) >> 1) & 0xff;
+  out[outOff + L.cd_dir]      = sat_add(a_cdd, b_cdd);
+  out[outOff + L.sat]         = sat_add(a_sat, b_sat);
+  const hrSum = Math.min(14, a_hrd + b_hrd);
+  out[outOff + L.hue_ratedir] = ((2 + (14 - hrSum)) % 14) & 0xff;
+  const hb = Math.min(a_hb, b_hb);
+  let hbd = Math.max(a_hbd, b_hbd);
+  if (hbd < hb) hbd = hb;
+  out[outOff + L.hue_base]    = hb;
+  out[outOff + L.hue_bound]   = hbd;
+  out[outOff + L.chaser]      = sat_add(a_ch, b_ch);
+  // Asymmetric nonlin — this is the shipped code (see lib.rs :342, white-paper).
+  if (nonlinMode === "symmetric") {
+    out[outOff + L.nonlin]    = sat_add(a_nl, b_nl);
+  } else {
+    out[outOff + L.nonlin]    = sat_add(a_ch, b_nl);  // slot0.chaser + slot1.nonlin
+  }
+}
+
+/* ==========================================================================
+ * POPULATION
+ * ========================================================================== */
+class Population {
+  constructor(N, seed, params) {
+    this.N = N;
+    this.rng = new Rng(seed);
+    this.seed = seed;
+    this.params = params;         // { mutationRate, nonlinMode, inbreedingMode, mix }
+    this.generation = 0;
+    this.pop = new Uint8Array(N * 2 * N_LOCI);     // diploid genome
+    this.types = new Uint8Array(N);                 // badge type per individual
+    this.pheno = new Uint8Array(N * N_LOCI);        // cached phenotype
+    // Scratch buffers for a mating pass — avoid allocating each generation.
+    this._sperm = new Uint8Array(N_LOCI);
+    this._egg   = new Uint8Array(N_LOCI);
+    this._nextPop = new Uint8Array(N * 2 * N_LOCI);
+    this._nextTypes = new Uint8Array(N);
+    this._order = new Uint32Array(N);
+    this._init();
+  }
+
+  _init() {
+    // Assign badge types by weighted sampling from the mix.
+    const mix = this.params.mix; // { typeName: fraction, ... }
+    const cum = [];
+    let acc = 0;
+    for (const n of BADGE_TYPES) {
+      acc += (mix[n] || 0);
+      cum.push([n, acc]);
+    }
+    if (acc <= 0) throw new Error("badge-type mix sums to zero");
+    for (let i = 0; i < this.N; i++) {
+      const r = this.rng.float() * acc;
+      let ti = 0;
+      while (ti < cum.length - 1 && r >= cum[ti][1]) ti++;
+      this.types[i] = BT[cum[ti][0]];
+    }
+    // Generate two haploid chromosomes per individual.
+    for (let i = 0; i < this.N; i++) {
+      const t = this.types[i];
+      haploidFromType(this.pop, i * 2 * N_LOCI,             t, this.rng);
+      haploidFromType(this.pop, i * 2 * N_LOCI + N_LOCI,    t, this.rng);
+    }
+    this._computePhenotypes();
+  }
+
+  _computePhenotypes() {
+    for (let i = 0; i < this.N; i++) {
+      phenotype(this.pop, i * 2 * N_LOCI, this.pheno, i * N_LOCI, this.params.nonlinMode);
+    }
+  }
+
+  // Fisher-Yates shuffle of _order using the seeded RNG.
+  _shuffleOrder() {
+    const ord = this._order;
+    for (let i = 0; i < this.N; i++) ord[i] = i;
+    for (let i = this.N - 1; i > 0; i--) {
+      const j = this.rng.below(i + 1);
+      const t = ord[i]; ord[i] = ord[j]; ord[j] = t;
+    }
+  }
+
+  // Advance one generation of panmictic random mating.
+  step() {
+    this._shuffleOrder();
+    const inbreedOn = this.params.inbreedingMode === "on";
+    const baseRate = this.params.mutationRate;
+
+    for (let k = 0; k < this.N; k += 2) {
+      const iA = this._order[k];
+      const iB = (k + 1 < this.N) ? this._order[k + 1] : this._order[0];
+
+      // Two matings per pair: A produces child in A's slot, B produces child in B's slot.
+      // A is the recipient (egg = from A), B is the donor (sperm = from B).
+      this._mate(iA, iB, baseRate, inbreedOn);
+      // Symmetric second mating so both individuals leave one offspring.
+      this._mate(iB, iA, baseRate, inbreedOn);
+    }
+
+    // Swap buffers
+    const tp = this.pop; this.pop = this._nextPop; this._nextPop = tp;
+    const tt = this.types; this.types = this._nextTypes; this._nextTypes = tt;
+
+    this._computePhenotypes();
+    this.generation++;
+  }
+
+  _mate(eggIdx, spermIdx, baseRate, inbreedOn) {
+    const eggType = this.types[eggIdx];
+    const spermType = this.types[spermIdx];
+    const inbreeding = inbreedOn && (eggType === spermType);
+    // Rate elevation for inbreeding — Human floor is Elevated, others Baseline.
+    let effectiveRate = baseRate;
+    if (inbreeding) {
+      const floor = (eggType === BT.Human) ? "Elevated" : "Baseline";
+      effectiveRate = maxRate(baseRate, floor);
+    }
+
+    // Donor makes a sperm and mutates it with baseRate (the "final_rate" locked at
+    // exchange time in the shipped badge).
+    meiosis(this.pop, spermIdx * 2 * N_LOCI, this._sperm, 0, this.rng);
+    mutate(this._sperm, 0, baseRate, this.rng);
+    if (inbreeding) {
+      // Extra mutation pass on sperm from the recipient side.
+      mutate(this._sperm, 0, effectiveRate, this.rng);
+    }
+
+    // Recipient makes an egg and mutates it (with elevated rate if inbreeding).
+    meiosis(this.pop, eggIdx * 2 * N_LOCI, this._egg, 0, this.rng);
+    mutate(this._egg, 0, effectiveRate, this.rng);
+
+    // Child inherits egg parent's badge type (recipient identity).
+    // In the shipped badge, badge_type is a hardware property, not inherited genetically.
+    // We keep the recipient's type — same as "child stays in the mother's demographic".
+    const childOff = eggIdx * 2 * N_LOCI;
+    // slot 0 = egg (recipient), slot 1 = sperm (donor) — matches replace_gene() order.
+    for (let li = 0; li < N_LOCI; li++) {
+      this._nextPop[childOff + li]            = this._egg[li];
+      this._nextPop[childOff + N_LOCI + li]   = this._sperm[li];
+    }
+    this._nextTypes[eggIdx] = eggType;
+  }
+}
+
+function maxRate(a, b) {
+  return RATE_VALUE[a] >= RATE_VALUE[b] ? a : b;
+}
+
+/* Borg variant: ROOT is a fixed diploid queen. Every mating fertilizes a
+ * drone egg with a fresh meiotic gamete drawn from the queen. The queen's
+ * diploid itself never changes across generations. This mirrors real
+ * haplodiploid biology: the queen stays diploid; only her gametes vary. */
+class BorgPopulation extends Population {
+  constructor(N, seed, params) {
+    super(N, seed, params);
+    if (!params.rootDiploid || params.rootDiploid.length !== 2 * N_LOCI) {
+      throw new Error("BorgPopulation requires params.rootDiploid (2*9 bytes)");
+    }
+    // Immutable copy — the caller must never mutate this after handoff.
+    this.rootDiploid = new Uint8Array(params.rootDiploid);
+  }
+
+  step() {
+    const baseRate = this.params.mutationRate;
+    for (let i = 0; i < this.N; i++) {
+      // Egg: drone's own meiotic gamete, mutated.
+      meiosis(this.pop, i * 2 * N_LOCI, this._egg, 0, this.rng);
+      mutate(this._egg, 0, baseRate, this.rng);
+
+      // Sperm: fresh meiotic gamete from the fixed ROOT diploid. Not mutated —
+      // the queen genes remain untouched across generations; only meiotic
+      // reshuffling of her two strands introduces per-mating variability.
+      meiosis(this.rootDiploid, 0, this._sperm, 0, this.rng);
+
+      const childOff = i * 2 * N_LOCI;
+      for (let li = 0; li < N_LOCI; li++) {
+        this._nextPop[childOff + li]          = this._egg[li];
+        this._nextPop[childOff + N_LOCI + li] = this._sperm[li];
+      }
+      this._nextTypes[i] = this.types[i];
+    }
+    const tp = this.pop; this.pop = this._nextPop; this._nextPop = tp;
+    const tt = this.types; this.types = this._nextTypes; this._nextTypes = tt;
+    this._computePhenotypes();
+    this.generation++;
+  }
+}
+
+/* ==========================================================================
+ * BADGE TYPE MIX PRESETS
+ * ========================================================================== */
+const MIX_PRESETS = {
+  defcon34: { Human:0.70, Goon:0.08, Village:0.06, Community:0.06, Other:0.04, CtfContest:0.04, Uber:0.01, None:0.01 },
+  all_human: { Human:1.0 },
+  no_humans: { Goon:0.20, Village:0.20, Community:0.20, Other:0.15, CtfContest:0.15, Uber:0.05, None:0.05 },
+  uber_invasion: { Human:0.55, Goon:0.05, Village:0.05, Community:0.05, Other:0.03, CtfContest:0.02, Uber:0.25, None:0 },
+  goon_heavy: { Human:0.35, Goon:0.50, Village:0.03, Community:0.03, Other:0.03, CtfContest:0.03, Uber:0.02, None:0.01 },
+  // The white-paper hypothesis population: Humans doing selective breeding against Uber donors
+  // to try to fix a low-chaser allele. Heavy Human bias, elevated Uber presence, no other types.
+  hunt_shooting_star: { Human:0.80, Uber:0.20 },
+  uniform: { Uber:0.125, Other:0.125, Community:0.125, Village:0.125, CtfContest:0.125, Human:0.125, Goon:0.125, None:0.125 },
+};
+
+// Approximate representative RGB per badge type for the legend & histogram (uses
+// midpoint of native hue range, high sat, mid brightness).
+function typeSwatchColor(typeIdx) {
+  const t = BADGE_TYPES[typeIdx];
+  const r = TYPE_RANGES[t];
+  const h = ((r.hue[0] + r.hue[1]) >> 1);
+  return hsv255ToCss(h, 220, 200);
+}
+
+/* ==========================================================================
+ * COLOR HELPERS
+ * ========================================================================== */
+// Convert HSV where H, S, V are all 0..255 -> [r,g,b] 0..255.
+function hsv255(h, s, v, out, outOff) {
+  const S = s / 255, V = v / 255;
+  const H = (h / 255) * 6;
+  const i = Math.floor(H) % 6;
+  const f = H - Math.floor(H);
+  const p = V * (1 - S);
+  const q = V * (1 - f * S);
+  const t = V * (1 - (1 - f) * S);
+  let R, G, B;
+  switch (i) {
+    case 0: R = V; G = t; B = p; break;
+    case 1: R = q; G = V; B = p; break;
+    case 2: R = p; G = V; B = t; break;
+    case 3: R = p; G = q; B = V; break;
+    case 4: R = t; G = p; B = V; break;
+    default: R = V; G = p; B = q; break;
+  }
+  out[outOff]     = (R * 255) | 0;
+  out[outOff + 1] = (G * 255) | 0;
+  out[outOff + 2] = (B * 255) | 0;
+}
+function hsv255ToCss(h, s, v) {
+  const tmp = [0, 0, 0];
+  hsv255(h, s, v, tmp, 0);
+  return `rgb(${tmp[0]},${tmp[1]},${tmp[2]})`;
+}
+
+/* ==========================================================================
+ * RENDERER
+ * ========================================================================== */
+// Tile-style geometry. Each style names an M x M face with a ring of body LEDs
+// around the perimeter and (for the RING styles) two eye pixels in the center.
+// PACKED_5 is the original stylized 5x5 fill — not faithful to hardware, but
+// visually the richest tile at population scale.
+const TILE_STYLES = {
+  // 18-LED badge variant: 2 eyes + 16 body LEDs around a 7x7 face.
+  ring7: (function build() {
+    const M = 7;
+    // Full 24-position perimeter, thinned to 16 by dropping alternating cells
+    // on each edge so bands read smoothly. Cw from top-left.
+    const ring = [
+      [1,0], [2,0], [4,0], [5,0],      // top edge
+      [6,1], [6,2], [6,4], [6,5],      // right edge
+      [5,6], [4,6], [2,6], [1,6],      // bottom edge (right-to-left)
+      [0,5], [0,4], [0,2], [0,1],      // left edge (bottom-to-top)
+    ];
+    // Two eyes at row 3, cols 2 and 4 (center of face).
+    const eyeL = [2, 3], eyeR = [4, 3];
+    return { kind: "ring", M, cellPx: M + 1, ring, ringN: ring.length, eyeL, eyeR };
+  })(),
+  // Stylized fill — no eyes, chaser walks the 25-pixel row-major sweep. Original.
+  packed5: { kind: "packed", M: 5, cellPx: 6 },
+};
+
+/* A "view" bundles all the per-tab UI state (canvas, geometry, selection,
+ * population, style) so the same render code can serve popsim and borg. */
+function makeView(ids) {
+  const grid = document.getElementById(ids.grid);
+  const gctx = grid.getContext("2d", { alpha: false });
+  const specCanvas = document.getElementById(ids.specimen);
+  const specCtx = specCanvas.getContext("2d", { alpha: false });
+  return {
+    ids,
+    pop: null,
+    style: TILE_STYLES.ring7,
+    grid, gctx,
+    specCanvas, specCtx,
+    specInfo: document.getElementById(ids.specimenInfo),
+    mainStatus: document.getElementById(ids.mainStatus),
+    gridStatus: document.getElementById(ids.gridStatus),
+    console: ids.console ? document.getElementById(ids.console) : null,
+    gridW: 100, gridH: 100,
+    selectedIdx: -1,
+    prevHiliteIdx: -1,
+    frameImg: null, frameData: null,
+    renderDirty: true,
+    running: false,
+  };
+}
+
+function resizeGrid(view, N) {
+  const side = Math.ceil(Math.sqrt(N));
+  view.gridW = side;
+  view.gridH = Math.ceil(N / side);
+  view.grid.width  = view.gridW * view.style.cellPx;
+  view.grid.height = view.gridH * view.style.cellPx;
+  view.frameImg = null;
+}
+
+// Compute the "loop state" — the badge's C renderer runs on a 0..511 clock that
+// wraps every ~5s. We derive the same from wall-clock so animation cadence is
+// consistent across tiles.
+function loopState(tSec) {
+  return Math.floor(tSec * 100) & 0x1ff;
+}
+
+// Shared per-individual precomputation used by ring paint functions.
+// Returns null when the tile has no visible LEDs (currently always non-null).
+function precomputeCell(pheno, off, tSec) {
+  const cd_period   = pheno[off + L.cd_period];
+  const cd_rate     = pheno[off + L.cd_rate];
+  const cd_dir      = pheno[off + L.cd_dir];
+  const sat         = pheno[off + L.sat];
+  const hue_ratedir = pheno[off + L.hue_ratedir];
+  const hue_base    = pheno[off + L.hue_base];
+  const hue_bound   = pheno[off + L.hue_bound];
+  const chaser      = pheno[off + L.chaser];
+  const nonlin      = pheno[off + L.nonlin];
+  return { cd_period, cd_rate, cd_dir, sat, hue_ratedir, hue_base, hue_bound, chaser, nonlin };
+}
+
+// Paint one RING tile at (cellX, cellY) using the badge's C-renderer math.
+// `style` is a TILE_STYLES entry with kind==="ring". Writes into frameData.
+const _rgb = [0, 0, 0];
+function paintRingTile(style, g, cellX, cellY, tSec, frameData, width) {
+  const M = style.M;
+  const ring = style.ring;
+  const nBody = style.ringN;
+  const loop = loopState(tSec);
+
+  // Hue rate/direction from the low nibble / high nibble, matching main.c :258-259.
+  const hue_rate = g.hue_ratedir & 0xf;
+  const hue_dir  = ((g.hue_ratedir >> 4) & 0xf) > 10 ? 1 : 0;
+
+  // tau = map(cd_rate, 0..255, 60..700). indextime not needed — we drive time from tSec.
+  const tau = 60 + (g.cd_rate / 255) * 640;
+  const timePhase = (tSec / (tau / 100)) * 2 * Math.PI;
+
+  const halfN = nBody / 2;
+  const isShootingStar = g.chaser < 88;
+  // Shooting-star index — walks the ring like main.c's `shoot = (loop/2) % (count - LED_OFFSET)`.
+  const shootIdx = Math.floor(loop / 2) % nBody;
+
+  // Compute each body-LED color, and stash the ring[0] and ring[halfN] colors
+  // for eye mirroring after the loop.
+  let leftEyeRgb = null, rightEyeRgb = null;
+
+  for (let bi = 0; bi < nBody; bi++) {
+    // hue_temp: triangular wave over 0..511, folds to 0..255 (main.c :266-280).
+    let hueTemp;
+    const base = Math.floor(128 / (nBody / 2)) * bi;
+    if (!hue_dir) hueTemp = (base + loop * hue_rate) & 0x1ff;
+    else          hueTemp = (base - loop * hue_rate) & 0x1ff;
+    if (hueTemp > 0xff) hueTemp = 511 - hueTemp;
+    // Map hue_temp into [hue_base, hue_bound] linearly (main.c :282-283).
+    const hueSpan = g.hue_bound - g.hue_base;
+    const h = (g.hue_base + (hueTemp * hueSpan) / 255) & 0xff;
+
+    // Brightness: v = 127 * (1 + cos(space +/- time)).
+    const space = 2 * Math.PI * g.cd_period * (bi / Math.max(1, nBody - 1));
+    const st = (g.cd_dir > 128) ? (space + timePhase) : (space - timePhase);
+    let v = 127 * (1 + Math.cos(st));
+    // Nonlin gamma (main.c :330-332).
+    if (g.nonlin > 127) v = (v * v) / 255;
+    v = v | 0;
+    if (v < 0) v = 0; else if (v > 255) v = 255;
+
+    // Compute rgb for this body pixel.
+    hsv255(h, g.sat, v, _rgb, 0);
+    let r = _rgb[0], gc = _rgb[1], b = _rgb[2];
+
+    // Shooting-star override: bright white head at shootIdx (main.c :337-341).
+    if (isShootingStar && shootIdx === bi) {
+      r = 160; gc = 160; b = 160;
+    }
+
+    // Paint the ring pixel into the tile.
+    const [rx, ry] = ring[bi];
+    const dstOff = ((cellY + ry) * width + (cellX + rx)) * 4;
+    frameData[dstOff] = r; frameData[dstOff + 1] = gc; frameData[dstOff + 2] = b;
+
+    // Capture eye source colors from endpoints (main.c :359-364).
+    if (bi === 0)     leftEyeRgb  = [r, gc, b];
+    if (bi === halfN) rightEyeRgb = [r, gc, b];
+  }
+
+  // Eyes.
+  let elR, elG, elB, erR, erG, erB;
+  if (isShootingStar) {
+    // Winking eyes: whichever side the shooter is on lights up white (main.c :343-357).
+    if (shootIdx < halfN) {
+      elR = elG = elB = 192; erR = erG = erB = 0;
+    } else {
+      elR = elG = elB = 0;   erR = erG = erB = 192;
+    }
+  } else {
+    // Endpoint-mirror: eyes take ring[0] and ring[halfN] colors.
+    elR = leftEyeRgb[0];  elG = leftEyeRgb[1];  elB = leftEyeRgb[2];
+    erR = rightEyeRgb[0]; erG = rightEyeRgb[1]; erB = rightEyeRgb[2];
+  }
+  const [elx, ely] = style.eyeL;
+  const [erx, ery] = style.eyeR;
+  let eo = ((cellY + ely) * width + (cellX + elx)) * 4;
+  frameData[eo] = elR; frameData[eo + 1] = elG; frameData[eo + 2] = elB;
+  eo = ((cellY + ery) * width + (cellX + erx)) * 4;
+  frameData[eo] = erR; frameData[eo + 1] = erG; frameData[eo + 2] = erB;
+}
+
+// Paint one PACKED_5 tile — original stylized 5x5 fill, not badge-accurate.
+function paintPackedTile(g, cellX, cellY, tSec, frameData, width) {
+  const M = 5;
+  const cellArea = M * M;
+
+  const hrVel = (g.hue_ratedir - 6);
+  const hueShift = Math.floor((tSec * hrVel * 4)) & 0xff;
+  const hueMid = (g.hue_base + g.hue_bound) >> 1;
+  const baseHue = (hueMid + hueShift) & 0xff;
+
+  let gammaFactor = 1.0;
+  if (g.nonlin > 127) gammaFactor = 1 + (g.nonlin - 127) / 128 * 1.5;
+
+  const isShootingStar = g.chaser < 88;
+  const speed = isShootingStar ? 6 + (g.cd_rate / 255) * 20 : 1 + (g.cd_rate / 255) * 6;
+  const dir = (g.cd_dir > 127) ? 1 : -1;
+  let chaserPos = ((tSec * speed) % cellArea + cellArea) % cellArea;
+  if (dir < 0) chaserPos = cellArea - 1 - chaserPos;
+
+  const periods = g.cd_period;
+
+  for (let cy = 0; cy < M; cy++) {
+    for (let cx = 0; cx < M; cx++) {
+      const dstOff = ((cellY + cy) * width + (cellX + cx)) * 4;
+
+      let pxHue = baseHue;
+      if (periods > 0) {
+        const span = (g.hue_bound - g.hue_base + 256) & 0xff;
+        const local = (cx + cy) / (M * 2);
+        const bandPhase = (local * periods + tSec * (g.cd_rate / 128)) % 1;
+        pxHue = (g.hue_base + Math.floor(bandPhase * span) + hueShift) & 0xff;
+      }
+
+      let v = 150 / 255;
+      v = Math.pow(v, gammaFactor);
+
+      const pixIdx = cy * M + cx;
+      if (isShootingStar) {
+        const dist = ((pixIdx - chaserPos + cellArea) % cellArea);
+        if (dist < 1) v = 1.0;
+        else if (dist < 3) v = Math.max(v, 1.0 - dist * 0.25);
+      } else {
+        if (Math.abs(pixIdx - chaserPos) < 0.9) v = 1.0;
+      }
+
+      hsv255(pxHue, g.sat, Math.min(255, (v * 255) | 0), _rgb, 0);
+      frameData[dstOff]     = _rgb[0];
+      frameData[dstOff + 1] = _rgb[1];
+      frameData[dstOff + 2] = _rgb[2];
+    }
+  }
+}
+
+// One frame of the animation for `view`. `t` is a shared clock (ms).
+function renderFrame(view, t) {
+  const pop = view.pop;
+  if (!pop) return;
+  const N = pop.N;
+  const style = view.style;
+  const cellPx = style.cellPx;
+  const M = style.M;
+  const grid = view.grid, gctx = view.gctx;
+  const gridW = view.gridW;
+
+  if (!view.frameImg || view.frameImg.width !== grid.width || view.frameImg.height !== grid.height) {
+    view.frameImg = gctx.createImageData(grid.width, grid.height);
+    view.frameData = view.frameImg.data;
+    const frameData = view.frameData;
+    for (let i = 3; i < frameData.length; i += 4) frameData[i] = 255;
+    for (let i = 0; i < frameData.length; i += 4) {
+      frameData[i] = 0; frameData[i+1] = 0; frameData[i+2] = 0;
+    }
+  }
+  const frameData = view.frameData;
+
+  // Erase the previous selection outline (which sits in the gutter and would
+  // otherwise linger, since ring paints don't overwrite gutter pixels).
+  if (view.prevHiliteIdx >= 0) {
+    const gx = view.prevHiliteIdx % gridW;
+    const gy = (view.prevHiliteIdx / gridW) | 0;
+    const x0 = gx * cellPx;
+    const y0 = gy * cellPx;
+    const clearHilite = (x, y) => {
+      if (x < 0 || y < 0 || x >= grid.width || y >= grid.height) return;
+      const o = (y * grid.width + x) * 4;
+      frameData[o] = 0; frameData[o+1] = 0; frameData[o+2] = 0;
+    };
+    for (let d = 0; d < M; d++) {
+      clearHilite(x0 + d, y0 - 1);
+      clearHilite(x0 + d, y0 + M);
+      clearHilite(x0 - 1, y0 + d);
+      clearHilite(x0 + M, y0 + d);
+    }
+  }
+
+  const pheno = pop.pheno;
+  const width = grid.width;
+  const tSec = t / 1000;
+
+  for (let i = 0; i < N; i++) {
+    const gx = i % gridW;
+    const gy = (i / gridW) | 0;
+    const cellX = gx * cellPx;
+    const cellY = gy * cellPx;
+    const g = precomputeCell(pheno, i * N_LOCI, tSec);
+    if (style.kind === "ring") paintRingTile(style, g, cellX, cellY, tSec, frameData, width);
+    else                       paintPackedTile(g,   cellX, cellY, tSec, frameData, width);
+  }
+
+  // Selected-specimen green highlight in the gutter around the tile.
+  if (view.selectedIdx >= 0 && view.selectedIdx < pop.N) {
+    const gx = view.selectedIdx % gridW;
+    const gy = (view.selectedIdx / gridW) | 0;
+    const x0 = gx * cellPx;
+    const y0 = gy * cellPx;
+    const drawHilite = (x, y) => {
+      if (x < 0 || y < 0 || x >= grid.width || y >= grid.height) return;
+      const o = (y * grid.width + x) * 4;
+      frameData[o] = 108; frameData[o+1] = 205; frameData[o+2] = 184;
+    };
+    for (let d = 0; d < M; d++) {
+      drawHilite(x0 + d, y0 - 1);
+      drawHilite(x0 + d, y0 + M);
+      drawHilite(x0 - 1, y0 + d);
+      drawHilite(x0 + M, y0 + d);
+    }
+    view.prevHiliteIdx = view.selectedIdx;
+  } else {
+    view.prevHiliteIdx = -1;
+  }
+
+  gctx.putImageData(view.frameImg, 0, 0);
+}
+
+/* ==========================================================================
+ * SPECIMEN VIEW
+ * ========================================================================== */
+function renderSpecimen(view, t) {
+  const pop = view.pop;
+  const specCanvas = view.specCanvas, specCtx = view.specCtx, specInfo = view.specInfo;
+  if (view.selectedIdx < 0 || !pop) {
+    specCtx.fillStyle = "#000";
+    specCtx.fillRect(0, 0, specCanvas.width, specCanvas.height);
+    specInfo.textContent = "[ no specimen selected ]";
+    return;
+  }
+  const i = view.selectedIdx;
+  const pheno = pop.pheno;
+  const off = i * N_LOCI;
+  const style = view.style;
+  const M = style.M;
+
+  const width = specCanvas.width, height = specCanvas.height;
+  const scale = Math.floor(width / M);
+
+  const img = specCtx.createImageData(width, height);
+  const data = img.data;
+  for (let k = 3; k < data.length; k += 4) data[k] = 255;
+  for (let k = 0; k < data.length; k += 4) { data[k] = 0; data[k+1] = 0; data[k+2] = 0; }
+
+  const tSec = t / 1000;
+  const g = precomputeCell(pheno, off, tSec);
+
+  const scratch = new Uint8ClampedArray(M * M * 4);
+  if (style.kind === "ring") paintRingTile(style, g, 0, 0, tSec, scratch, M);
+  else                       paintPackedTile(g,   0, 0, tSec, scratch, M);
+
+  for (let cy = 0; cy < M; cy++) {
+    for (let cx = 0; cx < M; cx++) {
+      const so = (cy * M + cx) * 4;
+      const r = scratch[so], gc = scratch[so+1], b = scratch[so+2];
+      for (let sy = 0; sy < scale; sy++) {
+        for (let sx = 0; sx < scale; sx++) {
+          const px = cx * scale + sx;
+          const py = cy * scale + sy;
+          const o = (py * width + px) * 4;
+          data[o] = r; data[o+1] = gc; data[o+2] = b;
+        }
+      }
+    }
+  }
+  specCtx.putImageData(img, 0, 0);
+
+  const chaser = g.chaser, nonlin = g.nonlin;
+  const type = BADGE_TYPES[pop.types[i]];
+  const off2 = i * 2 * N_LOCI;
+  const locusNames = ["cd_period","cd_rate","cd_dir","sat","hue_ratedir","hue_base","hue_bound","chaser","nonlin"];
+  const nameW = Math.max(...locusNames.map(n => n.length));
+  const chromLbl0 = "[chrom0]";
+  const chromLbl1 = "[chrom1]";
+  const phenoHdr  = "---phenome---";
+  const chromW = chromLbl0.length;
+  const phenoW = phenoHdr.length;
+  const gap = "  ";
+  const phenoMid = Math.floor(phenoW / 2);
+  const chromCell = (slot, name) => {
+    const raw = pop.pop[off2 + slot * N_LOCI + L[name]].toString();
+    const padded = raw.padStart(chromW);
+    return `<span class="geno">${padded}</span>`;
+  };
+  const phenoShift = 4;
+  const phenoCell = (name) => {
+    const raw = pheno[off + L[name]].toString();
+    const left  = " ".repeat(Math.max(0, phenoMid + 1 + phenoShift - raw.length));
+    const right = " ".repeat(Math.max(0, phenoW + phenoShift - left.length - raw.length));
+    return left + `<span class="pheno">${raw}</span>` + right;
+  };
+  const annot = (name) => {
+    if (name === "chaser" && chaser < 88) return gap + `<span class="note">&lt;&lt; shooting-star</span>`;
+    if (name === "nonlin" && nonlin > 127) return gap + `<span class="note">&lt;&lt; gamma rolloff</span>`;
+    return "";
+  };
+  const nameGap  = " ";
+  const chromGap = " ";
+  const midGap   = gap;
+  const genomeSpan = chromW + chromGap.length + chromW;
+  const genomeHdr = "---diploid genome---";
+  const centered = (s, w) => {
+    if (s.length >= w) return s;
+    const l = Math.floor((w - s.length) / 2);
+    const r = w - s.length - l;
+    return " ".repeat(l) + s + " ".repeat(r);
+  };
+  const hdrTop =
+    "".padEnd(nameW) + nameGap +
+    centered(genomeHdr, genomeSpan) + midGap +
+    phenoHdr;
+  const hdrSub =
+    "".padEnd(nameW) + nameGap +
+    chromLbl0 + chromGap + chromLbl1 + midGap +
+    "".padEnd(phenoW);
+  const rows = locusNames.map(n =>
+    `<span class="locus">${n.padEnd(nameW)}</span>` + nameGap +
+    chromCell(0, n) + chromGap + chromCell(1, n) + midGap +
+    phenoCell(n) + annot(n)
+  ).join("\n");
+  specInfo.innerHTML =
+    `<span class="k">idx</span>       <span class="geno">${i}</span>\n` +
+    `<span class="k">type</span>      <span class="geno">${type}</span>\n` +
+    `<span class="k">gen</span>       <span class="geno">${pop.generation}</span>\n` +
+    `\n<span class="k">${hdrTop}</span>\n` +
+    `<span class="k">${hdrSub}</span>\n` +
+    rows;
+}
+
+function wireGridClick(view) {
+  view.grid.addEventListener("click", (ev) => {
+    if (!view.pop) return;
+    const grid = view.grid;
+    const rect = grid.getBoundingClientRect();
+    const x = Math.floor((ev.clientX - rect.left) * (grid.width / rect.width));
+    const y = Math.floor((ev.clientY - rect.top)  * (grid.height / rect.height));
+    const cellPx = view.style.cellPx;
+    const gx = Math.floor(x / cellPx);
+    const gy = Math.floor(y / cellPx);
+    const idx = gy * view.gridW + gx;
+    if (idx >= 0 && idx < view.pop.N) {
+      view.selectedIdx = idx;
+      view.renderDirty = true;
+      if (typeof updateVimLoadBtnState === "function") updateVimLoadBtnState();
+      if (typeof updateSendToVimBtnState === "function") updateSendToVimBtnState(view);
+      clog(`[select ${view.ids.tag}] idx=${idx} type=${BADGE_TYPES[view.pop.types[idx]]}`, "ok");
+    }
+  });
+}
+
+/* ==========================================================================
+ * HISTOGRAMS
+ * ========================================================================== */
+function drawHueHist(view) {
+  const cv = document.getElementById(view.ids.histHue);
+  const cx = cv.getContext("2d", { alpha: false });
+  const bins = new Uint32Array(256);
+  const pop = view.pop;
+  const N = pop.N;
+  for (let i = 0; i < N; i++) bins[pop.pheno[i * N_LOCI + L.hue_base]]++;
+  let maxb = 1;
+  for (let i = 0; i < 256; i++) if (bins[i] > maxb) maxb = bins[i];
+  const img = cx.createImageData(256, cv.height);
+  const data = img.data;
+  for (let k = 3; k < data.length; k += 4) data[k] = 255;
+  for (let x = 0; x < 256; x++) {
+    const h = Math.round((bins[x] / maxb) * (cv.height - 2));
+    const inGap = (x >= 21 && x <= 31);
+    for (let y = 0; y < cv.height; y++) {
+      const fill = (y >= cv.height - h);
+      const o = (y * 256 + x) * 4;
+      if (fill) {
+        if (inGap) { data[o] = 224; data[o+1] = 0;   data[o+2] = 78; }
+        else       { data[o] = 108; data[o+1] = 205; data[o+2] = 184; }
+      } else if (inGap) {
+        data[o] = 60; data[o+1] = 8; data[o+2] = 24;
+      } else {
+        data[o] = 6; data[o+1] = 22; data[o+2] = 20;
+      }
+    }
+  }
+  cx.putImageData(img, 0, 0);
+}
+
+function drawChaserHist(view) {
+  const cv = document.getElementById(view.ids.histChaser);
+  const cx = cv.getContext("2d", { alpha: false });
+  const bins = new Uint32Array(256);
+  const pop = view.pop;
+  const N = pop.N;
+  let lowCount = 0;
+  for (let i = 0; i < N; i++) {
+    const c = pop.pheno[i * N_LOCI + L.chaser];
+    bins[c]++;
+    if (c < 88) lowCount++;
+  }
+  // Drop the modal (monomorphic-ish) bin from the y-scale so the rest of the
+  // distribution isn't crushed. The tallest bar is clipped to full height.
+  let modeIdx = 0;
+  for (let i = 1; i < 256; i++) if (bins[i] > bins[modeIdx]) modeIdx = i;
+  let maxb = 1;
+  for (let i = 0; i < 256; i++) if (i !== modeIdx && bins[i] > maxb) maxb = bins[i];
+  const img = cx.createImageData(256, cv.height);
+  const data = img.data;
+  for (let k = 3; k < data.length; k += 4) data[k] = 255;
+  for (let x = 0; x < 256; x++) {
+    const h = Math.min(cv.height - 2, Math.round((bins[x] / maxb) * (cv.height - 2)));
+    const inLow = (x < 88);
+    for (let y = 0; y < cv.height; y++) {
+      const fill = (y >= cv.height - h);
+      const o = (y * 256 + x) * 4;
+      if (fill) {
+        if (inLow) { data[o] = 241; data[o+1] = 180; data[o+2] = 53; }
+        else       { data[o] = 108; data[o+1] = 205; data[o+2] = 184; }
+      } else if (inLow) {
+        data[o] = 60; data[o+1] = 45; data[o+2] = 10;
+      } else {
+        data[o] = 6; data[o+1] = 22; data[o+2] = 20;
+      }
+    }
+  }
+  cx.putImageData(img, 0, 0);
+  document.getElementById(view.ids.histChaserCap).textContent =
+    `shooting-star variant < 88 highlighted amber :: ${lowCount}/${N} (${((lowCount/N)*100).toFixed(2)}%)`;
+}
+
+function drawSatHist(view) {
+  const cv = document.getElementById(view.ids.histSat);
+  const cx = cv.getContext("2d", { alpha: false });
+  const bins = new Uint32Array(256);
+  const pop = view.pop;
+  const N = pop.N;
+  for (let i = 0; i < N; i++) bins[pop.pheno[i * N_LOCI + L.sat]]++;
+  // Drop the modal (monomorphic-ish) bin from the y-scale so the rest of the
+  // distribution isn't crushed. The tallest bar is clipped to full height.
+  let modeIdx = 0;
+  for (let i = 1; i < 256; i++) if (bins[i] > bins[modeIdx]) modeIdx = i;
+  let maxb = 1;
+  for (let i = 0; i < 256; i++) if (i !== modeIdx && bins[i] > maxb) maxb = bins[i];
+  const img = cx.createImageData(256, cv.height);
+  const data = img.data;
+  for (let k = 3; k < data.length; k += 4) data[k] = 255;
+  for (let x = 0; x < 256; x++) {
+    const h = Math.min(cv.height - 2, Math.round((bins[x] / maxb) * (cv.height - 2)));
+    for (let y = 0; y < cv.height; y++) {
+      const fill = (y >= cv.height - h);
+      const o = (y * 256 + x) * 4;
+      if (fill) { data[o] = 108; data[o+1] = 205; data[o+2] = 184; }
+      else      { data[o] = 6; data[o+1] = 22; data[o+2] = 20; }
+    }
+  }
+  cx.putImageData(img, 0, 0);
+}
+
+function drawTypeHist(view) {
+  const cv = document.getElementById(view.ids.histType);
+  const cx = cv.getContext("2d", { alpha: false });
+  const counts = new Uint32Array(8);
+  const pop = view.pop;
+  const N = pop.N;
+  for (let i = 0; i < N; i++) counts[pop.types[i]]++;
+  const img = cx.createImageData(256, cv.height);
+  const data = img.data;
+  for (let k = 3; k < data.length; k += 4) data[k] = 255;
+  const barW = Math.floor(256 / 8);
+  let maxb = 1;
+  for (let i = 0; i < 8; i++) if (counts[i] > maxb) maxb = counts[i];
+  const rgb = [0, 0, 0];
+  for (let t = 0; t < 8; t++) {
+    // Get swatch color
+    const r0 = TYPE_RANGES[BADGE_TYPES[t]];
+    const hMid = (r0.hue[0] + r0.hue[1]) >> 1;
+    hsv255(hMid, 220, 220, rgb, 0);
+    const h = Math.round((counts[t] / maxb) * (cv.height - 2));
+    const x0 = t * barW;
+    for (let x = x0; x < x0 + barW - 1; x++) {
+      for (let y = 0; y < cv.height; y++) {
+        const fill = (y >= cv.height - h);
+        const o = (y * 256 + x) * 4;
+        if (fill) { data[o] = rgb[0]; data[o+1] = rgb[1]; data[o+2] = rgb[2]; }
+        else      { data[o] = 6; data[o+1] = 22; data[o+2] = 20; }
+      }
+    }
+  }
+  cx.putImageData(img, 0, 0);
+  // Letters under bars + legend table
+  const TYPE_LETTERS = ["U","O","C","V","X","H","G","N"];
+  const lettersRow = document.getElementById(view.ids.typeLetters);
+  const letterParts = [];
+  for (let t = 0; t < 8; t++) {
+    letterParts.push(`<span>${TYPE_LETTERS[t]}</span>`);
+  }
+  lettersRow.innerHTML = letterParts.join("");
+  const leg = document.getElementById(view.ids.typeLegend);
+  const rows = [`<div class="type-legend-table">`];
+  for (let t = 0; t < 8; t++) {
+    const c = typeSwatchColor(t);
+    const pct = ((counts[t] / N) * 100).toFixed(1);
+    rows.push(
+      `<span class="letter">${TYPE_LETTERS[t]}</span>` +
+      `<span class="sw" style="background:${c}"></span>` +
+      `<span class="name">${BADGE_TYPES[t]}</span>` +
+      `<span class="pct">${pct}%</span>`
+    );
+  }
+  rows.push(`</div>`);
+  leg.innerHTML = rows.join("");
+}
+
+// Generic per-locus histogram: 256 bins of the phenotype byte at `locus`,
+// drop the modal bin from the y-scale and clip the tallest bar to canvas height.
+function drawLocusHist(view, canvasId, locus) {
+  const cv = document.getElementById(canvasId);
+  const cx = cv.getContext("2d", { alpha: false });
+  const bins = new Uint32Array(256);
+  const pop = view.pop;
+  const N = pop.N;
+  for (let i = 0; i < N; i++) bins[pop.pheno[i * N_LOCI + locus]]++;
+  let modeIdx = 0;
+  for (let i = 1; i < 256; i++) if (bins[i] > bins[modeIdx]) modeIdx = i;
+  let maxb = 1;
+  for (let i = 0; i < 256; i++) if (i !== modeIdx && bins[i] > maxb) maxb = bins[i];
+  const img = cx.createImageData(256, cv.height);
+  const data = img.data;
+  for (let k = 3; k < data.length; k += 4) data[k] = 255;
+  for (let x = 0; x < 256; x++) {
+    const h = Math.min(cv.height - 2, Math.round((bins[x] / maxb) * (cv.height - 2)));
+    for (let y = 0; y < cv.height; y++) {
+      const fill = (y >= cv.height - h);
+      const o = (y * 256 + x) * 4;
+      if (fill) { data[o] = 108; data[o+1] = 205; data[o+2] = 184; }
+      else      { data[o] = 6;   data[o+1] = 22;  data[o+2] = 20;  }
+    }
+  }
+  cx.putImageData(img, 0, 0);
+}
+
+// Small-domain histogram: for phenotypes whose values are range-bound to a
+// handful of bins (cd_period is 0-6, hue_ratedir is 0-13 after the crossover
+// math). Wide bars, same drop-modal-and-clip rule as the 256-bin version.
+function drawSmallLocusHist(view, canvasId, locus, nBins) {
+  const cv = document.getElementById(canvasId);
+  const cx = cv.getContext("2d", { alpha: false });
+  const counts = new Uint32Array(nBins);
+  const pop = view.pop;
+  const N = pop.N;
+  for (let i = 0; i < N; i++) {
+    const v = pop.pheno[i * N_LOCI + locus];
+    if (v < nBins) counts[v]++;
+  }
+  let modeIdx = 0;
+  for (let i = 1; i < nBins; i++) if (counts[i] > counts[modeIdx]) modeIdx = i;
+  let maxb = 1;
+  for (let i = 0; i < nBins; i++) if (i !== modeIdx && counts[i] > maxb) maxb = counts[i];
+  const img = cx.createImageData(256, cv.height);
+  const data = img.data;
+  for (let k = 3; k < data.length; k += 4) data[k] = 255;
+  const barW = Math.floor(256 / nBins);
+  for (let b = 0; b < nBins; b++) {
+    const h = Math.min(cv.height - 2, Math.round((counts[b] / maxb) * (cv.height - 2)));
+    const x0 = b * barW;
+    for (let x = x0; x < x0 + barW - 1; x++) {
+      for (let y = 0; y < cv.height; y++) {
+        const fill = (y >= cv.height - h);
+        const o = (y * 256 + x) * 4;
+        if (fill) { data[o] = 108; data[o+1] = 205; data[o+2] = 184; }
+        else      { data[o] = 6;   data[o+1] = 22;  data[o+2] = 20;  }
+      }
+    }
+  }
+  cx.putImageData(img, 0, 0);
+}
+
+function drawAllHistograms(view) {
+  if (!view.pop) return;
+  drawHueHist(view);
+  drawChaserHist(view);
+  drawSatHist(view);
+  drawTypeHist(view);
+  drawSmallLocusHist(view, view.ids.histHueRatedir, L.hue_ratedir, 14);
+  drawLocusHist(view, view.ids.histHueBound, L.hue_bound);
+  drawLocusHist(view, view.ids.histCdRate,   L.cd_rate);
+  drawLocusHist(view, view.ids.histCdDir,    L.cd_dir);
+  drawSmallLocusHist(view, view.ids.histCdPeriod, L.cd_period, 7);
+  drawLocusHist(view, view.ids.histNonlin,   L.nonlin);
+}
+
+/* ==========================================================================
+ * MAIN LOOP + UI WIRING
+ * ==========================================================================*/
+let animHandle = null;
+
+// popsim view — all its IDs live under the popsim tab.
+const popsimView = makeView({
+  tag: "popsim",
+  grid: "grid",
+  specimen: "specimen",
+  specimenInfo: "specimen-info",
+  mainStatus: "main-status",
+  gridStatus: "grid-status",
+  console: "console",
+  popsize: "popsize", mix: "mix-preset", mutationRate: "mutation-rate",
+  nonlinMode: "nonlin-mode", inbreedingMode: "inbreeding-mode",
+  animMode: "anim-mode", tileStyle: "tile-style", seed: "seed-input",
+  btnReset: "btn-reset", btnStep: "btn-step", btnStep10: "btn-step10",
+  btnStep100: "btn-step100", btnRun: "btn-run", btnPause: "btn-pause",
+  btnSendToVim: "btn-send-to-vim",
+  histType: "hist-type", typeLetters: "type-letters", typeLegend: "type-legend",
+  histHue: "hist-hue", histHueCap: "hist-hue-cap",
+  histSat: "hist-sat",
+  histChaser: "hist-chaser", histChaserCap: "hist-chaser-cap",
+  histHueRatedir: "hist-hue-ratedir", histHueBound: "hist-hue-bound",
+  histCdRate: "hist-cd-rate", histCdDir: "hist-cd-dir",
+  histCdPeriod: "hist-cd-period", histNonlin: "hist-nonlin",
+});
+
+// borg view — same layout, `borg-` prefixed ids.
+const borgView = makeView({
+  tag: "borg",
+  grid: "borg-grid",
+  specimen: "borg-specimen",
+  specimenInfo: "borg-specimen-info",
+  mainStatus: "borg-main-status",
+  gridStatus: "borg-grid-status",
+  console: null,
+  popsize: "borg-popsize", mix: "borg-mix-preset", mutationRate: "borg-mutation-rate",
+  nonlinMode: "borg-nonlin-mode", inbreedingMode: null,
+  animMode: "borg-anim-mode", tileStyle: "borg-tile-style", seed: "borg-seed-input",
+  btnReset: "borg-btn-reset", btnStep: "borg-btn-step", btnStep10: "borg-btn-step10",
+  btnStep100: "borg-btn-step100", btnRun: "borg-btn-run", btnPause: "borg-btn-pause",
+  btnSendToVim: "borg-btn-send-to-vim",
+  histType: "borg-hist-type", typeLetters: "borg-type-letters", typeLegend: "borg-type-legend",
+  histHue: "borg-hist-hue", histHueCap: "borg-hist-hue-cap",
+  histSat: "borg-hist-sat",
+  histChaser: "borg-hist-chaser", histChaserCap: "borg-hist-chaser-cap",
+  histHueRatedir: "borg-hist-hue-ratedir", histHueBound: "borg-hist-hue-bound",
+  histCdRate: "borg-hist-cd-rate", histCdDir: "borg-hist-cd-dir",
+  histCdPeriod: "borg-hist-cd-period", histNonlin: "borg-hist-nonlin",
+});
+
+function updateStatus(view) {
+  const pop = view.pop;
+  if (!pop) return;
+  const p = pop.params;
+  const extras =
+    (view.ids.inbreedingMode ? ` inbreed=${p.inbreedingMode}` : "") +
+    (view.ids.tag === "borg"  ? " ROOT=locked" : "");
+  view.mainStatus.textContent =
+    `[ GEN ${String(pop.generation).padStart(5,"0")} ]  ` +
+    `pop=${pop.N}  mut=${p.mutationRate}  ` +
+    `nonlin=${p.nonlinMode}${extras}  seed=0x${pop.seed.toString(16).toUpperCase()}`;
+  view.gridStatus.textContent =
+    `[ field ] ${view.gridW}x${view.gridH} grid @ ${view.style.M}x${view.style.M} badge  ` +
+    (view.running ? "  <RUNNING>" : "");
+}
+
+function readParams(view) {
+  return {
+    N: parseInt(document.getElementById(view.ids.popsize).value, 10),
+    seedStr: document.getElementById(view.ids.seed).value,
+    mixName: document.getElementById(view.ids.mix).value,
+    mutationRate: document.getElementById(view.ids.mutationRate).value,
+    nonlinMode: document.getElementById(view.ids.nonlinMode).value,
+    inbreedingMode: view.ids.inbreedingMode
+      ? document.getElementById(view.ids.inbreedingMode).value
+      : "off",
+  };
+}
+
+function initPopulation(view) {
+  const u = readParams(view);
+  const seed = seedFromString(u.seedStr);
+  const mix = MIX_PRESETS[u.mixName] || MIX_PRESETS.defcon34;
+  const params = { mutationRate: u.mutationRate, nonlinMode: u.nonlinMode, inbreedingMode: u.inbreedingMode, mix };
+  if (view.ids.tag === "borg") {
+    // Snapshot ROOT (full diploid) from the current vim gene state.
+    const rootDip = new Uint8Array(2 * N_LOCI);
+    for (let li = 0; li < N_LOCI; li++) {
+      const name = VIM_LOCUS_NAMES[li];
+      rootDip[li]          = vimGene.chrom0[name];
+      rootDip[N_LOCI + li] = vimGene.chrom1[name];
+    }
+    params.rootDiploid = rootDip;
+    view.pop = new BorgPopulation(u.N, seed, params);
+  } else {
+    view.pop = new Population(u.N, seed, params);
+  }
+  const styleSel = document.getElementById(view.ids.tileStyle).value;
+  view.style = TILE_STYLES[styleSel] || TILE_STYLES.ring7;
+  resizeGrid(view, u.N);
+  view.selectedIdx = -1;
+  view.prevHiliteIdx = -1;
+  view.frameImg = null;
+  if (view.ids.tag === "borg") renderRoot();
+  if (typeof updateVimLoadBtnState === "function") updateVimLoadBtnState();
+  if (typeof updateSendToVimBtnState === "function") updateSendToVimBtnState(view);
+  clog(`[reset ${view.ids.tag}] N=${u.N} seed=0x${seed.toString(16).toUpperCase()} mix=${u.mixName} mut=${u.mutationRate} nonlin=${u.nonlinMode}`, "ok");
+  updateStatus(view);
+  drawAllHistograms(view);
+}
+
+function stepN(view, n) {
+  if (!view.pop) return;
+  const t0 = performance.now();
+  for (let i = 0; i < n; i++) {
+    const u = readParams(view);
+    view.pop.params.mutationRate = u.mutationRate;
+    view.pop.params.nonlinMode = u.nonlinMode;
+    view.pop.params.inbreedingMode = u.inbreedingMode;
+    view.pop.step();
+  }
+  const dt = performance.now() - t0;
+  clog(`[step ${view.ids.tag}] +${n} gen -> ${view.pop.generation} (${dt.toFixed(1)}ms, ${(n*1000/dt).toFixed(0)} gen/s)`, "ok");
+  updateStatus(view);
+  drawAllHistograms(view);
+}
+
+function activeView() {
+  if (borgTabActive) return borgView;
+  return popsimView;
+}
+
+function animLoop(t) {
+  const view = activeView();
+  const animOn = document.getElementById(view.ids.animMode).value === "on";
+  const effT = animOn ? t : 0;
+  if (animOn || view.renderDirty) {
+    renderFrame(view, effT);
+    renderSpecimen(view, effT);
+    view.renderDirty = false;
+  }
+  if (vimTabActive && (animOn || vimRenderDirty)) {
+    renderVimGene(effT);
+    vimRenderDirty = false;
+  }
+  if (borgTabActive && (animOn || rootRenderDirty)) {
+    renderRoot(effT);
+    rootRenderDirty = false;
+  }
+  if (view.running) {
+    stepN(view, 1);
+    view.renderDirty = true;
+  }
+  animHandle = requestAnimationFrame(animLoop);
+}
+
+function wireControls(view) {
+  const btnReset = document.getElementById(view.ids.btnReset);
+  const btnStep = document.getElementById(view.ids.btnStep);
+  const btnStep10 = document.getElementById(view.ids.btnStep10);
+  const btnStep100 = document.getElementById(view.ids.btnStep100);
+  const btnRun = document.getElementById(view.ids.btnRun);
+  const btnPause = document.getElementById(view.ids.btnPause);
+  btnReset.addEventListener("click", () => {
+    view.running = false;
+    btnPause.disabled = true; btnRun.disabled = false;
+    initPopulation(view);
+  });
+  btnStep.addEventListener("click", () => stepN(view, 1));
+  btnStep10.addEventListener("click", () => stepN(view, 10));
+  btnStep100.addEventListener("click", () => stepN(view, 100));
+  btnRun.addEventListener("click", () => {
+    view.running = true;
+    btnPause.disabled = false; btnRun.disabled = true;
+    updateStatus(view);
+  });
+  btnPause.addEventListener("click", () => {
+    view.running = false;
+    btnPause.disabled = true; btnRun.disabled = false;
+    updateStatus(view);
+  });
+
+  document.getElementById(view.ids.mutationRate).addEventListener("change", () => updateStatus(view));
+  document.getElementById(view.ids.nonlinMode).addEventListener("change", () => {
+    if (view.pop) {
+      view.pop.params.nonlinMode = document.getElementById(view.ids.nonlinMode).value;
+      view.pop._computePhenotypes();
+      drawAllHistograms(view);
+      view.renderDirty = true;
+    }
+    updateStatus(view);
+  });
+  if (view.ids.inbreedingMode) {
+    document.getElementById(view.ids.inbreedingMode).addEventListener("change", () => updateStatus(view));
+  }
+  document.getElementById(view.ids.animMode).addEventListener("change", () => { view.renderDirty = true; });
+  document.getElementById(view.ids.tileStyle).addEventListener("change", () => {
+    const v = document.getElementById(view.ids.tileStyle).value;
+    view.style = TILE_STYLES[v] || TILE_STYLES.ring7;
+    if (view.pop) {
+      resizeGrid(view, view.pop.N);
+      view.prevHiliteIdx = -1;
+      view.renderDirty = true;
+      updateStatus(view);
+      clog(`[style ${view.ids.tag}] tile -> ${v} (${view.style.M}x${view.style.M})`, "ok");
+    }
+  });
+}
+
+wireGridClick(popsimView);
+wireGridClick(borgView);
+wireControls(popsimView);
+wireControls(borgView);
+wireSendToVim(popsimView);
+wireSendToVim(borgView);
+
+function wireSendToVim(view) {
+  const btn = document.getElementById(view.ids.btnSendToVim);
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    if (!viewHasSelection(view)) return;
+    ensureVimGeneInitialized();
+    seedFromView(view);
+    activateTab("vim-gene");
+  });
+}
+
+function updateSendToVimBtnState(view) {
+  const btn = document.getElementById(view.ids.btnSendToVim);
+  if (btn) btn.disabled = !viewHasSelection(view);
+}
+
+/* ==========================================================================
+ * SELF-TESTS (run once on load, log to console)
+ * ========================================================================== */
+function selfTests() {
+  clog("[selftest] starting...", "ok");
+  let pass = 0, fail = 0;
+  const check = (name, cond) => {
+    if (cond) { pass++; clog(`  [ok]   ${name}`, "ok"); }
+    else      { fail++; clog(`  [FAIL] ${name}`, "err"); }
+  };
+
+  // Gray round-trip
+  let grayOk = true;
+  for (let i = 0; i < 256; i++) if (GRAY_DEC[GRAY_ENC[i]] !== i) grayOk = false;
+  check("gray encode/decode round-trip", grayOk);
+
+  // Meiosis linkage groups: sample 10k gametes from a fixed parent and check
+  // that within-group alleles co-vary as expected.
+  const rng = new Rng(0xC0FFEE);
+  const parent = new Uint8Array(2 * N_LOCI);
+  for (let i = 0; i < N_LOCI; i++) { parent[i] = 10; parent[N_LOCI + i] = 200; }
+  const gam = new Uint8Array(N_LOCI);
+  let groupCoherent = true;
+  for (let trial = 0; trial < 2000; trial++) {
+    meiosis(parent, 0, gam, 0, rng);
+    // Within each group, all loci should be either all 10 or all 200.
+    for (const grp of GROUPS) {
+      const vals = grp.map(i => gam[i]);
+      const first = vals[0];
+      for (const v of vals) if (v !== first) { groupCoherent = false; break; }
+      if (!groupCoherent) break;
+    }
+    if (!groupCoherent) break;
+  }
+  check("meiosis linkage groups co-segregate", groupCoherent);
+
+  // Phenotype: known parents produce known outputs
+  const P = new Uint8Array(2 * N_LOCI);
+  // Parent A: chaser=200, nonlin=10.  Parent B: chaser=10, nonlin=200.
+  P[L.chaser] = 200; P[L.nonlin] = 10;
+  P[N_LOCI + L.chaser] = 10; P[N_LOCI + L.nonlin] = 200;
+  const ph = new Uint8Array(N_LOCI);
+  phenotype(P, 0, ph, 0, "shipped");
+  // Shipped: nonlin = slot0.chaser + slot1.nonlin = 200 + 200 = 255 (saturated).
+  check(`nonlin asymmetric: [200,10]+[10,200] -> 255 (got ${ph[L.nonlin]})`, ph[L.nonlin] === 255);
+  // Reverse order
+  const P2 = new Uint8Array(2 * N_LOCI);
+  P2[L.chaser] = 10; P2[L.nonlin] = 200;
+  P2[N_LOCI + L.chaser] = 200; P2[N_LOCI + L.nonlin] = 10;
+  phenotype(P2, 0, ph, 0, "shipped");
+  // Shipped: nonlin = 10 + 10 = 20
+  check(`nonlin order-dep: [10,200]+[200,10] -> 20 (got ${ph[L.nonlin]})`, ph[L.nonlin] === 20);
+  // Symmetric mode: same in both orders
+  phenotype(P,  0, ph, 0, "symmetric"); const s1 = ph[L.nonlin];
+  phenotype(P2, 0, ph, 0, "symmetric"); const s2 = ph[L.nonlin];
+  check(`nonlin symmetric mode is order-independent (${s1} == ${s2})`, s1 === s2);
+
+  // Shooting-star at gen 0: pure Uber population should be ~99.7%, pure Human 0%.
+  const testMix = (mixName, expected, tol) => {
+    const p = new Population(2000, 42, {
+      mutationRate: "None", nonlinMode: "shipped", inbreedingMode: "off",
+      mix: MIX_PRESETS[mixName] || { [mixName]: 1.0 },
+    });
+    let low = 0;
+    for (let i = 0; i < p.N; i++) if (p.pheno[i * N_LOCI + L.chaser] < 88) low++;
+    const frac = low / p.N;
+    const near = Math.abs(frac - expected) < tol;
+    clog(`  [info] gen0 shooting-star ${mixName}: ${(frac*100).toFixed(2)}% (expected ~${(expected*100).toFixed(2)}%)`, near ? "ok" : "warn");
+    return near;
+  };
+  check("gen0 shooting-star ~0% for all-human",    testMix("all_human", 0.0, 0.005));
+  check("gen0 shooting-star ~99.7% for pure-uber", testMix("Uber",      0.997, 0.02));
+
+  clog(`[selftest] done. ${pass} pass, ${fail} fail`, fail === 0 ? "ok" : "err");
+}
+
+/* ==========================================================================
+ * TABS
+ * ========================================================================== */
+let borgTabActive = false;
+let borgInitialized = false;
+function activateTab(name) {
+  document.querySelectorAll(".tab").forEach(el => {
+    const on = el.dataset.tab === name;
+    el.classList.toggle("active", on);
+    el.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  document.querySelectorAll(".tab-panel").forEach(el => {
+    el.classList.toggle("active", el.id === "tab-" + name);
+  });
+  vimTabActive = (name === "vim-gene");
+  borgTabActive = (name === "borg");
+  if (vimTabActive) {
+    ensureVimGeneInitialized();
+    vimRenderDirty = true;
+  } else if (borgTabActive) {
+    // vim gene must be initialized first so ROOT has a source.
+    ensureVimGeneInitialized();
+    // Re-snapshot ROOT from current vim gene state and rebuild the collective.
+    // Skip the reset if ROOT already matches vim gene (avoids nuking an
+    // in-progress borg run when the user just tabs back to check on it).
+    if (!borgInitialized || !rootMatchesVimGene()) {
+      borgInitialized = true;
+      // Stop any active run so buttons re-enable cleanly.
+      borgView.running = false;
+      const pauseBtn = document.getElementById(borgView.ids.btnPause);
+      const runBtn = document.getElementById(borgView.ids.btnRun);
+      if (pauseBtn) pauseBtn.disabled = true;
+      if (runBtn) runBtn.disabled = false;
+      initPopulation(borgView);
+    }
+    borgView.renderDirty = true;
+    rootRenderDirty = true;
+  } else {
+    popsimView.renderDirty = true;
+  }
+}
+document.querySelectorAll(".tab").forEach(el => {
+  el.addEventListener("click", () => activateTab(el.dataset.tab));
+});
+
+function rootMatchesVimGene() {
+  if (!borgView.pop || !borgView.pop.rootDiploid) return false;
+  const root = borgView.pop.rootDiploid;
+  for (let li = 0; li < N_LOCI; li++) {
+    const name = VIM_LOCUS_NAMES[li];
+    if (root[li]          !== vimGene.chrom0[name]) return false;
+    if (root[N_LOCI + li] !== vimGene.chrom1[name]) return false;
+  }
+  return true;
+}
+
+/* ==========================================================================
+ * VIM GENE :: diploid genome editor (2 x 9-byte chromosomes)
+ *
+ * A "gene" here is one full diploid: two 9-byte haploid chromosomes. The
+ * preview tile is painted from phenotype(chrom0, chrom1) using the same
+ * expression rule as popsim and borg — this is what a badge would look like
+ * if it carried this exact genotype. The ROOT panel on the borg tab shows the
+ * same diploid and mints haploid gametes from it every generation.
+ * ========================================================================== */
+let vimTabActive = false;
+let vimRenderDirty = true;
+let vimInitialized = false;
+let vimStyle = TILE_STYLES.ring7;
+// Badge type of whatever the vim gene is currently displaying. Set by every
+// seed path (randomize / load / send-to-vim). Displayed above the geno/pheno
+// table so the user can see which population category this diploid came from.
+let vimGeneType = "Human";
+// Diploid genome: two haploid strands, each { locusName -> u8 }.
+const vimGene = {
+  chrom0: { cd_period:0, cd_rate:0, cd_dir:0, sat:0, hue_ratedir:0, hue_base:0, hue_bound:0, chaser:0, nonlin:0 },
+  chrom1: { cd_period:0, cd_rate:0, cd_dir:0, sat:0, hue_ratedir:0, hue_base:0, hue_bound:0, chaser:0, nonlin:0 },
+};
+const VIM_STRANDS = ["chrom0", "chrom1"];
+const vimRng = new Rng(0xDEADBEEF ^ (Date.now() & 0xffff));
+const VIM_LOCUS_NAMES = ["cd_period","cd_rate","cd_dir","sat","hue_ratedir","hue_base","hue_bound","chaser","nonlin"];
+
+// Scratch diploid + phenome for tile rendering + phenome display.
+const _vimDiploid = new Uint8Array(2 * N_LOCI);
+const _vimPheno   = new Uint8Array(N_LOCI);
+
+// Vim gene has its own nonlin-mode dropdown (see #vim-nonlin-mode below the
+// gene rows). All vim phenome computation reads it — the caller doesn't need
+// to know or pass anything.
+function currentVimNonlinMode() {
+  const el = document.getElementById("vim-nonlin-mode");
+  return (el && el.value) || "shipped";
+}
+
+function vimComputePheno() {
+  for (let li = 0; li < N_LOCI; li++) {
+    _vimDiploid[li]          = vimGene.chrom0[VIM_LOCUS_NAMES[li]];
+    _vimDiploid[N_LOCI + li] = vimGene.chrom1[VIM_LOCUS_NAMES[li]];
+  }
+  phenotype(_vimDiploid, 0, _vimPheno, 0, currentVimNonlinMode());
+}
+
+// Per-locus control spec. The phenome value goes in its own column (rendered
+// as glowing red like the specimen inspector); the annot column carries the
+// human-readable note when a threshold triggers a special behavior.
+// No per-strand ticks: those thresholds (shooting-star at chaser<88, gamma
+// rolloff at nonlin>127) apply to the PHENOME byte — the result of pairing
+// both strands via phenotype() — not to either strand's raw value in
+// isolation. A tick on a per-strand slider would be lying about what actually
+// triggers the phenotype note. The note fires on the phenome instead.
+const VIM_GENE_SPECS = [
+  { name: "cd_period",   kind: "select7" },
+  { name: "cd_rate",     kind: "range" },
+  { name: "cd_dir",      kind: "range" },
+  { name: "sat",         kind: "range" },
+  { name: "hue_ratedir", kind: "nibbles" },
+  { name: "hue_base",    kind: "hue" },
+  { name: "hue_bound",   kind: "hue" },
+  { name: "chaser",      kind: "range",
+    note: (v) => v < 88 ? `<span class="note">&lt;&lt; shooting-star</span>` : "" },
+  { name: "nonlin",      kind: "range",
+    note: (v) => v > 127 ? `<span class="note">&lt;&lt; gamma rolloff</span>` : "" },
+];
+
+const vimSpecCanvas = document.getElementById("vim-specimen");
+const vimSpecCtx    = vimSpecCanvas.getContext("2d");
+const vimSpecInfo   = document.getElementById("vim-specimen-info");
+
+function clamp(v, lo, hi) { v = v | 0; if (v < lo) v = lo; if (v > hi) v = hi; return v; }
+
+// DOM id helpers — every widget is keyed by (strand, locus).
+const vimId = {
+  ctl:   (s, n) => `vim-ctl-${s}-${n}`,
+  num:   (s, n) => `vim-num-${s}-${n}`,
+  nibLo: (s)    => `vim-nib-lo-${s}`,
+  nibHi: (s)    => `vim-nib-hi-${s}`,
+  pheno: (n)    => `vim-pheno-${n}`, // phenome value cell (glowing red)
+  annot: (n)    => `vim-annot-${n}`, // conditional note (white "<< shooting-star")
+};
+
+function setGene(strand, name, value) {
+  const max = (name === "cd_period") ? 6 : 255;
+  const v = clamp(value, 0, max);
+  vimGene[strand][name] = v;
+  // Sync widgets on this (strand, locus).
+  const numEl = document.getElementById(vimId.num(strand, name));
+  if (numEl && document.activeElement !== numEl) numEl.value = v;
+  const primary = document.getElementById(vimId.ctl(strand, name));
+  if (primary && document.activeElement !== primary) primary.value = v;
+  if (name === "hue_ratedir") {
+    const lo = document.getElementById(vimId.nibLo(strand));
+    const hi = document.getElementById(vimId.nibHi(strand));
+    if (lo && document.activeElement !== lo) lo.value = v & 0xf;
+    if (hi && document.activeElement !== hi) hi.value = (v >> 4) & 0xf;
+  }
+  // Keep this strand's hue_bound >= its hue_base.
+  if (name === "hue_base" && vimGene[strand].hue_bound < v) {
+    setGene(strand, "hue_bound", v);
+  }
+  // Recompute the phenome-driven annotation for this locus.
+  refreshAnnot(name);
+  vimRenderDirty = true;
+}
+
+function refreshAnnot(name) {
+  const spec = VIM_GENE_SPECS.find(s => s.name === name);
+  if (!spec) return;
+  // Recompute phenome so both the value cell and the note reflect the
+  // currently-expressed value.
+  vimComputePheno();
+  const phenoByte = _vimPheno[L[name]];
+  const phenoEl = document.getElementById(vimId.pheno(name));
+  if (phenoEl) phenoEl.textContent = phenoByte.toString();
+  const noteEl = document.getElementById(vimId.annot(name));
+  if (noteEl) noteEl.innerHTML = spec.note ? spec.note(phenoByte) : "";
+}
+
+function refreshAllAnnots() {
+  for (const s of VIM_GENE_SPECS) refreshAnnot(s.name);
+}
+
+// Build one strand's primary control + numeric input, wired to setGene(strand, ...).
+function buildStrandCells(spec, strand) {
+  const cells = [];
+  const primaryCell = document.createElement("div");
+  if (spec.kind === "select7") {
+    const sel = document.createElement("select");
+    sel.id = vimId.ctl(strand, spec.name);
+    for (let i = 0; i <= 6; i++) {
+      const opt = document.createElement("option");
+      opt.value = i; opt.textContent = i;
+      sel.appendChild(opt);
+    }
+    sel.addEventListener("change", () => setGene(strand, spec.name, parseInt(sel.value, 10)));
+    primaryCell.appendChild(sel);
+  } else if (spec.kind === "nibbles") {
+    const wrap = document.createElement("div");
+    wrap.className = "nibble-row";
+    const mkNib = (id, label) => {
+      const cell = document.createElement("div"); cell.className = "nibble-cell";
+      const lbl = document.createElement("div"); lbl.className = "nibble-label"; lbl.textContent = label;
+      const r = document.createElement("input");
+      r.type = "range"; r.min = 0; r.max = 15; r.step = 1; r.id = id;
+      cell.appendChild(lbl); cell.appendChild(r);
+      return { cell, r };
+    };
+    const hi = mkNib(vimId.nibHi(strand), "hi");
+    const op = document.createElement("div");
+    op.className = "nibble-op";
+    op.innerHTML = `<span class="nibble-op-glyph">|</span>`;
+    const lo = mkNib(vimId.nibLo(strand), "lo");
+    const repack = () => {
+      const packed = ((parseInt(hi.r.value, 10) & 0xf) << 4) | (parseInt(lo.r.value, 10) & 0xf);
+      setGene(strand, "hue_ratedir", packed);
+    };
+    lo.r.addEventListener("input", repack);
+    hi.r.addEventListener("input", repack);
+    wrap.appendChild(hi.cell); wrap.appendChild(op); wrap.appendChild(lo.cell);
+    primaryCell.appendChild(wrap);
+  } else {
+    // range or hue
+    const rw = document.createElement("div");
+    rw.className = "range-wrap";
+    if (spec.kind === "hue") {
+      const strip = document.createElement("div");
+      strip.className = "hue-strip";
+      rw.appendChild(strip);
+    }
+    if (spec.tick != null) {
+      const tick = document.createElement("div");
+      tick.className = "tick";
+      tick.style.left = `calc(${(spec.tick / 255) * 100}% - 1px)`;
+      rw.appendChild(tick);
+    }
+    const r = document.createElement("input");
+    r.type = "range"; r.min = 0; r.max = 255; r.step = 1;
+    r.id = vimId.ctl(strand, spec.name);
+    r.addEventListener("input", () => setGene(strand, spec.name, parseInt(r.value, 10)));
+    rw.appendChild(r);
+    primaryCell.appendChild(rw);
+  }
+  cells.push(primaryCell);
+
+  const num = document.createElement("input");
+  num.type = "number";
+  num.id = vimId.num(strand, spec.name);
+  num.min = 0;
+  num.max = (spec.name === "cd_period") ? 6 : 255;
+  num.step = 1;
+  num.addEventListener("input", () => {
+    const v = parseInt(num.value, 10);
+    if (Number.isFinite(v)) setGene(strand, spec.name, v);
+  });
+  cells.push(num);
+
+  return cells;
+}
+
+function buildGeneRows() {
+  const container = document.getElementById("vim-gene-rows");
+  container.innerHTML = "";
+
+  // Header row: labels for the two strand columns and the phenome column,
+  // styled to match the specimen inspector's header treatment.
+  const hdr = document.createElement("div");
+  hdr.className = "gene-header";
+  hdr.innerHTML =
+    `<div></div>` +
+    `<div class="chrom-lbl">[chrom0]</div>` +
+    `<div class="chrom-lbl">[chrom1]</div>` +
+    `<div class="pheno-lbl">phenome</div>` +
+    `<div></div>`;
+  container.appendChild(hdr);
+
+  for (const spec of VIM_GENE_SPECS) {
+    const row = document.createElement("div");
+    row.className = "gene-row";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "gene-name";
+    nameEl.textContent = spec.name;
+    row.appendChild(nameEl);
+
+    for (const c of buildStrandCells(spec, "chrom0")) row.appendChild(c);
+    for (const c of buildStrandCells(spec, "chrom1")) row.appendChild(c);
+
+    // Phenome value cell (glowing red, read-only) — same visual weight as
+    // the specimen inspector's phenome column.
+    const phenoCell = document.createElement("div");
+    phenoCell.className = "pheno-val";
+    phenoCell.id = vimId.pheno(spec.name);
+    phenoCell.textContent = "0";
+    row.appendChild(phenoCell);
+
+    // Conditional note cell ("<< shooting-star" etc.) — white glow, matches
+    // the .note treatment in the specimen inspector.
+    const annot = document.createElement("div");
+    annot.className = "gene-annot";
+    annot.id = vimId.annot(spec.name);
+    row.appendChild(annot);
+
+    container.appendChild(row);
+  }
+}
+
+function seedFromType(typeName) {
+  const typeIdx = BADGE_TYPES.indexOf(typeName);
+  if (typeIdx < 0) return;
+  const buf = new Uint8Array(N_LOCI);
+  for (const strand of VIM_STRANDS) {
+    haploidFromType(buf, 0, typeIdx, vimRng);
+    for (let i = 0; i < VIM_LOCUS_NAMES.length; i++) {
+      vimGene[strand][VIM_LOCUS_NAMES[i]] = buf[i];
+    }
+  }
+  vimGeneType = typeName;
+  refreshAllGeneControls();
+}
+
+function viewHasSelection(view) {
+  return !!(view && view.pop && view.selectedIdx >= 0 && view.selectedIdx < view.pop.N);
+}
+
+function seedFromView(view) {
+  if (!viewHasSelection(view)) return;
+  // Copy the specimen's actual diploid (both chromosomes), not the phenome.
+  const off2 = view.selectedIdx * 2 * N_LOCI;
+  for (let li = 0; li < N_LOCI; li++) {
+    const name = VIM_LOCUS_NAMES[li];
+    vimGene.chrom0[name] = view.pop.pop[off2 + li];
+    vimGene.chrom1[name] = view.pop.pop[off2 + N_LOCI + li];
+  }
+  vimGeneType = BADGE_TYPES[view.pop.types[view.selectedIdx]];
+  refreshAllGeneControls();
+}
+
+function refreshAllGeneControls() {
+  for (const strand of VIM_STRANDS) {
+    for (const name of VIM_LOCUS_NAMES) setGene(strand, name, vimGene[strand][name]);
+  }
+}
+
+function ensureVimGeneInitialized() {
+  if (vimInitialized) return;
+  vimInitialized = true;
+  buildGeneRows();
+  // Explicit precedence: if popsim has a selection, load it; else if borg has one,
+  // load that; else fall back to a random human badge.
+  if (viewHasSelection(popsimView)) {
+    seedFromView(popsimView);
+  } else if (viewHasSelection(borgView)) {
+    seedFromView(borgView);
+  } else {
+    seedFromType("Human");
+  }
+  updateVimLoadBtnState();
+}
+
+function updateVimLoadBtnState() {
+  const pBtn = document.getElementById("vim-btn-load-popsim");
+  const bBtn = document.getElementById("vim-btn-load-borg");
+  if (pBtn) pBtn.disabled = !viewHasSelection(popsimView);
+  if (bBtn) bBtn.disabled = !viewHasSelection(borgView);
+}
+
+function renderVimGene(t) {
+  const style = vimStyle;
+  const M = style.M;
+  const width = vimSpecCanvas.width, height = vimSpecCanvas.height;
+  const scale = Math.floor(width / M);
+
+  const img = vimSpecCtx.createImageData(width, height);
+  const data = img.data;
+  for (let k = 0; k < data.length; k += 4) { data[k] = 0; data[k+1] = 0; data[k+2] = 0; data[k+3] = 255; }
+
+  // Compute phenome from the diploid and paint the tile from it.
+  vimComputePheno();
+  const tSec = t / 1000;
+  const g = precomputeCell(_vimPheno, 0, tSec);
+  const scratch = new Uint8ClampedArray(M * M * 4);
+  if (style.kind === "ring") paintRingTile(style, g, 0, 0, tSec, scratch, M);
+  else                       paintPackedTile(g,   0, 0, tSec, scratch, M);
+
+  for (let cy = 0; cy < M; cy++) {
+    for (let cx = 0; cx < M; cx++) {
+      const so = (cy * M + cx) * 4;
+      const r = scratch[so], gc = scratch[so+1], b = scratch[so+2];
+      for (let sy = 0; sy < scale; sy++) {
+        for (let sx = 0; sx < scale; sx++) {
+          const px = cx * scale + sx;
+          const py = cy * scale + sy;
+          const o = (py * width + px) * 4;
+          data[o] = r; data[o+1] = gc; data[o+2] = b;
+        }
+      }
+    }
+  }
+  vimSpecCtx.putImageData(img, 0, 0);
+
+  // Info block: same 3-column layout as popsim's specimen inspector.
+  const locusNames = VIM_LOCUS_NAMES;
+  const nameW = Math.max(...locusNames.map(n => n.length));
+  const chromLbl0 = "[chrom0]";
+  const chromLbl1 = "[chrom1]";
+  const phenoHdr  = "---phenome---";
+  const chromW = chromLbl0.length;
+  const phenoW = phenoHdr.length;
+  const gap = "  ";
+  const phenoMid = Math.floor(phenoW / 2);
+  const chromCell = (strand, name) => {
+    const raw = vimGene[strand][name].toString();
+    return `<span class="geno">${raw.padStart(chromW)}</span>`;
+  };
+  const phenoShift = 4;
+  const phenoCell = (name) => {
+    const raw = _vimPheno[L[name]].toString();
+    const left  = " ".repeat(Math.max(0, phenoMid + 1 + phenoShift - raw.length));
+    const right = " ".repeat(Math.max(0, phenoW + phenoShift - left.length - raw.length));
+    return left + `<span class="pheno">${raw}</span>` + right;
+  };
+  const annot = (name) => {
+    if (name === "chaser" && _vimPheno[L.chaser] < 88) return gap + `<span class="note">&lt;&lt; shooting-star</span>`;
+    if (name === "nonlin" && _vimPheno[L.nonlin] > 127) return gap + `<span class="note">&lt;&lt; gamma rolloff</span>`;
+    return "";
+  };
+  const nameGap = " ";
+  const chromGap = " ";
+  const midGap = gap;
+  const genomeSpan = chromW + chromGap.length + chromW;
+  const genomeHdr = "---diploid genome---";
+  const centered = (s, w) => {
+    if (s.length >= w) return s;
+    const l = Math.floor((w - s.length) / 2);
+    const r = w - s.length - l;
+    return " ".repeat(l) + s + " ".repeat(r);
+  };
+  const hdrTop =
+    "".padEnd(nameW) + nameGap +
+    centered(genomeHdr, genomeSpan) + midGap +
+    phenoHdr;
+  const hdrSub =
+    "".padEnd(nameW) + nameGap +
+    chromLbl0 + chromGap + chromLbl1 + midGap +
+    "".padEnd(phenoW);
+  const rows = locusNames.map(n =>
+    `<span class="k">${n.padEnd(nameW)}</span>` + nameGap +
+    chromCell("chrom0", n) + chromGap + chromCell("chrom1", n) + midGap +
+    phenoCell(n) + annot(n)
+  ).join("\n");
+  vimSpecInfo.innerHTML =
+    `<span class="k">type</span>      <span class="geno">${vimGeneType}</span>\n` +
+    `\n<span class="k">${hdrTop}</span>\n` +
+    `<span class="k">${hdrSub}</span>\n` +
+    rows;
+}
+
+// Wire vim-gene buttons and tile-style dropdown.
+document.getElementById("vim-btn-randomize").addEventListener("click", () => {
+  const t = document.getElementById("vim-seed-type").value;
+  seedFromType(t);
+});
+document.getElementById("vim-btn-load-popsim").addEventListener("click", () => {
+  seedFromView(popsimView);
+});
+document.getElementById("vim-btn-load-borg").addEventListener("click", () => {
+  seedFromView(borgView);
+});
+document.getElementById("vim-tile-style").addEventListener("change", (ev) => {
+  vimStyle = TILE_STYLES[ev.target.value] || TILE_STYLES.ring7;
+  vimRenderDirty = true;
+});
+// Nonlin-mode toggle: re-express the phenome + notes and repaint the tile.
+document.getElementById("vim-nonlin-mode").addEventListener("change", () => {
+  refreshAllAnnots();
+  vimRenderDirty = true;
+});
+
+// Nonlin-mode is a global model parameter, not a per-tab preference: changing
+// it on any of popsim/vim-gene/borg mirrors to the other two selects and
+// re-fires their existing change handlers. Guard against the resulting
+// re-dispatch loop with `syncing`.
+(function wireNonlinModeSync() {
+  const ids = ["nonlin-mode", "vim-nonlin-mode", "borg-nonlin-mode"];
+  let syncing = false;
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.addEventListener("change", () => {
+      if (syncing) return;
+      syncing = true;
+      const v = el.value;
+      for (const otherId of ids) {
+        if (otherId === id) continue;
+        const other = document.getElementById(otherId);
+        if (!other || other.value === v) continue;
+        other.value = v;
+        other.dispatchEvent(new Event("change"));
+      }
+      syncing = false;
+    });
+  }
+})();
+
+/* ==========================================================================
+ * ROOT SPECIMEN (borg tab, top-of-column ROOT diploid tile)
+ * ========================================================================== */
+let rootRenderDirty = true;
+const rootSpecCanvas = document.getElementById("root-specimen");
+const rootSpecCtx    = rootSpecCanvas.getContext("2d", { alpha: false });
+const rootInfoEl     = document.getElementById("root-info");
+
+// Scratch phenome for ROOT — computed by phenotype(rootDiploid) using the
+// same rule as popsim and the vim gene tab, so all three previews agree.
+const _rootPheno = new Uint8Array(N_LOCI);
+
+function renderRoot(t) {
+  if (!borgView.pop || !borgView.pop.rootDiploid) return;
+  const style = borgView.style;
+  const M = style.M;
+  const width = rootSpecCanvas.width, height = rootSpecCanvas.height;
+  const scale = Math.floor(width / M);
+
+  const img = rootSpecCtx.createImageData(width, height);
+  const data = img.data;
+  for (let k = 0; k < data.length; k += 4) { data[k] = 0; data[k+1] = 0; data[k+2] = 0; data[k+3] = 255; }
+
+  const tSec = (t || 0) / 1000;
+  const root = borgView.pop.rootDiploid;
+  phenotype(root, 0, _rootPheno, 0, borgView.pop.params.nonlinMode);
+  const g = precomputeCell(_rootPheno, 0, tSec);
+
+  const scratch = new Uint8ClampedArray(M * M * 4);
+  if (style.kind === "ring") paintRingTile(style, g, 0, 0, tSec, scratch, M);
+  else                       paintPackedTile(g,   0, 0, tSec, scratch, M);
+  for (let cy = 0; cy < M; cy++) {
+    for (let cx = 0; cx < M; cx++) {
+      const so = (cy * M + cx) * 4;
+      const r = scratch[so], gc = scratch[so+1], b = scratch[so+2];
+      for (let sy = 0; sy < scale; sy++) {
+        for (let sx = 0; sx < scale; sx++) {
+          const px = cx * scale + sx;
+          const py = cy * scale + sy;
+          const o = (py * width + px) * 4;
+          data[o] = r; data[o+1] = gc; data[o+2] = b;
+        }
+      }
+    }
+  }
+  rootSpecCtx.putImageData(img, 0, 0);
+
+  // Same layout as popsim's specimen inspector: name | chrom0 | chrom1 | phenome.
+  const locusNames = ["cd_period","cd_rate","cd_dir","sat","hue_ratedir","hue_base","hue_bound","chaser","nonlin"];
+  const nameW = Math.max(...locusNames.map(n => n.length));
+  const chromLbl0 = "[chrom0]";
+  const chromLbl1 = "[chrom1]";
+  const phenoHdr  = "---phenome---";
+  const chromW = chromLbl0.length;
+  const phenoW = phenoHdr.length;
+  const gap = "  ";
+  const phenoMid = Math.floor(phenoW / 2);
+  const chromCell = (slot, name) => {
+    const raw = root[slot * N_LOCI + L[name]].toString();
+    return `<span class="geno">${raw.padStart(chromW)}</span>`;
+  };
+  const phenoShift = 4;
+  const phenoCell = (name) => {
+    const raw = _rootPheno[L[name]].toString();
+    const left  = " ".repeat(Math.max(0, phenoMid + 1 + phenoShift - raw.length));
+    const right = " ".repeat(Math.max(0, phenoW + phenoShift - left.length - raw.length));
+    return left + `<span class="pheno">${raw}</span>` + right;
+  };
+  const annot = (name) => {
+    if (name === "chaser" && _rootPheno[L.chaser] < 88) return gap + `<span class="note">&lt;&lt; shooting-star</span>`;
+    if (name === "nonlin" && _rootPheno[L.nonlin] > 127) return gap + `<span class="note">&lt;&lt; gamma rolloff</span>`;
+    return "";
+  };
+  const nameGap  = " ";
+  const chromGap = " ";
+  const midGap   = gap;
+  const genomeSpan = chromW + chromGap.length + chromW;
+  const genomeHdr = "---diploid genome---";
+  const centered = (s, w) => {
+    if (s.length >= w) return s;
+    const l = Math.floor((w - s.length) / 2);
+    const r = w - s.length - l;
+    return " ".repeat(l) + s + " ".repeat(r);
+  };
+  const hdrTop =
+    "".padEnd(nameW) + nameGap +
+    centered(genomeHdr, genomeSpan) + midGap +
+    phenoHdr;
+  const hdrSub =
+    "".padEnd(nameW) + nameGap +
+    chromLbl0 + chromGap + chromLbl1 + midGap +
+    "".padEnd(phenoW);
+  const rows = locusNames.map(n =>
+    `<span class="locus">${n.padEnd(nameW)}</span>` + nameGap +
+    chromCell(0, n) + chromGap + chromCell(1, n) + midGap +
+    phenoCell(n) + annot(n)
+  ).join("\n");
+  rootInfoEl.innerHTML =
+    `<span class="k">gen</span>       <span class="geno">${borgView.pop.generation}</span>\n` +
+    `\n<span class="k">${hdrTop}</span>\n` +
+    `<span class="k">${hdrSub}</span>\n` +
+    rows;
+}
+
+/* ==========================================================================
+ * BOOT
+ * ========================================================================== */
+selfTests();
+initPopulation(popsimView);
+animHandle = requestAnimationFrame(animLoop);
+</script>
+</body>
+</html>
