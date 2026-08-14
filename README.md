@@ -16,16 +16,16 @@ This repo pulls the mathematical core out of the badge firmware, ports it to Jav
 
 ## What's in here
 
-- **[`html/index.html`](html/index.html)** — the simulator. Single file, client-side only. Renders each of 10,000 badges as a 5×5 animated cell in a 100×100 grid. Seeded RNG so runs are reproducible. Includes the panmictic simulator, a "vim gene" specimen editor, and a **borg** tab that pins every mating to a fixed ROOT genotype.
+- **[`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html)** (on the `gh-pages` branch) — the simulator. Single file, client-side only. Renders each of 10,000 badges as a 5×5 animated cell in a 100×100 grid. Seeded RNG so runs are reproducible. Includes the panmictic simulator, a "vim gene" specimen editor, and a **borg** tab that pins every mating to a fixed ROOT genotype.
 - **[`synthetic-population-genetics.md`](synthetic-population-genetics.md)** — the writeup. Genome layout, meiosis and its five linkage groups, the phenotype expression map (including the asymmetric `nonlin` line), Gray-code mutation, the inbreeding pass, and what to measure. Start here if you want to understand what the sim is doing.
 - **[`borg-genetics.md`](borg-genetics.md)** — supplement covering the borg regime. What happens when every colony member's slot-1 chromosome is a fresh gamete drawn from a frozen ROOT diploid? Predictions and experiments.
 
 ## Running it
 
-There is no build step. Either open `html/index.html` in a browser directly, or serve the directory statically:
+There is no build step. Grab the standalone `index.html` from the `gh-pages` branch (see the link at the top of this README), then either open it in a browser directly, or serve the directory statically:
 
 ```
-python3 -m http.server -d html 8000
+python3 -m http.server 8000
 ```
 
 Then visit `http://localhost:8000`.
