@@ -1821,8 +1821,8 @@ function renderSpecimen(view, t) {
   const off2 = i * 2 * N_LOCI;
   const locusNames = ["cd_period","cd_rate","cd_dir","sat","hue_ratedir","hue_base","hue_bound","chaser","nonlin"];
   const nameW = Math.max(...locusNames.map(n => n.length));
-  const chromLbl0 = "[chrom0]";
-  const chromLbl1 = "[chrom1]";
+  const chromLbl0 = "[haplo0]";
+  const chromLbl1 = "[haplo1]";
   const phenoHdr  = "---phenome---";
   const chromW = chromLbl0.length;
   const phenoW = phenoHdr.length;
@@ -2849,8 +2849,8 @@ function renderVimGene(t) {
   // Info block: same 3-column layout as popsim's specimen inspector.
   const locusNames = VIM_LOCUS_NAMES;
   const nameW = Math.max(...locusNames.map(n => n.length));
-  const chromLbl0 = "[chrom0]";
-  const chromLbl1 = "[chrom1]";
+  const chromLbl0 = "[haplo0]";
+  const chromLbl1 = "[haplo1]";
   const phenoHdr  = "---phenome---";
   const chromW = chromLbl0.length;
   const phenoW = phenoHdr.length;
@@ -3000,8 +3000,8 @@ function renderRoot(t) {
   // Same layout as popsim's specimen inspector: name | chrom0 | chrom1 | phenome.
   const locusNames = ["cd_period","cd_rate","cd_dir","sat","hue_ratedir","hue_base","hue_bound","chaser","nonlin"];
   const nameW = Math.max(...locusNames.map(n => n.length));
-  const chromLbl0 = "[chrom0]";
-  const chromLbl1 = "[chrom1]";
+  const chromLbl0 = "[haplo0]";
+  const chromLbl1 = "[haplo1]";
   const phenoHdr  = "---phenome---";
   const chromW = chromLbl0.length;
   const phenoW = phenoHdr.length;
