@@ -1,5 +1,12 @@
 # SYNTHETIC POPULATION GENETICS
 
+## Related repositories
+
+- [`bunnie/dc34-api`](https://github.com/bunnie/dc34-api) — genetics core: `Haploid`, `Diploid`, `BadgeType`, `MutationRate`, `phenotype`, `meiosis`, `mutate`, `gray_encode`, `gray_decode`.
+- [`bunnie/dc34-vault`](https://github.com/bunnie/dc34-vault) — exchange state machine and the k0 oracle (`sha256(k0)[..8]`).
+- [`bunnie/dc34-console`](https://github.com/bunnie/dc34-console) — LED renderer.
+- [`nastea1/dc34-gamete`](https://github.com/nastea1/dc34-gamete) — QR wire format (`PROTOCOL.md`), published `k0`, and a browser reference implementation (`gamete-workbench.html`).
+
 ## What The Badge Is Actually Doing
 
 The DEF CON 34 badge runs a population-genetics simulator: diploid genome, meiosis with independent assortment,
@@ -25,7 +32,7 @@ building something this tractable:
 
 - **Fixed genome length.** Nine one-byte loci. No indels, no crossover inside a gene, no ploidy changes.
 - **Discrete allele space.** Each locus is a `u8`, exactly 256 possible alleles. The whole haploid space has cardinality `256^9 ≈ 4.7 × 10^21`, which sounds huge but decomposes cleanly per locus so it doesn't matter.
-- **Independent assortment.** Meiosis picks each locus's parent chromosome independently (see §3). No linkage, no intra-locus recombination.
+- **Independent assortment.** Meiosis picks each locus's parent haploid independently (see §3). No linkage, no intra-locus recombination.
 - **Pure functions.** `phenotype()`, `meiosis()`, `mutate()` are all deterministic given their RNG stream. Trivially vectorizable.
 - **No selection baked in.** The badge has no fitness function. Selection is entirely exogenous, i.e. humans pressing KEEP or REVERT. Which means the sim's selection layer is a *policy* we get to pick, and the same core can run drift-only, truncation-selection, mate-choice, whatever regime we want to study.
 
@@ -34,7 +41,10 @@ spaces) are all just... absent. By construction. That's why 10k individuals is c
 "reserve a cluster."
 
 The **k0** key is what makes the exchange verifiable between real badges. In simulation it drops out entirely. We
-don't need to encrypt gametes to move them between in-memory individuals.
+don't need to encrypt gametes to move them between in-memory individuals. The wire format itself — two phases,
+AES-256-GCM-SIV under `k0`, base45 QRs, byte-15 badge-type semantics — is specified in
+[`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md); the vim gene
+tab's QR panel implements that wire format so a simulated diploid can mint gametes real badges would accept.
 
 ---
 
@@ -54,11 +64,11 @@ A **Haploid** is nine `u8` loci, in this order (matches `dc34-api/src/lib.rs:231
 | 7 | `chaser`      | chaser animation (renderer calls it `lin`) |
 | 8 | `nonlin`      | nonlinear brightness / gamma rolloff       |
 
-A **Diploid** is an ordered pair `(chrom0, chrom1)` of Haploids. Order matters, and it matters in a way that's
+A **Diploid** is an ordered pair `(haplo0, haplo1)` of Haploids. Order matters, and it matters in a way that's
 going to bite us in §4, so remember that.
 
 In vectorized form this is naturally an `(N, 2, 9)` `uint8` array for a population of `N` individuals: axis 0 =
-individual, axis 1 = chromosome slot, axis 2 = locus. (The shipped browser sim, [`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html),
+individual, axis 1 = haploid slot, axis 2 = locus. (The shipped browser sim, `badge-genetics-sim.html`,
 flattens this to a single `Uint8Array` of length `N * 2 * 9`; a NumPy reference implementation is in §10.)
 
 ```
@@ -116,7 +126,7 @@ demographics you care about.
 From `Diploid::meiosis()` in `dc34-api/src/lib.rs:357-374`. The linkage structure here is subtle and it's the one
 place a naive re-implementation will probably be silently wrong.
 
-- `cd_period`, `cd_rate`, `cd_dir` all inherit from the **same** parent chromosome (one shared coin flip).
+- `cd_period`, `cd_rate`, `cd_dir` all inherit from the **same** parent haploid (one shared coin flip).
 - `sat` gets its **own** coin flip.
 - `hue_ratedir`, `hue_base`, `hue_bound` all inherit from the **same** parent (one shared coin flip).
 - `chaser` gets its **own** coin flip.
@@ -137,25 +147,25 @@ Within a group, the two loci co-segregate perfectly (linkage = 1). Across groups
 coins, five groups.
 
 Vectorized: for a population of N mating pairs, sample five independent `uniform{0,1}` masks of length N, one per
-group, and use each mask to select whichever chromosome slot contributes that group's alleles.
+group, and use each mask to select whichever haploid slot contributes that group's alleles.
 
 ```javascript
-// pop: flat Uint8Array of length N*2*N_LOCI (individual, chromosome slot, locus).
+// pop: flat Uint8Array of length N*2*N_LOCI (individual, haploid slot, locus).
 // out: flat Uint8Array of length N*N_LOCI, one gamete per individual.
 const GROUPS = [[0,1,2], [3], [4,5,6], [7], [8]];  // five linkage groups
 
 for (let i = 0; i < N; i++) {
   for (let g = 0; g < GROUPS.length; g++) {
     const pick = rng.coin();                       // 0 or 1, one coin per group
-    const chromOff = i * 2 * N_LOCI + pick * N_LOCI;
+    const haploOff = i * 2 * N_LOCI + pick * N_LOCI;
     for (const locus of GROUPS[g]) {
-      out[i * N_LOCI + locus] = pop[chromOff + locus];
+      out[i * N_LOCI + locus] = pop[haploOff + locus];
     }
   }
 }
 ```
 
-There is no true "chromosome" object in the badge. The linkage structure is expressed purely by which
+There is no true "chromosome" object in the badge — the diploid is just two flat 9-byte haploids. The linkage structure is expressed purely by which
 loci share a coin flip in `meiosis()`. Any simulator that draws one coin per locus (the naive "each locus
 segregates independently" version) will overstate diversity in groups A and C. Easy mistake to make, hard to notice
 from the output.
@@ -164,7 +174,7 @@ from the output.
 
 ## 4. Phenotype: The Diploid --> Haploid Expression Map
 
-From `Diploid::phenotype()` in `dc34-api/src/lib.rs:317-347`. Let `a = chrom0[locus]`, `b = chrom1[locus]`, all
+From `Diploid::phenotype()` in `dc34-api/src/lib.rs:317-347`. Let `a = haplo0[locus]`, `b = haplo1[locus]`, all
 arithmetic on `u8` with the saturating-add semantics noted:
 
 | locus         | expression                                            | flavor                      |
@@ -177,14 +187,14 @@ arithmetic on `u8` with the saturating-add semantics noted:
 | `hue_base`    | `min(a, b)`                                           | wider interval dominant     |
 | `hue_bound`   | `max(a, b)` then `max(hue_bound, hue_base)`           | wider interval dominant     |
 | `chaser`      | `sat_add(a, b)`                                       | additive dominance          |
-| `nonlin`      | **`sat_add(chrom0.chaser, chrom1.nonlin)`**           | **asymmetric, see §4.1**    |
+| `nonlin`      | **`sat_add(haplo0.chaser, haplo1.nonlin)`**           | **asymmetric, see §4.1**    |
 
 Where `sat_add(x, y) = min(255, x + y)`.
 
 The structural stuff worth noting:
 
 1. **Additive dominance is the default.** Six of the nine phenotypes get shoved toward 255 by any nonzero allele on
-   either chromosome. Under random mating with uniform priors, `sat`, `cd_dir`, `chaser` equilibrate very close to
+   either haploid. Under random mating with uniform priors, `sat`, `cd_dir`, `chaser` equilibrate very close to
    saturated within a handful of generations, because `P(sat_add(a,b) < 255) = P(a + b < 256)` and both `a` and `b`
    drift upward as saturation accumulates in the gene pool.
 
@@ -209,13 +219,13 @@ nonlin: self.0[0].chaser.saturating_add(self.0[1].nonlin),
 
 The recipient's chaser allele shows up in the donor's nonlin phenotype. For simulation, the important facts are:
 
-- **Chromosome order matters.** Slot 0 is the recipient's egg, slot 1 is the donor's sperm (`replace_gene(egg,
+- **Haploid order matters.** Slot 0 is the recipient's egg, slot 1 is the donor's sperm (`replace_gene(egg,
   sperm)` builds `Diploid([egg, sperm])` in that order). So the *displayed* `nonlin` depends on which badge
   received the exchange, not just on the two contributing genomes. Same two badges, opposite roles, different
   nonlin.
 - **The recipient's chaser allele leaks into the donor's nonlin phenotype.** This is not a modeling error on my
   part - it is the shipped code. Bug? Feature? You decide!
-- Empirically, roughly 78% of parent pairs produce a different `phenotype().nonlin` if you reverse the chromosome
+- Empirically, roughly 78% of parent pairs produce a different `phenotype().nonlin` if you reverse the haploid
   order. That's not a rounding-error asymmetry, that's structural.
 
 At the population level `nonlin` and `chaser` are **phenotypically coupled** in a way meiosis does not model, and
@@ -419,19 +429,19 @@ Some quantities that fall naturally out of the model:
 3. **Fixation and loss rates.** Track how often a locus goes to a single allele across the population, and how
    quickly. This is where the inbreeding pass should really show up.
 
-4. **Cross-type introgression.** Fraction of Human-badge chromosomes carrying an allele in the Uber-native chaser
+4. **Cross-type introgression.** Fraction of Human-badge haploids carrying an allele in the Uber-native chaser
    range `0..=45`. Answers "how long does it take Uber chaser genes to spread into the Human population under given
    mixing assumptions."
 
 5. **P(phenotype.chaser < 88) per generation.** The shooting-star variant. Compare to the pure-source calculation
-   in the white paper (~99.7% Uber, ~6% Other, 0% for the other six at gen 0) and watch it evolve.
+   (~99.7% Uber, ~6% Other, 0% for the other six at gen 0) and watch it evolve.
 
 6. **21-31 hue-gap occupancy.** Fraction of population with `phenotype.hue_base ∈ [21, 31]` OR interval covering
    that range. Answers "does the gap get colonized under mixing / mutation, and how fast."
 
 7. **`nonlin` bug delta.** Run the population twice with identical RNG seeds, once with the shipped asymmetric
    expression, once with a symmetric version. Compare the population-level `nonlin` distributions. This
-   *quantifies* the white paper's "very likely bug" hypothesis in a way source reading alone cannot.
+   *quantifies* the "very likely a bug" hypothesis in a way source reading alone cannot.
 
 8. **Same-type vs cross-type mating variance.** With the inbreeding pass on and off. Should demonstrate the design
    claim ("adds more diversity more quickly for populations that are isolated").

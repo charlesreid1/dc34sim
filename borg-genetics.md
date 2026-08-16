@@ -1,5 +1,8 @@
 # BORG GENETICS
 
+Related: [`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md) for the
+k0 exchange wire format (context on how a real badge accepts gametes; the borg regime doesn't touch it).
+
 What if an organism acquired ROOT access in the DEF CON badge colony?
 Once ROOT hacks the mating process, nobody in the colony will ever have another mate.
 Every mating event always involves ROOT. Without mutations, the genome of
@@ -19,10 +22,10 @@ Gray-code trick — still applies.
 We just add one twist.
 
 The **borg** tab in [`index.html`](https://github.com/charlesreid1/dc34sim/blob/gh-pages/index.html) runs the same genetic simulator, but replaces panmictic random
-pairing with a fixed second partner in every mating: **ROOT**. ROOT is itself a diploid — two chromosomes,
+pairing with a fixed second partner in every mating: **ROOT**. ROOT is itself a diploid — two haploids,
 same nine loci as anyone else — and every mating event in the borg regime is `(some colony member, ROOT)`.
 Every colony member is a diploid too; that never changes. What changes is the pairing rule and the fact
-that ROOT's two chromosomes are frozen for the entire run: never mutated, never overwritten, never replaced.
+that ROOT's two haploids are frozen for the entire run: never mutated, never overwritten, never replaced.
 
 The whole regime is a special case of `synthetic-population-genetics.md` §7, with the mating scheduler
 collapsed to a constant function (partner = ROOT, always) and a small handful of side conditions turned off.
@@ -32,8 +35,8 @@ But the *behavior* under that collapse is qualitatively different enough to dese
 
 ## 1. What Actually Changes
 
-Both the colony members and ROOT are diploids — nine loci × two chromosomes each. Every mating produces a
-child diploid whose two chromosomes are: **slot 0** = a fresh meiotic gamete from the colony member's own
+Both the colony members and ROOT are diploids — nine loci × two haploids each. Every mating produces a
+child diploid whose two haploids are: **slot 0** = a fresh meiotic gamete from the colony member's own
 diploid, **slot 1** = a fresh meiotic gamete from ROOT's diploid. Slot 0 replaces that colony member in
 place; ROOT is not replaced at all. So a generation is `N` mating events, one per colony member, each
 producing one child diploid that overwrites its parent.
@@ -70,7 +73,7 @@ Four things worth considering:
    `mutate()` pass (§5.1 of the popsim doc), and on same-type matings the inbreeding branch adds another
    pass. In borg, only the colony member's own gamete is mutated. The ROOT gamete is written into slot 1
    raw. All generation-over-generation variability on the slot-1 side comes entirely from the 5-coin meiotic
-   reshuffle of ROOT's two chromosomes. This is what keeps ROOT alleles recognizable in the population even
+   reshuffle of ROOT's two haploids. This is what keeps ROOT alleles recognizable in the population even
    after hundreds of generations: they can be reshuffled but not eroded.
 
 3. **No inbreeding pass.** The popsim inbreeding branch fires only when the two mating individuals
@@ -79,7 +82,7 @@ Four things worth considering:
    mutation. The UI has no inbreeding toggle on the borg tab for exactly this reason.
 
 4. **Slot-0 mutation is the only source of new alleles.** Every generation the slot-0 side does one meiotic
-   reshuffle of the colony member's own two chromosomes, followed by one `mutate()` pass at `baseRate`.
+   reshuffle of the colony member's own two haploids, followed by one `mutate()` pass at `baseRate`.
    That is the entire entropy budget for the run. If you set `mutationRate=None`, slot 0 becomes a pure
    shuffle of the previous generation's slot-0 pool, which drifts under classic Wright-Fisher dynamics —
    except that slot 1 is *always* pinned to a ROOT gamete, so half of every child diploid is drawn from a
@@ -119,18 +122,18 @@ contribution from ROOT regardless of what the colony member's own alleles say.
 
 ROOT is snapshotted from the **vim gene** tab at reset time. The borg tab has no ROOT editor of its own; when
 you press `reset` on the borg controls, `initPopulation()` reads the current 2×9 bytes out of the vim gene
-editor (`vimGene.chrom0` / `vimGene.chrom1`) and hands them to `BorgPopulation` as `params.rootDiploid`. The
+editor (`vimGene.haplo0` / `vimGene.haplo1`) and hands them to `BorgPopulation` as `params.rootDiploid`. The
 constructor takes an immutable `Uint8Array` copy — subsequent edits in vim gene don't reach into a running
 borg population. Reset the borg tab to install a new ROOT.
 
 This lets you construct a specific ROOT genotype in vim gene (e.g. a rare shooting-star Uber chaser, or a
 deliberately gap-filling `hue_base=25` allele), then watch what happens to a 10,000-member population when
-every child gets one of ROOT's gametes as its slot-1 chromosome.
+every child gets one of ROOT's gametes as its slot-1 haploid.
 
 The initial population is generated the normal way (§2 of the popsim doc): each member gets a badge type
-drawn from the mix preset, and its two chromosomes are freshly generated from that type's ranges. ROOT does
+drawn from the mix preset, and its two haploids are freshly generated from that type's ranges. ROOT does
 not participate in that step — ROOT only shows up at mating time in `step()`. So generation 0 is a "clean"
-per-type population, and each subsequent generation replaces the slot-1 chromosome of every member with a
+per-type population, and each subsequent generation replaces the slot-1 haploid of every member with a
 fresh ROOT gamete.
 
 ---
@@ -140,8 +143,8 @@ fresh ROOT gamete.
 Some quick predictions to test against the sim:
 
 1. **Slot-1 is fixed, immediately.** After one generation, every colony member's slot 1 is a fresh ROOT
-   gamete. The slot-1 allele frequency spectrum, per locus, is exactly `0.5 * ROOT.chrom0[locus] + 0.5 *
-   ROOT.chrom1[locus]` (two possible values per locus in groups B, D, E; a correlated pair of two possible
+   gamete. The slot-1 allele frequency spectrum, per locus, is exactly `0.5 * ROOT.haplo0[locus] + 0.5 *
+   ROOT.haplo1[locus]` (two possible values per locus in groups B, D, E; a correlated pair of two possible
    values per locus in groups A and C).
 
 2. **Slot-0 is drift plus mutation.** The slot-0 side never sees an outside allele, so its `N` haploid
@@ -187,8 +190,8 @@ Some quick predictions to test against the sim:
   that answers the counterfactual "what if there were one fixed genotype that every badge in the room
   invariably mated with?" It's the badge-genetics equivalent of a founder effect turned into a mating policy.
 
-- **Not immune to the `nonlin` asymmetry.** ROOT chromosome order matters in exactly the same way as popsim
-  chromosome order matters. `rootDiploid[0]` (chrom0) and `rootDiploid[1]` (chrom1) are distinguishable at
+- **Not immune to the `nonlin` asymmetry.** ROOT haploid order matters in exactly the same way as popsim
+  haploid order matters. `rootDiploid[0]` (haplo0) and `rootDiploid[1]` (haplo1) are distinguishable at
   meiosis time (the E-group coin picks between them), but the `nonlin` phenotype only ever reads
   `slot-1.nonlin` from the child diploid, and slot 1 is always a ROOT gamete. So ROOT's two `nonlin` alleles
   appear in the population's `nonlin` phenotype with 50/50 frequency, and the `chaser`-leak that produces
