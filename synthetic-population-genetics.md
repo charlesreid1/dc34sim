@@ -2,10 +2,10 @@
 
 ## Related repositories
 
-- [`bunnie/dc34-api`](https://github.com/bunnie/dc34-api) — genetics core: `Haploid`, `Diploid`, `BadgeType`, `MutationRate`, `phenotype`, `meiosis`, `mutate`, `gray_encode`, `gray_decode`.
-- [`bunnie/dc34-vault`](https://github.com/bunnie/dc34-vault) — exchange state machine and the k0 oracle (`sha256(k0)[..8]`).
-- [`bunnie/dc34-console`](https://github.com/bunnie/dc34-console) — LED renderer.
-- [`nastea1/dc34-gamete`](https://github.com/nastea1/dc34-gamete) — QR wire format (`PROTOCOL.md`), published `k0`, and a browser reference implementation (`gamete-workbench.html`).
+- [`bunnie/dc34-api`](https://github.com/bunnie/dc34-api) - genetics core: `Haploid`, `Diploid`, `BadgeType`, `MutationRate`, `phenotype`, `meiosis`, `mutate`, `gray_encode`, `gray_decode`.
+- [`bunnie/dc34-vault`](https://github.com/bunnie/dc34-vault) - exchange state machine and the k0 oracle (`sha256(k0)[..8]`).
+- [`bunnie/dc34-console`](https://github.com/bunnie/dc34-console) - LED renderer.
+- [`nastea1/dc34-gamete`](https://github.com/nastea1/dc34-gamete) - QR wire format (`PROTOCOL.md`), published `k0`, and a browser reference implementation (`gamete-workbench.html`).
 
 ## What The Badge Is Actually Doing
 
@@ -41,8 +41,8 @@ spaces) are all just... absent. By construction. That's why 10k individuals is c
 "reserve a cluster."
 
 The **k0** key is what makes the exchange verifiable between real badges. In simulation it drops out entirely. We
-don't need to encrypt gametes to move them between in-memory individuals. The wire format itself — two phases,
-AES-256-GCM-SIV under `k0`, base45 QRs, byte-15 badge-type semantics — is specified in
+don't need to encrypt gametes to move them between in-memory individuals. The wire format itself - two phases,
+AES-256-GCM-SIV under `k0`, base45 QRs, byte-15 badge-type semantics - is specified in
 [`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md); the vim gene
 tab's QR panel implements that wire format so a simulated diploid can mint gametes real badges would accept.
 
@@ -68,7 +68,7 @@ A **Diploid** is an ordered pair `(haplo0, haplo1)` of Haploids. Order matters, 
 going to bite us in §4, so remember that.
 
 In vectorized form this is naturally an `(N, 2, 9)` `uint8` array for a population of `N` individuals: axis 0 =
-individual, axis 1 = haploid slot, axis 2 = locus. (The shipped browser sim, `badge-genetics-sim.html`,
+individual, axis 1 = haploid slot, axis 2 = locus. (The shipped browser sim, `index.html`,
 flattens this to a single `Uint8Array` of length `N * 2 * 9`; a NumPy reference implementation is in §10.)
 
 ```
@@ -165,7 +165,7 @@ for (let i = 0; i < N; i++) {
 }
 ```
 
-There is no true "chromosome" object in the badge — the diploid is just two flat 9-byte haploids. The linkage structure is expressed purely by which
+There is no true "chromosome" object in the badge - the diploid is just two flat 9-byte haploids. The linkage structure is expressed purely by which
 loci share a coin flip in `meiosis()`. Any simulator that draws one coin per locus (the naive "each locus
 segregates independently" version) will overstate diversity in groups A and C. Easy mistake to make, hard to notice
 from the output.

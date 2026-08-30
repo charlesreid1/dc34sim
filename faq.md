@@ -2,6 +2,7 @@
 
 - [What is this?](#what-is-this)
 - [Using the simulator](#using-the-simulator)
+- [Skeet](#skeet)
 - [Badgecestry](#badgecestry)
 - [Your physical badge](#your-physical-badge)
 - [Under the hood](#under-the-hood)
@@ -16,15 +17,16 @@ A browser simulation of the DEF CON 34 badge's population-genetics system:
 your physical DC34 badge over the QR exchange. See
 [`synthetic-population-genetics.md`](synthetic-population-genetics.md).
 
-It's a CRT-styled terminal with four tabs across the top. Each is a different
+It's a CRT-styled terminal with five tabs across the top. Each is a different
 lens on the same genetics core:
 
 - **popsim** - evolve a whole population of badges. Click any cell to inspect it.
 - **vim gene** - edit one badge's genome (a diploid: 2 x 9 bytes) and mint QRs a real badge will accept.
+- **skeet** - take one diploid and enumerate every gamete it can produce (all 32), then seal one for a real badge to accept.
 - **borg** - same as popsim, but every mating uses one frozen partner, ROOT.
 - **badgecestry** - decode one badge's ancestry composition with a two-stage hidden Markov model.
 
-<!-- SCREENSHOT: full-page view with the four tabs circled -->
+<!-- SCREENSHOT: full-page view with the five tabs circled -->
 
 ### Do I need a camera?
 
@@ -63,9 +65,10 @@ On either tab, click a cell in the population grid. Its genome and phenotype
 show up in the specimen inspector right below the grid.
 
 The inspector is the hub between tabs: any badge you select can be sent
-straight to **vim gene** to edit, or to **badgecestry** to decode. So the
-whole pipeline is: pull a gene out of a popsim run, send it to vim gene, edit
-it, and borg draws its frozen ROOT from the vim gene state.
+straight to **vim gene** to edit, to **skeet** to enumerate its gametes, or
+to **badgecestry** to decode. So the whole pipeline is: pull a gene out of a
+popsim run, send it to vim gene, edit it, and borg draws its frozen ROOT
+from the vim gene state.
 
 ### What do the allele-frequency histograms mean?
 
@@ -94,6 +97,85 @@ two strands. It exists to expose the shipped `nonlin` asymmetry: the same two
 haploids in opposite roles usually produce a different displayed phenotype.
 See [`synthetic-population-genetics.md`](synthetic-population-genetics.md)
 section 4.1.
+
+## Skeet
+
+### What is skeet?
+
+Skeet takes one diploid badge and enumerates every gamete it can produce.
+With 5 linkage groups and fair independent coins, that's exactly `2^5 = 32`
+distinct gametes, and skeet shows all 32 at once - no sampling, no RNG, no
+re-roll. It's meiosis-as-a-truth-table: masturbation, not mating. One
+organism in, its full gamete space out. See [`skeet.md`](skeet.md) for the
+full write-up and
+[`synthetic-population-genetics.md`](synthetic-population-genetics.md)
+section 3 for the linkage groups.
+
+### How is skeet different from vim gene?
+
+vim gene edits a diploid and mints **one** gamete on demand (a random draw
+from the badge's possible gametes). Skeet is read-only and shows **all 32**
+possible gametes at once, so you can pick exactly the one you want to seal
+into a QR. Vim gene is the editor; skeet is the exhaustive enumerator.
+
+### How do I send a badge to skeet?
+
+Same pattern as sending to vim gene: any specimen inspector (popsim, borg,
+vim gene) has a **send to skeet** button. Click a cell in the grid, press
+send, and the skeet tab loads with that badge in its slot. Sending is a
+snapshot - later edits in vim gene do not retroactively update the skeet
+slot; re-send if you want to sync.
+
+### How do I read the 32-gamete grid?
+
+Panel B has 32 rows, one per coin pattern. Each row shows:
+
+- a **5-bit pattern label** (e.g. `10110`) telling you which linkage groups
+  came from haplo1 vs haplo0,
+- **9 boxed cells**, one per locus, colored by source haploid (haplo0 vs
+  haplo1) so you can see the linkage blocks at a glance, and
+- a **`+ Pick`** button at the end of the row.
+
+Cells within the same linkage group co-segregate - they always share the
+same source color in a given row. If both haploids happen to be identical
+at a group's loci, the two patterns that differ only in that bit produce
+byte-identical gametes; skeet shows both rows anyway (deliberate - the view
+is "all 32 mathematically possible patterns," not "unique gametes").
+
+Row order is randomized once per loaded organism and held stable while you
+compare and pick, so the layout doesn't jump under you between renders.
+Sending a different badge triggers a fresh shuffle.
+
+### How do I pick a gamete?
+
+Click **`+ Pick`** on the row you want. That reveals Panel C (the QR
+exchange) and loads the picked gamete's 9 bytes as the seal payload. Only
+one gamete can be picked at a time; clicking `+ Pick` on a different row
+swaps the picked gamete (and invalidates any prior seal). Clicking `+ Pick`
+on the already-picked row unpicks and hides Panel C.
+
+### How do I seal a gamete on the skeet tab (nonce and seal)?
+
+Panel C mirrors vim gene's QR gene exchange, minus the "gamete source"
+picker (the source *is* the row you picked). Same three-phase flow as
+[`gene-exchange.md`](gene-exchange.md):
+
+1. **k** - shared with vim gene. Edit it on either tab and both stay in sync.
+2. **phase 1** - your physical badge shows its phase-1 QR. Scan it with
+   your phone, paste the decoded string into the box, and press **extract
+   nonce**. Skeet keeps its own parsed nonce separate from vim gene's, so a
+   phase 1 done elsewhere doesn't silently pre-fill here.
+3. **phase 2** - pick a **byte 15 :: badge type override** (defaults to
+   the parent diploid's badge type) and press **seal**. It produces a QR
+   your badge will accept as a mate, with the picked gamete as the mate's
+   contribution.
+4. **phase 3** - press **decode phase 2** to round-trip the sealed bytes
+   back to a haploid preview, so you can verify the recovered bytes match
+   the gamete you picked.
+
+The parent diploid in skeet is the **responder** in the exchange; your
+physical badge is the **receiver**. The gamete you sealed becomes slot 0 of
+the receiver's new diploid.
 
 ## Badgecestry
 

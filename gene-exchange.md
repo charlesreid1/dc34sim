@@ -6,8 +6,8 @@ role of `k0`, and the "k9000" idea of forking your own genetically isolated
 population.
 
 Related:
-[`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md) — the wire format spec, byte-by-byte.
-[`bunnie/dc34-vault`](https://github.com/bunnie/dc34-vault) — the firmware side of the exchange.
+[`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md) - the wire format spec, byte-by-byte.
+[`bunnie/dc34-vault`](https://github.com/bunnie/dc34-vault) - the firmware side of the exchange.
 
 ---
 
@@ -31,7 +31,7 @@ haplo1 identical) if you want a deterministic gamete; different strands if you w
 (Alternatively, if you find a badge that you like during a population simulation/borg simulation, you can select
 the badge and click "Send to vim gene" in the specimen inspector.)
 
-This is the only "design" step — everything after this is button-pressing.
+This is the only "design" step - everything after this is button-pressing.
 
 ### PHASE 1: Generate nonce
 
@@ -41,7 +41,7 @@ generate a nonce:
 1. On your badge, press left or right to display its phase-1 QR.
 2. Scan that QR with your phone's camera or a QR reader app.
 3. Copy the text it decoded to (it looks something like
-   `7F9 /E-XUZ 6G5CSFW-XP88ANWB*VRYAMQXGO$9BE9` — 42-ish characters,
+   `7F9 /E-XUZ 6G5CSFW-XP88ANWB*VRYAMQXGO$9BE9` - 42-ish characters,
    spaces are part of it, do not strip them).
 4. Paste that whole string into the phase-1 text area.
 5. Press **extract nonce**. The status line will read
@@ -70,7 +70,7 @@ the QR code that you'll scan:
    draws a fresh coin-flip gamete from the vim diploid. `haplo0` or
    `haplo1` sends that strand verbatim (useful when you built a
    homozygous mate and want reproducibility).
-2. Pick **byte 15 (badge type)**. `7 :: None` is the safe universal answer — it
+2. Pick **byte 15 (badge type)**. `7 :: None` is the safe universal answer - it
    suppresses the inbreeding mutation pass on any receiver. Or pick any
    badge type that is **not** the same as your physical badge's, if you
    want the seal to look "in the world." Deliberately picking your own
@@ -108,9 +108,7 @@ it does, but your badge still rejects the QR, the problem is badge-side
 (state, camera focus, badge rotated its nonce, badge has wrong key value),
 not with vim gene.
 
-![vim gene screenshot: phase 4 round trip before confirming](img/phase4a.png)
-
-![vim gene screenshot: phase 4 round trip showing recovered badge pattern](img/phase4b.png)
+![vim gene screenshot: phase 4 round trip showing recovered badge pattern](img/phase4.png)
 
 ---
 
@@ -118,7 +116,7 @@ not with vim gene.
 
 The DC34 exchange is asymmetric: **only one badge's genome updates per
 mating**. That badge is the *receiver*. In the recipe above your physical
-badge is the receiver, and the vim gene panel is the *responder* — it
+badge is the receiver, and the vim gene panel is the *responder* - it
 supplies a gamete but doesn't itself change.
 
 Two QRs, in this order:
@@ -199,7 +197,7 @@ safe default.
 
 Only two primitives ship over the air:
 
-- **base45** (RFC 9285) — how the raw bytes become text a QR can carry in
+- **base45** (RFC 9285) - how the raw bytes become text a QR can carry in
   Alphanumeric mode. Alphanumeric mode is one QR version smaller than byte
   mode for the same payload, meaning larger modules and a better scan.
 - **AES-256-GCM-SIV** (RFC 8452), key = `k0`, nonce = the badge's phase-1
@@ -213,7 +211,7 @@ straight off disk.
 
 **Why GCM-SIV specifically:** the "SIV" (Synthetic Initialization Vector)
 variant is nonce-misuse resistant. Ordinary AES-GCM catastrophically fails
-under nonce reuse — an attacker who sees two ciphertexts under the same
+under nonce reuse - an attacker who sees two ciphertexts under the same
 `(key, nonce)` pair can recover the authentication key and forge messages.
 GCM-SIV downgrades gracefully instead: reusing a nonce merely leaks whether
 the two plaintexts were identical. Given the DC34 nonce is only 96 bits
@@ -232,8 +230,8 @@ sender was some DC34 badge." Two consequences:
 - No key rotation, no revocation. Authenticity in this scheme proves "some
   DC34 badge, somewhere," never *which* badge.
 
-The badge firmware carries a hardcoded prefix of `sha256(k0)` — the eight
-hex chars `dca9ea49` at `dc34-vault/src/main.rs:42` — used by each badge to
+The badge firmware carries a hardcoded prefix of `sha256(k0)` - the eight
+hex chars `dca9ea49` at `dc34-vault/src/main.rs:42` - used by each badge to
 validate its own key material. The panel's k row runs the same check when
 the input is the default value; a custom key is accepted with a warning
 that the oracle didn't match.
@@ -249,11 +247,11 @@ sit under a separate per-device key and are not affected by `k0` leaking.
 
 ---
 
-## k9000 — forking your own genetically isolated population
+## k9000 - forking your own genetically isolated population
 
 `k0` is a parameter, not a constant. The whole exchange works under *any*
 32-byte key; `k0` is just the one bunnie's firmware happens to accept. Pick
-any other 32 bytes — call it `k9000` — and you have a fully working
+any other 32 bytes - call it `k9000` - and you have a fully working
 DC34-style population that is **genetically incompatible with real DC34
 badges**:
 
@@ -272,7 +270,7 @@ Useful for:
   escaping the lab and leaking into the general (conference) population.
 
 To use one: paste your 64 hex chars into the panel's k row and press
-verify & save. The oracle check will fail (that's expected — it's not
+verify & save. The oracle check will fail (that's expected - it's not
 `k0`), and the status line will say *custom k accepted; oracle not
 checked*. Everyone in your colony uses the same custom key.
 
