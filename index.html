@@ -1697,7 +1697,7 @@
         [ waiting for diploid ]
       </div>
       <canvas id="bc-pie" width="720" height="90" style="width:100%; height:90px;"></canvas>
-      <div id="bc-pie-legend" style="display:flex; flex-wrap:wrap; gap:0.4rem 1rem; margin-top:0.4rem; font-size:0.9rem;"></div>
+      <div id="bc-pie-legend" style="display:flex; flex-direction:column; gap:0.2rem; margin-top:0.4rem; font-size:0.9rem;"></div>
     </div>
 
     <div class="panel">
@@ -8175,7 +8175,7 @@ function drawCompositionPie(percentages, composition, candidateUnion, minThresho
     hdr.style.cssText = "width:100%; margin:0.35rem 0 0.15rem; color:var(--fg); font-size:0.85rem;";
     legend.appendChild(hdr);
     const row = document.createElement("div");
-    row.style.cssText = "display:flex; flex-wrap:wrap; gap:0.15rem 0;";
+    row.style.cssText = "display:flex; flex-direction:column; gap:0.15rem;";
     for (const T of items) row.appendChild(makeChip(T, kind));
     legend.appendChild(row);
   };
@@ -8270,7 +8270,7 @@ function drawEmissionHeatmaps(E_TLA) {
   for (const idx of ACTIVE_IDX) {
     const th = document.createElement("th");
     th.textContent = TYPE_SHORT[TYPES[idx]];
-    th.style.cssText = `color:${TYPE_COLOR[TYPES[idx]]}; padding:0.15rem; text-align:center;`;
+    th.style.cssText = `color:${TYPE_COLOR[TYPES[idx]]}; padding:0.15rem; text-align:left;`;
     hr.appendChild(th);
   }
   thead.appendChild(hr);
