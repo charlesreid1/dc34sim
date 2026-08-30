@@ -86,8 +86,17 @@
     align-items: start;
   }
   #tab-badgecestry .layout {
-    grid-template-columns: clamp(280px, 28%, 400px) 1fr;
+    grid-template-columns: clamp(280px, 28%, 400px) minmax(0, 1fr);
   }
+  /* Grid children default to min-content = as wide as their widest indivisible
+     child. The right column contains wide canvases (emission heatmaps at 7x256px)
+     and long unbreakable chip text ("Goon: pruned by stage-1 (not in either
+     haplotype's top-3)"). Without min-width:0 they blow the 1fr track out past
+     the viewport. min-width:0 lets the track shrink and lets overflow-x on the
+     inner scrollers (bc-viz-emissions, bc-specimen-info) actually do their job. */
+  #tab-badgecestry #bc-left,
+  #tab-badgecestry #bc-right { min-width: 0; }
+  #tab-badgecestry #bc-right .panel { min-width: 0; overflow-x: auto; }
   @media (max-width: 1080px) {
     .layout { grid-template-columns: 1fr; }
     #tab-badgecestry .layout { grid-template-columns: 1fr; }
@@ -8278,7 +8287,11 @@ function drawEmissionHeatmaps(E_TLA) {
       const td = document.createElement("td");
       td.style.cssText = "padding:1px;";
       const CELL_H = 20;
-      const CELL_W = 256;
+      // 64 source px, 64 CSS px. Keep source-px == CSS-px so image-rendering:
+      // pixelated stays exact and the 3-column ticks don't sub-pixel-blur into
+      // hairlines. For 256-value loci this bins four alleles per column, which
+      // is fine visually — the fill just reads as a slightly smoother PMF.
+      const CELL_W = 64;
       const c = document.createElement("canvas");
       c.width = CELL_W; c.height = CELL_H;
       // Fixed CSS width == source width so 1 source pixel = 1 CSS pixel. This
