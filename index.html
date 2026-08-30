@@ -18,7 +18,7 @@
 -->
 <style>
   :root {
-    /* DEF CON 34 official palette (accents only — chrome stays near-black
+    /* DEF CON 34 official palette (accents only - chrome stays near-black
      * so LED tiles read cleanly and the Human blue band doesn't fight the UI).
      *   #0d294a  navy         (2955C)
      *   #017FA4  teal         (314C)   -- dim UI text/borders
@@ -69,7 +69,7 @@
     white-space: pre;
   }
   .tagline {
-    color: var(--fg-dim);
+    color: var(--fg);
     font-size: 0.85rem;
     margin: 0 0 1rem;
     letter-spacing: 0.05em;
@@ -85,8 +85,12 @@
     gap: 1.25rem;
     align-items: start;
   }
+  #tab-badgecestry .layout {
+    grid-template-columns: clamp(280px, 28%, 400px) 1fr;
+  }
   @media (max-width: 1080px) {
     .layout { grid-template-columns: 1fr; }
+    #tab-badgecestry .layout { grid-template-columns: 1fr; }
   }
   .panel {
     border: 1px solid var(--fg-dim);
@@ -104,13 +108,13 @@
   }
   .panel h2 .hint {
     float: right;
-    color: var(--fg-dim);
+    color: var(--fg);
     font-weight: normal;
     letter-spacing: 0.05em;
   }
   label {
     display: block;
-    color: var(--fg-dim);
+    color: var(--fg);
     font-size: 0.72rem;
     margin: 0.55rem 0 0.15rem;
     letter-spacing: 0.1em;
@@ -152,8 +156,8 @@
   button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    border-color: var(--fg-dim);
-    color: var(--fg-dim);
+    border-color: var(--fg);
+    color: var(--fg);
   }
   button.warn { border-color: var(--warn); color: var(--warn); }
   button.warn:hover { background: var(--warn); color: var(--bg); }
@@ -190,10 +194,13 @@
     gap: 1rem;
     align-items: flex-start;
   }
-  .specimen-wrap .send-to-vim {
+  .specimen-wrap .send-btns {
     margin-left: auto;
     align-self: flex-start;
     flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
   }
   #specimen, #borg-specimen {
     border: 1px solid var(--fg-dim);
@@ -206,7 +213,7 @@
      vim gene inherit the same layout + coloring popsim's inspector uses. */
   #specimen-info, #borg-specimen-info {
     font-size: 0.72rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     line-height: 1.5;
     white-space: pre;
     overflow-x: auto;
@@ -234,13 +241,13 @@
   }
   .hist canvas { display: block; image-rendering: pixelated; }
   .hist .caption {
-    color: var(--fg-dim);
+    color: var(--fg);
     font-size: 0.66rem;
     margin-top: 0.2rem;
   }
   .type-legend {
     font-size: 0.7rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     margin-top: 0.35rem;
     line-height: 1.5;
   }
@@ -272,7 +279,7 @@
     row-gap: 0.1rem;
     margin-top: 0.35rem;
     font-size: 0.68rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     align-items: center;
   }
   .type-legend-table .letter {
@@ -289,7 +296,7 @@
     vertical-align: middle;
   }
   .type-legend-table .name {
-    color: var(--fg-dim);
+    color: var(--fg);
   }
   .type-legend-table .pct {
     color: var(--fg);
@@ -320,7 +327,7 @@
     border: 1px dashed var(--fg-faint);
     padding: 0.4rem 0.6rem;
     font-size: 0.7rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     white-space: pre-wrap;
     line-height: 1.4;
   }
@@ -337,7 +344,7 @@
   }
   .tab {
     background: var(--bg);
-    color: var(--fg-dim);
+    color: var(--fg);
     border: 1px solid var(--fg-dim);
     border-bottom: none;
     padding: 0.5rem 1.1rem;
@@ -375,19 +382,19 @@
   #vim-specimen-info {
     margin-top: 0.6rem;
     font-size: 0.72rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     line-height: 1.5;
     white-space: pre;
     overflow-x: auto;
   }
-  #vim-specimen-info .k     { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
-  #vim-specimen-info .val   { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85); }
-  #vim-specimen-info .geno  { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.55); }
-  #vim-specimen-info .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
-  #vim-specimen-info .locus { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
-  #vim-specimen-info .note  { color: #ffffff;     text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
+  #vim-specimen-info .k, #bc-specimen-info .k         { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #vim-specimen-info .val, #bc-specimen-info .val     { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85); }
+  #vim-specimen-info .geno, #bc-specimen-info .geno   { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.55); }
+  #vim-specimen-info .pheno, #bc-specimen-info .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
+  #vim-specimen-info .locus, #bc-specimen-info .locus { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #vim-specimen-info .note, #bc-specimen-info .note   { color: #ffffff;     text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
 
-  /* Borg ROOT panel — same structure as popsim specimen inspector,
+  /* Borg ROOT panel - same structure as popsim specimen inspector,
      dressed in warn-gold with a shimmering border. */
   .root-panel {
     border-color: var(--warn) !important;
@@ -415,10 +422,10 @@
     box-shadow: 0 0 12px rgba(241,180,53,0.5);
     flex: 0 0 auto;
   }
-  /* ROOT info block — same rules as #specimen-info so the layout matches. */
+  /* ROOT info block - same rules as #specimen-info so the layout matches. */
   #root-info {
     font-size: 0.72rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     line-height: 1.5;
     white-space: pre;
     overflow-x: auto;
@@ -604,7 +611,7 @@
   }
   .nibble-row .nibble-cell { display: flex; flex-direction: column; }
   .nibble-row .nibble-label {
-    color: var(--fg-faint);
+    color: var(--fg);
     font-size: 0.6rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -623,14 +630,14 @@
     line-height: 1;
     padding-top: 2px;
   }
-  /* QR gene exchange panel — sits under the diploid editor. */
+  /* QR gene exchange panel - sits under the diploid editor. */
   #vim-qr-panel details.qr-row {
     border: 1px dashed var(--fg-faint);
     padding: 0.4rem 0.6rem;
     margin-top: 0.6rem;
   }
   #vim-qr-panel details.qr-row[open] {
-    border-color: var(--fg-dim);
+    border-color: var(--fg);
   }
   #vim-qr-panel details.qr-row summary {
     cursor: pointer;
@@ -641,7 +648,7 @@
   }
   #vim-qr-panel details.qr-row summary::-webkit-details-marker { display: none; }
   #vim-qr-panel details.qr-row summary .hint {
-    color: var(--fg-dim);
+    color: var(--fg);
     font-size: 0.72rem;
     margin-left: 0.4em;
   }
@@ -667,12 +674,12 @@
   #vim-qr-panel textarea { resize: vertical; }
   #vim-qr-panel input[type="number"] { width: 6em; }
   #vim-qr-panel label {
-    color: var(--fg-dim);
+    color: var(--fg);
     font-size: 0.72rem;
     letter-spacing: 0.03em;
   }
   #vim-qr-panel label.qr-seed-row {
-    display: flex; align-items: center; gap: 0.4rem; color: var(--fg-dim);
+    display: flex; align-items: center; gap: 0.4rem; color: var(--fg);
   }
   #vim-qr-panel label.qr-seed-row input[type="checkbox"] { width: auto; accent-color: var(--fg); }
   #vim-qr-panel .qr-out {
@@ -686,7 +693,7 @@
     flex: 1 1 260px;
     min-width: 0;
     font-size: 0.72rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     line-height: 1.4;
     word-break: break-all;
   }
@@ -707,7 +714,7 @@
     border: none;
     padding: 0;
     min-height: 0;
-    color: var(--fg-dim);
+    color: var(--fg);
     font-size: 0.72rem;
   }
   #vim-qr-panel .status.good { border-color: var(--fg); color: var(--fg); }
@@ -724,10 +731,244 @@
   }
   #vim-qr-panel #qr-decode-info {
     font-size: 0.72rem;
-    color: var(--fg-dim);
+    color: var(--fg);
     line-height: 1.4;
     word-break: break-all;
   }
+
+  /* Skeet QR panel :: re-use the same rules by aliasing #vim-qr-panel selectors
+     onto #skeet-qr-panel. All rules are duplicated with the new id prefix. */
+  #skeet-qr-panel details.qr-row {
+    border: 1px dashed var(--fg-faint);
+    padding: 0.4rem 0.6rem;
+    margin-top: 0.6rem;
+  }
+  #skeet-qr-panel details.qr-row[open] { border-color: var(--fg); }
+  #skeet-qr-panel details.qr-row summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--fg);
+    list-style: none;
+    padding: 0.15rem 0;
+  }
+  #skeet-qr-panel details.qr-row summary::-webkit-details-marker { display: none; }
+  #skeet-qr-panel details.qr-row summary .hint {
+    color: var(--fg);
+    font-size: 0.72rem;
+    margin-left: 0.4em;
+  }
+  #skeet-qr-panel .qr-row-body {
+    padding-top: 0.55rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  #skeet-qr-panel input[type="text"],
+  #skeet-qr-panel input[type="number"],
+  #skeet-qr-panel textarea,
+  #skeet-qr-panel select {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--fg-dim);
+    padding: 0.35rem 0.5rem;
+    font-family: inherit;
+    font-size: 0.8rem;
+    width: 100%;
+  }
+  #skeet-qr-panel textarea { resize: vertical; }
+  #skeet-qr-panel label {
+    color: var(--fg);
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+  }
+  #skeet-qr-panel .qr-out {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 0.35rem;
+  }
+  #skeet-qr-panel .qr-out-text {
+    flex: 1 1 260px;
+    min-width: 0;
+    font-size: 0.72rem;
+    color: var(--fg);
+    line-height: 1.4;
+    word-break: break-all;
+  }
+  #skeet-qr-panel .qr-out-text .k   { color: var(--fg); }
+  #skeet-qr-panel .qr-out-text .val { color: var(--warn); text-shadow: 0 0 4px rgba(241,180,53,0.55); }
+  #skeet-qr-panel .mono { font-family: "Courier New", Courier, monospace; }
+  #skeet-qr-panel .qr-canvas-wrap {
+    flex: 0 0 auto;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--fg-dim);
+  }
+  #skeet-qr-panel .qr-canvas svg { display: block; }
+  #skeet-qr-panel .status.subtle {
+    border: none;
+    padding: 0;
+    min-height: 0;
+    color: var(--fg);
+    font-size: 0.72rem;
+  }
+  #skeet-qr-panel .status.good { border-color: var(--fg); color: var(--fg); }
+  #skeet-qr-panel .status.bad  { border-color: var(--err); color: var(--err); }
+  #skeet-qr-panel .status.warn { border-color: var(--warn); color: var(--warn); }
+  /* Skeet slot panel :: diploid inspector table + slot header. */
+  #tab-skeet .layout {
+    grid-template-columns: 1fr;
+    max-width: 1100px;
+  }
+  #skeet-slot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+  }
+  #skeet-slot-label {
+    color: var(--fg);
+    font-size: 0.8rem;
+    text-shadow: 0 0 6px rgba(108,205,184,0.65);
+  }
+  /* Skeet gametes panel :: 32-row enumeration. */
+  #skeet-gametes-panel .skeet-gam-legend {
+    font-size: 0.72rem;
+    color: var(--fg);
+    margin-bottom: 0.45rem;
+    line-height: 1.5;
+  }
+  #skeet-gametes-panel .skeet-gam-legend .sw {
+    display: inline-block;
+    width: 10px; height: 10px;
+    vertical-align: middle;
+    border: 1px solid var(--fg-faint);
+    margin: 0 0.15rem;
+  }
+  #skeet-gametes-panel .skeet-gam-legend .sw-h0 { background: #0d294a; }
+  #skeet-gametes-panel .skeet-gam-legend .sw-h1 { background: var(--fg-dim); }
+  /* 5 linkage groups (A=3 loci, B=1, C=3, D=1, E=1) with zero internal gap
+     within each group and a small gap between groups. Column template:
+     [pattern] [A A A] [gap] [B] [gap] [C C C] [gap] [D] [gap] [E] [action] */
+  #skeet-gam-grouphead, #skeet-gam-head, #skeet-gam-rows {
+    display: grid;
+    grid-template-columns:
+      5rem
+      repeat(3, minmax(2.6rem, 1fr))  0.6rem
+      repeat(1, minmax(2.6rem, 1fr))  0.6rem
+      repeat(3, minmax(2.6rem, 1fr))  0.6rem
+      repeat(1, minmax(2.6rem, 1fr))  0.6rem
+      repeat(1, minmax(2.6rem, 1fr))
+      5.5rem;
+    column-gap: 0;
+    row-gap: 0.15rem;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.72rem;
+  }
+  #skeet-gam-grouphead {
+    row-gap: 0;
+    margin-bottom: 0.2rem;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.7);
+  }
+  #skeet-gam-grouphead .gh {
+    text-align: center;
+    padding: 0.15rem 0;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--fg-faint);
+    font-weight: bold;
+  }
+  #skeet-gam-grouphead .gh-spacer { }
+  #skeet-gam-head {
+    row-gap: 0;
+    margin-bottom: 0.25rem;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.65);
+  }
+  #skeet-gam-head .h {
+    padding: 0.2rem 0.15rem;
+    text-align: center;
+    border-bottom: 1px dashed var(--fg-faint);
+    letter-spacing: 0.05em;
+  }
+  #skeet-gam-head .h.pat { text-align: left; }
+  #skeet-gam-head .h.pick { text-align: right; }
+  .skeet-gam-row {
+    display: contents;
+  }
+  .skeet-gam-row .pat {
+    padding: 0.25rem 0.25rem;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.6);
+    letter-spacing: 0.08em;
+    align-self: center;
+  }
+  .skeet-gam-row .cell {
+    padding: 0.25rem 0;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    align-self: stretch;
+    border-top: 1px solid var(--fg-faint);
+    border-bottom: 1px solid var(--fg-faint);
+  }
+  /* First and last cell of each linkage group get the group's left/right
+     border so the group reads as one solid block with no internal seams. */
+  .skeet-gam-row .cell.g-first { border-left:  1px solid var(--fg-faint); }
+  .skeet-gam-row .cell.g-last  { border-right: 1px solid var(--fg-faint); }
+  .skeet-gam-row .cell-spacer  { }
+  .skeet-gam-row .cell.h0 {
+    background: #0d294a;         /* DC34 navy */
+    color: #ffffff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.65);
+  }
+  .skeet-gam-row .cell.h1 {
+    background: var(--fg-dim);   /* DC34 dark teal */
+    color: #ffffff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.65);
+  }
+  .skeet-gam-row .pickwrap {
+    display: flex; justify-content: flex-end; align-items: center;
+    padding-left: 0.5rem;
+  }
+  .skeet-gam-row .pickwrap button {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+  .skeet-gam-row.picked .pat {
+    color: var(--warn);
+    text-shadow: 0 0 6px rgba(241,180,53,0.9);
+  }
+  .skeet-gam-row.picked .cell {
+    outline: 1px solid var(--fg);
+    outline-offset: -1px;
+  }
+  .skeet-gam-row.picked .pickwrap button {
+    border-color: var(--warn);
+    color: var(--warn);
+  }
+  /* Skeet specimen sprite - same treatment as popsim/borg/vim specimens. */
+  #skeet-specimen {
+    border: 1px solid var(--fg-dim);
+    background: #000;
+    image-rendering: pixelated;
+    flex: 0 0 auto;
+  }
+  #skeet-slot-info {
+    font-size: 0.72rem;
+    color: var(--fg);
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  #skeet-slot-info .k     { color: var(--fg); text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #skeet-slot-info .geno  { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.55); }
+  #skeet-slot-info .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
+  #skeet-slot-info .locus { color: var(--fg); text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #skeet-slot-info .note  { color: #ffffff;  text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
 </style>
 </head>
 <body>
@@ -746,16 +987,18 @@
 <hr class="sep">
 
 <div class="tabs" role="tablist">
-  <button class="tab active" data-tab="popsim"   role="tab" aria-selected="true">popsim</button>
-  <button class="tab"        data-tab="vim-gene" role="tab" aria-selected="false">vim gene</button>
-  <button class="tab"        data-tab="borg"     role="tab" aria-selected="false">borg</button>
+  <button class="tab active" data-tab="popsim"       role="tab" aria-selected="true">popsim</button>
+  <button class="tab"        data-tab="vim-gene"     role="tab" aria-selected="false">vim gene</button>
+  <button class="tab"        data-tab="skeet"        role="tab" aria-selected="false">skeet</button>
+  <button class="tab"        data-tab="borg"         role="tab" aria-selected="false">borg</button>
+  <button class="tab"        data-tab="badgecestry"  role="tab" aria-selected="false">badgecestry</button>
 </div>
 
 <div id="tab-popsim" class="tab-panel active">
 <div class="layout">
   <div id="grid-wrap">
     <div class="panel">
-      <h2>&gt; population field <span class="hint">10,000 individuals :: click a cell to inspect</span></h2>
+      <h2>&gt; population field <span class="hint">10,000 individuals</span></h2>
       <canvas id="grid" width="600" height="600"></canvas>
       <div class="status" id="grid-status">[ idle ]</div>
     </div>
@@ -765,7 +1008,11 @@
       <div class="specimen-wrap">
         <canvas id="specimen" width="120" height="120"></canvas>
         <div id="specimen-info">[ no specimen selected ]</div>
-        <button id="btn-send-to-vim" class="send-to-vim" disabled>send to vim gene</button>
+        <div class="send-btns">
+          <button id="btn-send-to-vim" disabled>send to vim gene</button>
+          <button id="btn-send-to-skeet" disabled>send to skeet</button>
+          <button id="btn-send-to-badgecestry" disabled>send to badgecestry</button>
+        </div>
       </div>
     </div>
 
@@ -904,7 +1151,7 @@
 
     <div class="panel">
       <h2>&gt; notes</h2>
-      <div style="font-size:0.72rem;color:var(--fg-dim);line-height:1.55;">
+      <div style="font-size:0.72rem;color:var(--fg);line-height:1.55;">
         <p style="margin:0.2rem 0;">// see
         <a href="https://github.com/charlesreid1/dc34sim/blob/main/synthetic-population-genetics.md" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">synthetic-population-genetics.md</a> for background.</p>
       </div>
@@ -917,7 +1164,7 @@
 <div class="layout">
   <div id="vim-left">
     <div class="panel">
-      <h2>&gt; specimen preview <span class="hint">240x240 :: live</span></h2>
+      <h2>&gt; specimen preview</h2>
       <canvas id="vim-specimen" width="240" height="240"></canvas>
       <div id="vim-specimen-info">[ specimen ready ]</div>
       <label>&gt; tile style</label>
@@ -947,6 +1194,14 @@
         <button id="vim-btn-randomize">randomize</button>
         <button id="vim-btn-load-popsim" disabled>load popsim selection</button>
         <button id="vim-btn-load-borg" disabled>load borg selection</button>
+      </div>
+
+      <div class="seed-row" style="margin-top:0.35rem;">
+        <button id="vim-btn-swap-haplos" title="Exchange haplo0 and haplo1 in place. Exposes the shipped nonlin phenotype asymmetry: same two haploids in opposite roles usually produce a different displayed nonlin.">
+          swap haplo0 ↔ haplo1
+        </button>
+        <button id="vim-btn-send-to-skeet">send to skeet</button>
+        <button id="vim-btn-send-to-badgecestry">send to badgecestry</button>
       </div>
 
       <div id="vim-gene-rows"></div>
@@ -1042,6 +1297,92 @@
 </div>
 </div><!-- /#tab-vim-gene -->
 
+<div id="tab-skeet" class="tab-panel">
+<div class="layout" id="skeet-layout">
+  <div class="panel" id="skeet-slot-panel">
+    <h2>&gt; skeet slot <span class="hint">parent diploid :: single-organism gamete enumeration</span></h2>
+    <div id="skeet-slot-header">
+      <div id="skeet-slot-label" class="mono">[ no organism loaded ]</div>
+      <div class="btn-row">
+        <button id="skeet-btn-clear" disabled>clear slot</button>
+      </div>
+    </div>
+    <div class="specimen-wrap" id="skeet-specimen-wrap">
+      <canvas id="skeet-specimen" width="240" height="240"></canvas>
+      <div id="skeet-slot-info" class="mono">[ send one from popsim / borg / vim gene ]</div>
+    </div>
+  </div>
+
+  <div class="panel" id="skeet-gametes-panel" hidden>
+    <h2>&gt; all 32 gametes <span class="hint">2^5 linkage-group patterns :: gray-code walk, not sampled</span></h2>
+    <div class="skeet-gam-legend mono">
+      <span class="k">bit convention:</span> pattern reads left-to-right = window ABCDE (bit 4 .. bit 0).
+      &nbsp;<span class="sw sw-h0"></span> = haplo0
+      &nbsp;<span class="sw sw-h1"></span> = haplo1
+    </div>
+    <div id="skeet-gam-grouphead" class="mono"></div>
+    <div id="skeet-gam-head" class="mono"></div>
+    <div id="skeet-gam-rows"></div>
+  </div>
+
+  <div class="panel" id="skeet-qr-panel" hidden>
+    <h2>&gt; QR gene exchange <span class="hint">picked gamete :: seal for a physical badge</span></h2>
+    <div class="hint" style="margin-bottom:0.4rem">
+      the parent diploid here is the <b>responder</b>; the physical badge that scans this QR is the <b>receiver</b>.
+      your picked gamete becomes slot 0 of the receiver's new diploid (see gene-exchange.md).
+    </div>
+
+    <details class="qr-row" open>
+      <summary>&gt; k <span class="hint">shared badge secret</span></summary>
+      <div class="qr-row-body">
+        <label for="skeet-qr-k">k (default: k0, hex)</label>
+        <input type="text" id="skeet-qr-k" spellcheck="false" autocomplete="off" placeholder="64 hex characters">
+        <div class="btn-row">
+          <button id="skeet-qr-k-save">verify &amp; save</button>
+          <button id="skeet-qr-k-reset" class="warn">reset to default</button>
+        </div>
+        <div class="status" id="skeet-qr-k-status">[ not loaded ]</div>
+      </div>
+    </details>
+
+    <details class="qr-row" open>
+      <summary>&gt; phase 1 <span class="hint">extract nonce</span></summary>
+      <div class="qr-row-body">
+        <label for="skeet-qr-badge-input">paste the QR string from your badge here</label>
+        <textarea id="skeet-qr-badge-input" rows="2" spellcheck="false" placeholder="e.g. 7F9 /E-XUZ 6G5CSFW-XP88A..."></textarea>
+        <div class="btn-row">
+          <button id="skeet-qr-phase1-go">extract nonce</button>
+        </div>
+        <div class="status mono" id="skeet-qr-phase1-status">[ paste the string above and press the button ]</div>
+      </div>
+    </details>
+
+    <details class="qr-row">
+      <summary>&gt; phase 2 <span class="hint">seal the picked gamete for your badge</span></summary>
+      <div class="qr-row-body">
+        <label for="skeet-qr-seal-badgetype">byte 15 :: badge type override</label>
+        <select id="skeet-qr-seal-badgetype"></select>
+        <div class="status subtle" id="skeet-qr-seal-btwarn"></div>
+
+        <div class="btn-row">
+          <button id="skeet-qr-seal-go">seal</button>
+        </div>
+        <div class="qr-out">
+          <div class="qr-out-text">
+            <span class="k">gamete (hex)</span>  <span class="val mono" id="skeet-qr-seal-plaintext"></span>
+            <br><span class="k">byte 15</span>       <span class="val mono" id="skeet-qr-seal-b15"></span>
+          </div>
+          <div class="qr-canvas-wrap"><div id="skeet-qr-seal-canvas" class="qr-canvas"></div></div>
+        </div>
+        <div class="status" id="skeet-qr-seal-status">[ do phase 1 first ]</div>
+        <div class="hint" style="margin-top:0.4rem">scan the QR above with your badge's camera</div>
+      </div>
+    </details>
+
+  </div>
+</div>
+</div><!-- /#tab-skeet -->
+
 <div id="tab-borg" class="tab-panel">
 <div class="layout">
   <div id="borg-grid-wrap">
@@ -1054,7 +1395,7 @@
     </div>
 
     <div class="panel">
-      <h2>&gt; population field <span class="hint">10,000 individuals :: click a cell to inspect</span></h2>
+      <h2>&gt; population field <span class="hint">10,000 individuals</span></h2>
       <canvas id="borg-grid" width="600" height="600"></canvas>
       <div class="status" id="borg-grid-status">[ idle ]</div>
     </div>
@@ -1064,7 +1405,11 @@
       <div class="specimen-wrap">
         <canvas id="borg-specimen" width="120" height="120"></canvas>
         <div id="borg-specimen-info">[ no specimen selected ]</div>
-        <button id="borg-btn-send-to-vim" class="send-to-vim" disabled>send to vim gene</button>
+        <div class="send-btns">
+          <button id="borg-btn-send-to-vim" disabled>send to vim gene</button>
+          <button id="borg-btn-send-to-skeet" disabled>send to skeet</button>
+          <button id="borg-btn-send-to-badgecestry" disabled>send to badgecestry</button>
+        </div>
       </div>
     </div>
 
@@ -1192,7 +1537,7 @@
 
     <div class="panel">
       <h2>&gt; notes</h2>
-      <div style="font-size:0.72rem;color:var(--fg-dim);line-height:1.55;">
+      <div style="font-size:0.72rem;color:var(--fg);line-height:1.55;">
         <p style="margin:0.2rem 0;">// see
         <a href="https://github.com/charlesreid1/dc34sim/blob/main/synthetic-population-genetics.md" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">synthetic-population-genetics.md</a>
         and
@@ -1203,16 +1548,245 @@
 </div>
 </div><!-- /#tab-borg -->
 
+<div id="tab-badgecestry" class="tab-panel">
+<div class="layout">
+
+  <div id="bc-left">
+    <div class="panel" id="bc-gamete-panel">
+      <h2>&gt; load from gamete <span class="hint">No Camera</span></h2>
+      <ol style="margin:0.2rem 0 0.6rem; padding-left:1.2rem; font-size:0.9rem; color:var(--fg); line-height:1.5;">
+        <li>press "generate nonce" and scan that QR with your badge</li>
+        <li>the badge seals its gamete under that nonce and shows a second QR</li>
+        <li>scan the second QR and paste its text into the box</li>
+      </ol>
+      <p style="margin:0.2rem 0 0.6rem; font-size:0.9rem; color:var(--fg); line-height:1.5;">
+        Press + for another gamete. Leave the box empty to use the provided genome.
+      </p>
+      <div id="bc-gamete-rows">
+        <div class="bc-gamete-row" style="margin-bottom:0.5rem;">
+          <div style="display:flex; gap:0.4rem; align-items:center; margin-bottom:0.4rem;">
+            <button class="bc-nonce-gen" style="flex:0 0 auto;">generate nonce</button>
+            <button class="bc-gamete-add" title="add another gamete row" style="flex:0 0 auto;">+</button>
+            <span class="bc-nonce-hex" style="font-size:0.72rem; color:var(--fg); opacity:0.7; overflow-wrap:anywhere;"></span>
+          </div>
+          <div class="bc-nonce-qr" style="margin-bottom:0.4rem;"></div>
+          <input type="text" class="bc-gamete" placeholder="paste sealed gamete (base45)"
+                 style="width:100%; box-sizing:border-box; background:var(--bg); color:var(--fg); border:1px solid var(--fg-dim);
+                        padding:0.3rem; font-family:inherit; font-size:0.9rem;">
+        </div>
+      </div>
+      <div class="status" id="bc-gamete-status" style="margin-top:0.4rem;">[ using provided genome ]</div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; specimen preview</h2>
+      <canvas id="bc-tile" width="240" height="240"
+              style="border:1px solid var(--fg-dim); background:#000; image-rendering:pixelated; display:block;"></canvas>
+      <div id="bc-specimen-info"
+           style="margin-top:0.6rem; font-size:0.9rem; color:var(--fg); line-height:1.5; white-space:pre; overflow-x:auto;">
+[ no diploid loaded ]</div>
+      <label style="display:block; margin-top:0.6rem; font-size:0.9rem; color:var(--fg);">&gt; tile style</label>
+      <select id="bc-tile-style" style="width:100%; font-family:inherit; font-size:0.8rem;
+                                        padding:0.3rem; background:var(--bg); color:var(--fg);
+                                        border:1px solid var(--fg-dim);">
+        <option value="ring7" selected>RING_7  (7x7 face, 18-LED badge)</option>
+        <option value="packed5">PACKED_5 (stylized 5x5 fill)</option>
+      </select>
+    </div>
+
+    <div class="panel">
+      <div style="font-size:0.9rem; color:var(--fg); line-height:1.55; overflow-wrap:anywhere;">
+        <p style="margin:0.2rem 0;">// see
+        <a href="https://github.com/charlesreid1/dc34sim/blob/main/badgecestry.md" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">badgecestry.md</a>
+        for the design and the patent transcription. The `None` badge type is excluded from
+        ancestry decoding because zero None-typed badges existed at DC34;
+        Human/None ties resolve to Human by construction.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="bc-right">
+    <div class="panel">
+      <h2>&gt; badgecestry <span class="hint">two-stage Hidden Markov Model ancestry composition</span></h2>
+      <p style="margin:0.35rem 0 0.7rem; font-size:0.9rem; color:var(--fg); line-height:1.5;">
+        Ancestry composition for one badge, decoded from a two-stage hidden
+        Markov model (U.S. Pat. 12,626,778) the way Ancestry.com does it for
+        humans, but with the model's homework shown.
+        <br>
+        Drag the generation slider to watch ancestry signal decay under mutation.
+      </p>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.6rem 1rem; margin-top:0.6rem;">
+        <div style="grid-column: 1 / span 2;">
+          <label for="bc-t-slider" style="display:block; font-size:0.9rem; color:var(--fg);">
+            generations since founding &nbsp;
+            <span id="bc-t-label" style="color:var(--warn);">t = 0</span>
+          </label>
+          <input type="range" id="bc-t-slider" min="0" max="8" step="1" value="0"
+                 autocomplete="off"
+                 style="width:100%; accent-color: var(--fg); display:block; margin:0;">
+          <div id="bc-t-scale" aria-hidden="true"
+               style="position:relative; height:1rem; color:var(--fg); margin-top:0.1rem;
+                      user-select:none;">
+            <!--
+              Absolute-positioned labels centered on the actual slider-thumb
+              positions. The thumb centers span roughly `thumb_radius`..(track_width - thumb_radius),
+              not 0..100% of the container, so we pad the scale row with the same
+              margin the browser applies to the thumb and then place each label at
+              i/(N-1) * inner width.  Empirically the thumb is ~10px across, so
+              ~5px insets line the label centers up with the thumb stops.
+            -->
+            <div style="position:absolute; left:5px; right:5px; top:0; height:100%;">
+              <span style="position:absolute; left:0%;    transform:translateX(-50%); text-align:center; font-size:0.55rem;">0</span>
+              <span style="position:absolute; left:12.5%; transform:translateX(-50%); text-align:center; font-size:0.55rem;">1</span>
+              <span style="position:absolute; left:25%;   transform:translateX(-50%); text-align:center; font-size:0.55rem;">2</span>
+              <span style="position:absolute; left:37.5%; transform:translateX(-50%); text-align:center; font-size:0.55rem;">4</span>
+              <span style="position:absolute; left:50%;   transform:translateX(-50%); text-align:center; font-size:0.6rem;">8</span>
+              <span style="position:absolute; left:62.5%; transform:translateX(-50%); text-align:center; font-size:0.65rem;">16</span>
+              <span style="position:absolute; left:75%;   transform:translateX(-50%); text-align:center; font-size:0.7rem;">32</span>
+              <span style="position:absolute; left:87.5%; transform:translateX(-50%); text-align:center; font-size:0.72rem;">64</span>
+              <span style="position:absolute; left:100%;  transform:translateX(-50%); text-align:center; font-size:0.72rem;">128</span>
+            </div>
+          </div>
+          <div style="font-size:0.9rem; color:var(--fg); margin-top:0.2rem; line-height:1.5;">
+            How many generations of drift and mutation the loaded diploid is
+            assumed to sit downstream of generation 0 (the founder priors from
+            <code>Haploid::from_type</code>). t=0 = fresh founder, no mutation
+            history. Larger t = ancestry signal smears; the HMM's emission
+            distributions blur and confident calls collapse toward the prior.
+          </div>
+        </div>
+        <div>
+          <label for="bc-rate-select" style="display:block; font-size:0.9rem; color:var(--fg);">mutation rate</label>
+          <select id="bc-rate-select" style="width:100%; font-family:inherit; font-size:0.8rem;
+                                              padding:0.3rem; background:var(--bg); color:var(--fg);
+                                              border:1px solid var(--fg-dim);">
+            <option value="None">None</option>
+            <option value="Baseline" selected>Baseline</option>
+            <option value="Elevated">Elevated</option>
+            <option value="Radioactive">Radioactive</option>
+            <option value="Apocalyptic">Apocalyptic</option>
+          </select>
+        </div>
+        <div>
+          <label for="bc-prior-select" style="display:block; font-size:0.9rem; color:var(--fg);">lineage prior</label>
+          <select id="bc-prior-select" style="width:100%; font-family:inherit; font-size:0.8rem;
+                                                padding:0.3rem; background:var(--bg); color:var(--fg);
+                                                border:1px solid var(--fg-dim);"
+                  title="admixture: uniform prior, so the composition reads 'what fraction of the genome descends from each type'. population: the popsim mix-preset prior, so it reads 'which population is this badge drawn from'.">
+            <option value="admixture" selected>admixture (uniform prior)</option>
+            <option value="population">population (mix preset prior)</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel" id="bc-composition-panel">
+      <h2>&gt; ancestry composition</h2>
+      <div id="bc-composition-summary" style="font-size:0.9rem; margin-bottom:0.5rem; color:var(--fg);">
+        [ waiting for diploid ]
+      </div>
+      <canvas id="bc-pie" width="720" height="90" style="width:100%; height:90px;"></canvas>
+      <div id="bc-pie-legend" style="display:flex; flex-wrap:wrap; gap:0.4rem 1rem; margin-top:0.4rem; font-size:0.9rem;"></div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; per-window best-guess lineage <span class="hint">what stage-2 thinks each window came from</span></h2>
+      <p style="margin:0.2rem 0 0.7rem; font-size:0.9rem; color:var(--fg); line-height:1.5;">
+        A window is a linkage group: alleles that co-segregate and are inherited
+        as one block, so the HMM tallies lineage by window, not gene by gene.
+      </p>
+      <div id="bc-per-window" style="font-size:0.9rem;"></div>
+    </div>
+
+    <div class="panel">
+      <h2>&gt; how the model got here <span class="hint">every panel below recomputes live on slider drag</span></h2>
+      <p style="margin:0.2rem 0 0.7rem; font-size:0.9rem; color:var(--fg); line-height:1.5;">
+        Not a black-box oracle: every widget below carries a
+        <code>data-source</code> attribute naming the decoder module it came
+        from.
+      </p>
+
+      <h3 style="font-size:1rem; color:var(--fg); margin:0.8rem 0 0.3rem;">
+        // panel 1 :: emission distributions E<sub>T,ℓ,t</sub>
+      </h3>
+      <div style="font-size:0.9rem; color:var(--fg); margin-bottom:0.35rem;">
+        Rows are (type, locus); each cell's mint fill = P(allele | type, ℓ, t)
+        over 0..255 (bright mint = higher probability, black = zero probability).
+        Vertical ticks mark this diploid's observed alleles at each locus:
+        <span style="color:var(--err);">magenta = haplo0</span>,
+        <span style="color:var(--warn);">gold = haplo1</span>. Watch rows smear
+        as t grows; that's ancestry signal decaying under mutation.
+      </div>
+      <div id="bc-viz-emissions" data-source="mutation_kernel.build_emission_tensor" style="overflow-x:auto;"></div>
+
+      <h3 style="font-size:1rem; color:var(--fg); margin:2.2rem 0 0.3rem;">
+        // panel 2 :: stage-1 per-window posteriors γ<sub>w</sub>(T)
+      </h3>
+      <div style="font-size:0.9rem; color:var(--fg); margin-bottom:0.35rem; line-height:1.5;">
+        Two heatmaps, one per haplotype. Rows = windows, cols = 7 active
+        types. Contrast across a row = window informativeness.
+        <br><br>
+        Windows map to linkage groups (genes that are grouped together during meiosis):
+        <div id="bc-window-map" style="margin-top:0.3rem;"></div>
+      </div>
+      <div id="bc-viz-stage1" data-source="full_stage.forward_backward"></div>
+
+      <h3 style="font-size:1rem; color:var(--fg); margin:2.2rem 0 0.3rem;">
+        // panel 3 :: stage-1 → stage-2 handoff (C<sub>0</sub>, C<sub>1</sub>)
+      </h3>
+      <div style="font-size:0.9rem; color:var(--fg); margin-bottom:0.35rem;">
+        The top-3 types kept per haplotype (bright) vs the four that got
+        pruned (grey). Stage 2's state space is 3·3·2 = 18 instead of the
+        full 7·7·2 = 98, the patent's speedup, in one glance.
+      </div>
+      <div id="bc-viz-candidates" data-source="full_stage.top_k"></div>
+
+      <h3 style="font-size:1rem; color:var(--fg); margin:2.2rem 0 0.3rem;">
+        // panel 4 :: stage-2 joint posteriors γ<sub>w</sub>(T<sub>0</sub>, T<sub>1</sub>, switch)
+      </h3>
+      <div style="font-size:0.9rem; color:var(--fg); margin-bottom:0.35rem;">
+        Per window, two 3×3 heatmaps (switch=0 left, switch=1 right). Rows =
+        C<sub>0</sub>, cols = C<sub>1</sub>. This is where the composition
+        percentages come from. W_DE typically decides more sharply than the
+        other three because the shipped-bug phenotype δ-factor tends to zero
+        out one switch slice, meaning one of the two switch=0 / switch=1 heatmaps.
+      </div>
+      <div id="bc-viz-joint" data-source="simplified_stage.joint_posterior"></div>
+
+      <h3 style="font-size:1rem; color:var(--fg); margin:2.2rem 0 0.3rem;">
+        // panel 5 :: α / β message trace
+      </h3>
+      <div style="font-size:0.9rem; color:var(--fg); margin-bottom:0.35rem;">
+        Two message vectors per window, per haplotype, from the stage-1
+        forward-backward pass. α (forward) walks left→right: α<sub>w</sub>(T) is
+        the likelihood of the emissions through window w, given that window w's
+        founder lineage is type T. β (backward) walks right→left: β<sub>w</sub>(T)
+        is the likelihood of the emissions after window w, given T. Their
+        normalized product α<sub>w</sub>(T)·β<sub>w</sub>(T) is the posterior
+        γ<sub>w</sub>(T) from panel 2: α asks "what did we already see?", β asks
+        "what's left to explain?", and the posterior is where they meet.
+      </div>
+      <div id="bc-viz-messages" data-source="full_stage.forward_backward.messages"></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /#tab-badgecestry -->
+
 <p class="footer">
-  // dc34 badge genetics :: pure browser simulation :: seeded &amp; reproducible ::
-  <a href="https://github.com/charlesreid1/dc34sim" target="_blank" rel="noopener" style="color:var(--fg-dim);text-decoration:underline;">source</a> //
+  // dc34 badge genetics :: pure browser simulation :: seeded &amp; reproducible //
+</p>
+<p class="footer">
+  // <a href="https://github.com/charlesreid1/dc34sim/blob/main/faq.md" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">frequently asked questions</a> :: <a href="https://github.com/charlesreid1/dc34sim" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">source code</a> //
 </p>
 <p class="footer">
   // related repositories ::
-  <a href="https://github.com/bunnie/dc34-api" target="_blank" rel="noopener" style="color:var(--fg-dim);text-decoration:underline;">dc34-api</a> (genetics core) ::
-  <a href="https://github.com/bunnie/dc34-vault" target="_blank" rel="noopener" style="color:var(--fg-dim);text-decoration:underline;">dc34-vault</a> (exchange state machine, k0 oracle) ::
-  <a href="https://github.com/bunnie/dc34-console" target="_blank" rel="noopener" style="color:var(--fg-dim);text-decoration:underline;">dc34-console</a> (LED renderer) ::
-  <a href="https://github.com/nastea1/dc34-gamete" target="_blank" rel="noopener" style="color:var(--fg-dim);text-decoration:underline;">dc34-gamete</a> (QR wire format &amp; k0) //
+  <a href="https://github.com/bunnie/dc34-api" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">dc34-api</a> (genetics core) ::
+  <a href="https://github.com/bunnie/dc34-vault" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">dc34-vault</a> (exchange state machine, k0 oracle) ::
+  <a href="https://github.com/bunnie/dc34-console" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">dc34-console</a> (LED renderer) ::
+  <a href="https://github.com/nastea1/dc34-gamete" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;">dc34-gamete</a> (QR wire format &amp; k0) //
 </p>
 </main>
 
@@ -3779,7 +4353,7 @@ function parseNonceInput(raw) {
   if (hexOnly) {
     const compact = s.replace(/\s+/g, "");
     if (compact.length === 24) return unhexStr(compact);
-    // Fall through — could be a base45 string that happens to be all hex+space.
+    // Fall through - could be a base45 string that happens to be all hex+space.
   }
   // Try base45 phase-1 payload.
   let bytes;
@@ -3793,7 +4367,7 @@ function parseNonceInput(raw) {
 }
 
 // AES-GCM-SIV open, matching the seal() above. Recovers the 16-byte plaintext
-// given key + nonce + (ct||tag). Throws on tag failure — a tag failure means one
+// given key + nonce + (ct||tag). Throws on tag failure - a tag failure means one
 // of three things per PROTOCOL.md §3, in order of likelihood: wrong nonce, a
 // base45 transcription error, or a QR misread.
 function gcmSivOpen(key, nonce, sealed) {
@@ -3854,7 +4428,7 @@ function clog(msg, kind) {
 }
 
 /* ==========================================================================
- * SEEDED RNG (xoshiro128** — small, fast, good statistical properties)
+ * SEEDED RNG (xoshiro128** - small, fast, good statistical properties)
  * ========================================================================== */
 class Rng {
   constructor(seed) { this.reseed(seed); }
@@ -3871,7 +4445,7 @@ class Rng {
     this.s0 = sm(); this.s1 = sm(); this.s2 = sm(); this.s3 = sm();
     if ((this.s0 | this.s1 | this.s2 | this.s3) === 0) this.s0 = 1;
   }
-  // core xoshiro128** — returns a u32
+  // core xoshiro128** - returns a u32
   next() {
     const result = (Math.imul(this._rotl(Math.imul(this.s1, 5) >>> 0, 7), 9) >>> 0);
     const t = (this.s1 << 9) >>> 0;
@@ -3892,7 +4466,7 @@ class Rng {
     // This covers all the common cases (n=2 for coin flips, n=256 for u8s).
     if ((n & (n - 1)) === 0) return this.next() % n;
     // Rejection sampling for the general case. Note: keep `bound` as a plain
-    // number (not >>> 0) — for n that divides 2^32, the correct bound is
+    // number (not >>> 0) - for n that divides 2^32, the correct bound is
     // 2^32, which can't be represented as a u32.
     const bound = 0x100000000 - (0x100000000 % n);
     let r;
@@ -3901,7 +4475,7 @@ class Rng {
   }
   // Uniform int in [lo, hi] inclusive
   rangeInclusive(lo, hi) { return lo + this.below(hi - lo + 1); }
-  // Fair coin — returns 0 or 1
+  // Fair coin - returns 0 or 1
   coin() { return (this.next() & 1) | 0; }
   // Float in [0, 1)
   float() { return this.next() / 0x100000000; }
@@ -3925,7 +4499,7 @@ function seedFromString(s) {
  * GENETICS CORE (ported from dc34-api/src/lib.rs)
  * ========================================================================== */
 
-// Badge types — index matches Rust discriminant.
+// Badge types - index matches Rust discriminant.
 const BADGE_TYPES = ["Uber","Other","Community","Village","CtfContest","Human","Goon","None"];
 const BT = Object.fromEntries(BADGE_TYPES.map((n, i) => [n, i]));
 
@@ -3942,7 +4516,7 @@ const TYPE_RANGES = {
   None:        { hue: [128,160], sat: [32,255],  chaser: [90,255], nonlin: [0,255], cd_dir: [0,255], cd_period_max: 4 },
 };
 
-// Locus indices — the order matches Rust struct layout.
+// Locus indices - the order matches Rust struct layout.
 const L = { cd_period:0, cd_rate:1, cd_dir:2, sat:3, hue_ratedir:4, hue_base:5, hue_bound:6, chaser:7, nonlin:8 };
 const N_LOCI = 9;
 
@@ -4043,7 +4617,7 @@ function phenotype(pop, off, out, outOff, nonlinMode) {
   out[outOff + L.hue_base]    = hb;
   out[outOff + L.hue_bound]   = hbd;
   out[outOff + L.chaser]      = sat_add(a_ch, b_ch);
-  // Asymmetric nonlin — this is the shipped code (see lib.rs :342, white-paper).
+  // Asymmetric nonlin - this is the shipped code (see lib.rs :342, white-paper).
   if (nonlinMode === "symmetric") {
     out[outOff + L.nonlin]    = sat_add(a_nl, b_nl);
   } else {
@@ -4054,6 +4628,126 @@ function phenotype(pop, off, out, outOff, nonlinMode) {
 /* ==========================================================================
  * POPULATION
  * ========================================================================== */
+
+/* Standalone generation drivers. They operate on a plain "population state"
+ * object (not `this`) so Phase C can evolve a local clone of the live popsim
+ * state without duplicating the meiosis/mutate/mate logic. The state shape is
+ * { N, pop, types, params, rng, generation, pheno?, rootDiploid?, ... }; the
+ * scratch buffers are allocated lazily and stored back on the state. The
+ * Population / BorgPopulation classes below delegate their step() to these. */
+
+function computePhenotypes(state) {
+  if (!state.pheno) return;               // phenotype cache is optional
+  for (let i = 0; i < state.N; i++) {
+    phenotype(state.pop, i * 2 * N_LOCI, state.pheno, i * N_LOCI, state.params.nonlinMode);
+  }
+}
+
+// Allocate scratch buffers lazily so a lightweight clone can be stepped without
+// pre-warming them. Stored back on the state so they're reused across steps.
+function ensureScratch(state) {
+  if (!state._sperm)     state._sperm     = new Uint8Array(N_LOCI);
+  if (!state._egg)       state._egg       = new Uint8Array(N_LOCI);
+  if (!state._nextPop)   state._nextPop   = new Uint8Array(state.N * 2 * N_LOCI);
+  if (!state._nextTypes) state._nextTypes = new Uint8Array(state.N);
+  if (!state._order)     state._order     = new Uint32Array(state.N);
+}
+
+// Fisher-Yates shuffle of the mating order using the state's seeded RNG.
+function shuffleOrder(state) {
+  const ord = state._order;
+  for (let i = 0; i < state.N; i++) ord[i] = i;
+  for (let i = state.N - 1; i > 0; i--) {
+    const j = state.rng.below(i + 1);
+    const t = ord[i]; ord[i] = ord[j]; ord[j] = t;
+  }
+}
+
+// One panmictic mating: the child lands in the egg (recipient) slot and keeps
+// that parent's badge type. badge_type is a hardware property, not inherited.
+function matePanmictic(state, eggIdx, spermIdx, baseRate, inbreedOn) {
+  const eggType = state.types[eggIdx];
+  const spermType = state.types[spermIdx];
+  const inbreeding = inbreedOn && (eggType === spermType);
+  // Rate elevation for inbreeding - Human floor is Elevated, others Baseline.
+  let effectiveRate = baseRate;
+  if (inbreeding) {
+    const floor = (eggType === BT.Human) ? "Elevated" : "Baseline";
+    effectiveRate = maxRate(baseRate, floor);
+  }
+
+  // Donor makes a sperm and mutates it with baseRate (the "final_rate" locked
+  // at exchange time in the shipped badge).
+  meiosis(state.pop, spermIdx * 2 * N_LOCI, state._sperm, 0, state.rng);
+  mutate(state._sperm, 0, baseRate, state.rng);
+  if (inbreeding) {
+    // Extra mutation pass on sperm from the recipient side.
+    mutate(state._sperm, 0, effectiveRate, state.rng);
+  }
+
+  // Recipient makes an egg and mutates it (with elevated rate if inbreeding).
+  meiosis(state.pop, eggIdx * 2 * N_LOCI, state._egg, 0, state.rng);
+  mutate(state._egg, 0, effectiveRate, state.rng);
+
+  const childOff = eggIdx * 2 * N_LOCI;
+  // slot 0 = egg (recipient), slot 1 = sperm (donor) - matches replace_gene() order.
+  for (let li = 0; li < N_LOCI; li++) {
+    state._nextPop[childOff + li]          = state._egg[li];
+    state._nextPop[childOff + N_LOCI + li] = state._sperm[li];
+  }
+  state._nextTypes[eggIdx] = eggType;
+}
+
+// Advance a panmictic population one generation, in place.
+function advanceGeneration(state) {
+  ensureScratch(state);
+  shuffleOrder(state);
+  const inbreedOn = state.params.inbreedingMode === "on";
+  const baseRate = state.params.mutationRate;
+
+  for (let k = 0; k < state.N; k += 2) {
+    const iA = state._order[k];
+    const iB = (k + 1 < state.N) ? state._order[k + 1] : state._order[0];
+    // Two matings per pair: A produces child in A's slot, B in B's slot.
+    matePanmictic(state, iA, iB, baseRate, inbreedOn);
+    matePanmictic(state, iB, iA, baseRate, inbreedOn);
+  }
+
+  // Swap buffers.
+  const tp = state.pop; state.pop = state._nextPop; state._nextPop = tp;
+  const tt = state.types; state.types = state._nextTypes; state._nextTypes = tt;
+
+  computePhenotypes(state);
+  state.generation++;
+}
+
+// Advance a borg (queen-rooted) population one generation, in place.
+function advanceBorgGeneration(state) {
+  ensureScratch(state);
+  const baseRate = state.params.mutationRate;
+  for (let i = 0; i < state.N; i++) {
+    // Egg: drone's own meiotic gamete, mutated.
+    meiosis(state.pop, i * 2 * N_LOCI, state._egg, 0, state.rng);
+    mutate(state._egg, 0, baseRate, state.rng);
+
+    // Sperm: fresh meiotic gamete from the fixed ROOT diploid. Not mutated:
+    // the queen genes remain untouched across generations; only meiotic
+    // reshuffling of her two strands introduces per-mating variability.
+    meiosis(state.rootDiploid, 0, state._sperm, 0, state.rng);
+
+    const childOff = i * 2 * N_LOCI;
+    for (let li = 0; li < N_LOCI; li++) {
+      state._nextPop[childOff + li]          = state._egg[li];
+      state._nextPop[childOff + N_LOCI + li] = state._sperm[li];
+    }
+    state._nextTypes[i] = state.types[i];
+  }
+  const tp = state.pop; state.pop = state._nextPop; state._nextPop = tp;
+  const tt = state.types; state.types = state._nextTypes; state._nextTypes = tt;
+  computePhenotypes(state);
+  state.generation++;
+}
+
 class Population {
   constructor(N, seed, params) {
     this.N = N;
@@ -4064,7 +4758,7 @@ class Population {
     this.pop = new Uint8Array(N * 2 * N_LOCI);     // diploid genome
     this.types = new Uint8Array(N);                 // badge type per individual
     this.pheno = new Uint8Array(N * N_LOCI);        // cached phenotype
-    // Scratch buffers for a mating pass — avoid allocating each generation.
+    // Scratch buffers for a mating pass - avoid allocating each generation.
     this._sperm = new Uint8Array(N_LOCI);
     this._egg   = new Uint8Array(N_LOCI);
     this._nextPop = new Uint8Array(N * 2 * N_LOCI);
@@ -4095,84 +4789,12 @@ class Population {
       haploidFromType(this.pop, i * 2 * N_LOCI,             t, this.rng);
       haploidFromType(this.pop, i * 2 * N_LOCI + N_LOCI,    t, this.rng);
     }
-    this._computePhenotypes();
-  }
-
-  _computePhenotypes() {
-    for (let i = 0; i < this.N; i++) {
-      phenotype(this.pop, i * 2 * N_LOCI, this.pheno, i * N_LOCI, this.params.nonlinMode);
-    }
-  }
-
-  // Fisher-Yates shuffle of _order using the seeded RNG.
-  _shuffleOrder() {
-    const ord = this._order;
-    for (let i = 0; i < this.N; i++) ord[i] = i;
-    for (let i = this.N - 1; i > 0; i--) {
-      const j = this.rng.below(i + 1);
-      const t = ord[i]; ord[i] = ord[j]; ord[j] = t;
-    }
+    computePhenotypes(this);
   }
 
   // Advance one generation of panmictic random mating.
   step() {
-    this._shuffleOrder();
-    const inbreedOn = this.params.inbreedingMode === "on";
-    const baseRate = this.params.mutationRate;
-
-    for (let k = 0; k < this.N; k += 2) {
-      const iA = this._order[k];
-      const iB = (k + 1 < this.N) ? this._order[k + 1] : this._order[0];
-
-      // Two matings per pair: A produces child in A's slot, B produces child in B's slot.
-      // A is the recipient (egg = from A), B is the donor (sperm = from B).
-      this._mate(iA, iB, baseRate, inbreedOn);
-      // Symmetric second mating so both individuals leave one offspring.
-      this._mate(iB, iA, baseRate, inbreedOn);
-    }
-
-    // Swap buffers
-    const tp = this.pop; this.pop = this._nextPop; this._nextPop = tp;
-    const tt = this.types; this.types = this._nextTypes; this._nextTypes = tt;
-
-    this._computePhenotypes();
-    this.generation++;
-  }
-
-  _mate(eggIdx, spermIdx, baseRate, inbreedOn) {
-    const eggType = this.types[eggIdx];
-    const spermType = this.types[spermIdx];
-    const inbreeding = inbreedOn && (eggType === spermType);
-    // Rate elevation for inbreeding — Human floor is Elevated, others Baseline.
-    let effectiveRate = baseRate;
-    if (inbreeding) {
-      const floor = (eggType === BT.Human) ? "Elevated" : "Baseline";
-      effectiveRate = maxRate(baseRate, floor);
-    }
-
-    // Donor makes a sperm and mutates it with baseRate (the "final_rate" locked at
-    // exchange time in the shipped badge).
-    meiosis(this.pop, spermIdx * 2 * N_LOCI, this._sperm, 0, this.rng);
-    mutate(this._sperm, 0, baseRate, this.rng);
-    if (inbreeding) {
-      // Extra mutation pass on sperm from the recipient side.
-      mutate(this._sperm, 0, effectiveRate, this.rng);
-    }
-
-    // Recipient makes an egg and mutates it (with elevated rate if inbreeding).
-    meiosis(this.pop, eggIdx * 2 * N_LOCI, this._egg, 0, this.rng);
-    mutate(this._egg, 0, effectiveRate, this.rng);
-
-    // Child inherits egg parent's badge type (recipient identity).
-    // In the shipped badge, badge_type is a hardware property, not inherited genetically.
-    // We keep the recipient's type — same as "child stays in the mother's demographic".
-    const childOff = eggIdx * 2 * N_LOCI;
-    // slot 0 = egg (recipient), slot 1 = sperm (donor) — matches replace_gene() order.
-    for (let li = 0; li < N_LOCI; li++) {
-      this._nextPop[childOff + li]            = this._egg[li];
-      this._nextPop[childOff + N_LOCI + li]   = this._sperm[li];
-    }
-    this._nextTypes[eggIdx] = eggType;
+    advanceGeneration(this);
   }
 }
 
@@ -4190,33 +4812,12 @@ class BorgPopulation extends Population {
     if (!params.rootDiploid || params.rootDiploid.length !== 2 * N_LOCI) {
       throw new Error("BorgPopulation requires params.rootDiploid (2*9 bytes)");
     }
-    // Immutable copy — the caller must never mutate this after handoff.
+    // Immutable copy - the caller must never mutate this after handoff.
     this.rootDiploid = new Uint8Array(params.rootDiploid);
   }
 
   step() {
-    const baseRate = this.params.mutationRate;
-    for (let i = 0; i < this.N; i++) {
-      // Egg: drone's own meiotic gamete, mutated.
-      meiosis(this.pop, i * 2 * N_LOCI, this._egg, 0, this.rng);
-      mutate(this._egg, 0, baseRate, this.rng);
-
-      // Sperm: fresh meiotic gamete from the fixed ROOT diploid. Not mutated —
-      // the queen genes remain untouched across generations; only meiotic
-      // reshuffling of her two strands introduces per-mating variability.
-      meiosis(this.rootDiploid, 0, this._sperm, 0, this.rng);
-
-      const childOff = i * 2 * N_LOCI;
-      for (let li = 0; li < N_LOCI; li++) {
-        this._nextPop[childOff + li]          = this._egg[li];
-        this._nextPop[childOff + N_LOCI + li] = this._sperm[li];
-      }
-      this._nextTypes[i] = this.types[i];
-    }
-    const tp = this.pop; this.pop = this._nextPop; this._nextPop = tp;
-    const tt = this.types; this.types = this._nextTypes; this._nextTypes = tt;
-    this._computePhenotypes();
-    this.generation++;
+    advanceBorgGeneration(this);
   }
 }
 
@@ -4280,7 +4881,7 @@ function hsv255ToCss(h, s, v) {
  * ========================================================================== */
 // Tile-style geometry. Each style names an M x M face with a ring of body LEDs
 // around the perimeter and (for the RING styles) two eye pixels in the center.
-// PACKED_5 is the original stylized 5x5 fill — not faithful to hardware, but
+// PACKED_5 is the original stylized 5x5 fill - not faithful to hardware, but
 // visually the richest tile at population scale.
 const TILE_STYLES = {
   // 18-LED badge variant: 2 eyes + 16 body LEDs around a 7x7 face.
@@ -4298,7 +4899,7 @@ const TILE_STYLES = {
     const eyeL = [2, 3], eyeR = [4, 3];
     return { kind: "ring", M, cellPx: M + 1, ring, ringN: ring.length, eyeL, eyeR };
   })(),
-  // Stylized fill — no eyes, chaser walks the 25-pixel row-major sweep. Original.
+  // Stylized fill - no eyes, chaser walks the 25-pixel row-major sweep. Original.
   packed5: { kind: "packed", M: 5, cellPx: 6 },
 };
 
@@ -4337,7 +4938,7 @@ function resizeGrid(view, N) {
   view.frameImg = null;
 }
 
-// Compute the "loop state" — the badge's C renderer runs on a 0..511 clock that
+// Compute the "loop state" - the badge's C renderer runs on a 0..511 clock that
 // wraps every ~5s. We derive the same from wall-clock so animation cadence is
 // consistent across tiles.
 function loopState(tSec) {
@@ -4372,13 +4973,13 @@ function paintRingTile(style, g, cellX, cellY, tSec, frameData, width) {
   const hue_rate = g.hue_ratedir & 0xf;
   const hue_dir  = ((g.hue_ratedir >> 4) & 0xf) > 10 ? 1 : 0;
 
-  // tau = map(cd_rate, 0..255, 60..700). indextime not needed — we drive time from tSec.
+  // tau = map(cd_rate, 0..255, 60..700). indextime not needed - we drive time from tSec.
   const tau = 60 + (g.cd_rate / 255) * 640;
   const timePhase = (tSec / (tau / 100)) * 2 * Math.PI;
 
   const halfN = nBody / 2;
   const isShootingStar = g.chaser < 88;
-  // Shooting-star index — walks the ring like main.c's `shoot = (loop/2) % (count - LED_OFFSET)`.
+  // Shooting-star index - walks the ring like main.c's `shoot = (loop/2) % (count - LED_OFFSET)`.
   const shootIdx = Math.floor(loop / 2) % nBody;
 
   // Compute each body-LED color, and stash the ring[0] and ring[halfN] colors
@@ -4446,7 +5047,7 @@ function paintRingTile(style, g, cellX, cellY, tSec, frameData, width) {
   frameData[eo] = erR; frameData[eo + 1] = erG; frameData[eo + 2] = erB;
 }
 
-// Paint one PACKED_5 tile — original stylized 5x5 fill, not badge-accurate.
+// Paint one PACKED_5 tile - original stylized 5x5 fill, not badge-accurate.
 function paintPackedTile(g, cellX, cellY, tSec, frameData, width) {
   const M = 5;
   const cellArea = M * M;
@@ -4707,6 +5308,8 @@ function wireGridClick(view) {
       view.renderDirty = true;
       if (typeof updateVimLoadBtnState === "function") updateVimLoadBtnState();
       if (typeof updateSendToVimBtnState === "function") updateSendToVimBtnState(view);
+      if (typeof updateSendToSkeetBtnState === "function") updateSendToSkeetBtnState(view);
+      if (typeof updateSendToBadgecestryBtnState === "function") updateSendToBadgecestryBtnState(view);
       clog(`[select ${view.ids.tag}] idx=${idx} type=${BADGE_TYPES[view.pop.types[idx]]}`, "ok");
     }
   });
@@ -4954,7 +5557,7 @@ function drawAllHistograms(view) {
  * ==========================================================================*/
 let animHandle = null;
 
-// popsim view — all its IDs live under the popsim tab.
+// popsim view - all its IDs live under the popsim tab.
 const popsimView = makeView({
   tag: "popsim",
   grid: "grid",
@@ -4969,6 +5572,8 @@ const popsimView = makeView({
   btnReset: "btn-reset", btnStep: "btn-step", btnStep10: "btn-step10",
   btnStep100: "btn-step100", btnRun: "btn-run", btnPause: "btn-pause",
   btnSendToVim: "btn-send-to-vim",
+  btnSendToSkeet: "btn-send-to-skeet",
+  btnSendToBadgecestry: "btn-send-to-badgecestry",
   histType: "hist-type", typeLetters: "type-letters", typeLegend: "type-legend",
   histHue: "hist-hue", histHueCap: "hist-hue-cap",
   histSat: "hist-sat",
@@ -4978,7 +5583,7 @@ const popsimView = makeView({
   histCdPeriod: "hist-cd-period", histNonlin: "hist-nonlin",
 });
 
-// borg view — same layout, `borg-` prefixed ids.
+// borg view - same layout, `borg-` prefixed ids.
 const borgView = makeView({
   tag: "borg",
   grid: "borg-grid",
@@ -4993,6 +5598,8 @@ const borgView = makeView({
   btnReset: "borg-btn-reset", btnStep: "borg-btn-step", btnStep10: "borg-btn-step10",
   btnStep100: "borg-btn-step100", btnRun: "borg-btn-run", btnPause: "borg-btn-pause",
   btnSendToVim: "borg-btn-send-to-vim",
+  btnSendToSkeet: "borg-btn-send-to-skeet",
+  btnSendToBadgecestry: "borg-btn-send-to-badgecestry",
   histType: "borg-hist-type", typeLetters: "borg-type-letters", typeLegend: "borg-type-legend",
   histHue: "borg-hist-hue", histHueCap: "borg-hist-hue-cap",
   histSat: "borg-hist-sat",
@@ -5058,6 +5665,8 @@ function initPopulation(view) {
   if (view.ids.tag === "borg") renderRoot();
   if (typeof updateVimLoadBtnState === "function") updateVimLoadBtnState();
   if (typeof updateSendToVimBtnState === "function") updateSendToVimBtnState(view);
+  if (typeof updateSendToSkeetBtnState === "function") updateSendToSkeetBtnState(view);
+  if (typeof updateSendToBadgecestryBtnState === "function") updateSendToBadgecestryBtnState(view);
   clog(`[reset ${view.ids.tag}] N=${u.N} seed=0x${seed.toString(16).toUpperCase()} mix=${u.mixName} mut=${u.mutationRate} nonlin=${u.nonlinMode}`, "ok");
   updateStatus(view);
   drawAllHistograms(view);
@@ -5101,6 +5710,16 @@ function animLoop(t) {
     renderRoot(effT);
     rootRenderDirty = false;
   }
+  if (typeof skeetTabActive !== "undefined" && skeetTabActive &&
+      (animOn || skeetRenderDirty)) {
+    if (typeof renderSkeetSpecimen === "function") renderSkeetSpecimen(effT);
+    skeetRenderDirty = false;
+  }
+  if (typeof bcTabActive !== "undefined" && bcTabActive &&
+      (animOn || (typeof bcRenderDirty !== "undefined" && bcRenderDirty))) {
+    if (typeof bcRenderTile === "function") bcRenderTile(effT);
+    if (typeof window !== "undefined") window.bcRenderDirty = false;
+  }
   if (view.running) {
     stepN(view, 1);
     view.renderDirty = true;
@@ -5138,7 +5757,7 @@ function wireControls(view) {
   document.getElementById(view.ids.nonlinMode).addEventListener("change", () => {
     if (view.pop) {
       view.pop.params.nonlinMode = document.getElementById(view.ids.nonlinMode).value;
-      view.pop._computePhenotypes();
+      computePhenotypes(view.pop);
       drawAllHistograms(view);
       view.renderDirty = true;
     }
@@ -5167,6 +5786,14 @@ wireControls(popsimView);
 wireControls(borgView);
 wireSendToVim(popsimView);
 wireSendToVim(borgView);
+wireSendToSkeet(popsimView);
+wireSendToSkeet(borgView);
+wireSendToBadgecestry(popsimView);
+wireSendToBadgecestry(borgView);
+
+function scrollToTop() {
+  window.scrollTo(0, 0);
+}
 
 function wireSendToVim(view) {
   const btn = document.getElementById(view.ids.btnSendToVim);
@@ -5176,11 +5803,69 @@ function wireSendToVim(view) {
     ensureVimGeneInitialized();
     seedFromView(view);
     activateTab("vim-gene");
+    scrollToTop();
   });
 }
 
 function updateSendToVimBtnState(view) {
   const btn = document.getElementById(view.ids.btnSendToVim);
+  if (btn) btn.disabled = !viewHasSelection(view);
+}
+
+// Read the currently-selected specimen as a fresh Uint8Array(18). Used by the
+// "send to badgecestry" buttons, which hand the diploid to the badgecestry tab
+// via the same shared-specimen route as "send to vim gene" (both end up in
+// vimGene, so vim gene and badgecestry always inspect the same diploid).
+function viewDiploidBytes(view) {
+  const out = new Uint8Array(2 * N_LOCI);
+  if (viewHasSelection(view)) {
+    const off2 = view.selectedIdx * 2 * N_LOCI;
+    for (let li = 0; li < N_LOCI; li++) {
+      out[li]          = view.pop.pop[off2 + li];
+      out[N_LOCI + li] = view.pop.pop[off2 + N_LOCI + li];
+    }
+  }
+  return out;
+}
+
+function wireSendToBadgecestry(view) {
+  const btn = document.getElementById(view.ids.btnSendToBadgecestry);
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    if (!viewHasSelection(view)) return;
+    ensureVimGeneInitialized();
+    if (typeof window.badgecestry === "undefined" || !window.badgecestry.loadDiploid) return;
+    window.badgecestry.loadDiploid(viewDiploidBytes(view));
+    activateTab("badgecestry");
+    scrollToTop();
+  });
+}
+
+function wireSendToSkeet(view) {
+  const btn = document.getElementById(view.ids.btnSendToSkeet);
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    if (!viewHasSelection(view)) return;
+    const dip = viewDiploidBytes(view);
+    const badgeTypeIdx = view.pop.types[view.selectedIdx];
+    const badgeTypeName = BADGE_TYPES[badgeTypeIdx] || `?(${badgeTypeIdx})`;
+    sendToSkeet({
+      haplo0: dip.subarray(0, N_LOCI),
+      haplo1: dip.subarray(N_LOCI, 2 * N_LOCI),
+      badgeTypeIdx,
+      label: `${badgeTypeName} :: idx ${view.selectedIdx} from ${view.ids.tag}`,
+    });
+    scrollToTop();
+  });
+}
+
+function updateSendToSkeetBtnState(view) {
+  const btn = document.getElementById(view.ids.btnSendToSkeet);
+  if (btn) btn.disabled = !viewHasSelection(view);
+}
+
+function updateSendToBadgecestryBtnState(view) {
+  const btn = document.getElementById(view.ids.btnSendToBadgecestry);
   if (btn) btn.disabled = !viewHasSelection(view);
 }
 
@@ -5276,6 +5961,13 @@ function activateTab(name) {
   });
   vimTabActive = (name === "vim-gene");
   borgTabActive = (name === "borg");
+  window.bcTabActive = (name === "badgecestry");
+  if (typeof skeetTabActive !== "undefined") skeetTabActive = (name === "skeet");
+  if (name === "skeet") {
+    if (typeof ensureSkeetInitialized === "function") ensureSkeetInitialized();
+    if (typeof renderSkeetPanels === "function") renderSkeetPanels();
+    if (typeof skeetRenderDirty !== "undefined") skeetRenderDirty = true;
+  }
   if (vimTabActive) {
     ensureVimGeneInitialized();
     vimRenderDirty = true;
@@ -5297,6 +5989,11 @@ function activateTab(name) {
     }
     borgView.renderDirty = true;
     rootRenderDirty = true;
+  } else if (name === "badgecestry") {
+    // badgecestry initializes lazily on first activation - see the script
+    // block at the bottom of the file.
+    window.bcRenderDirty = true;
+    if (typeof window.bcOnTabActivate === "function") window.bcOnTabActivate();
   } else {
     popsimView.renderDirty = true;
   }
@@ -5321,7 +6018,7 @@ function rootMatchesVimGene() {
  *
  * A "gene" here is one full diploid: two 9-byte haploids. The
  * preview tile is painted from phenotype(haplo0, haplo1) using the same
- * expression rule as popsim and borg — this is what a badge would look like
+ * expression rule as popsim and borg - this is what a badge would look like
  * if it carried this exact genotype. The ROOT panel on the borg tab shows the
  * same diploid and mints haploid gametes from it every generation.
  * ========================================================================== */
@@ -5347,7 +6044,7 @@ const _vimDiploid = new Uint8Array(2 * N_LOCI);
 const _vimPheno   = new Uint8Array(N_LOCI);
 
 // Vim gene has its own nonlin-mode dropdown (see #vim-nonlin-mode below the
-// gene rows). All vim phenome computation reads it — the caller doesn't need
+// gene rows). All vim phenome computation reads it - the caller doesn't need
 // to know or pass anything.
 function currentVimNonlinMode() {
   const el = document.getElementById("vim-nonlin-mode");
@@ -5366,8 +6063,8 @@ function vimComputePheno() {
 // as glowing red like the specimen inspector); the annot column carries the
 // human-readable note when a threshold triggers a special behavior.
 // No per-strand ticks: those thresholds (shooting-star at chaser<88, gamma
-// rolloff at nonlin>127) apply to the PHENOME byte — the result of pairing
-// both strands via phenotype() — not to either strand's raw value in
+// rolloff at nonlin>127) apply to the PHENOME byte - the result of pairing
+// both strands via phenotype() - not to either strand's raw value in
 // isolation. A tick on a per-strand slider would be lying about what actually
 // triggers the phenotype note. The note fires on the phenome instead.
 const VIM_GENE_SPECS = [
@@ -5390,7 +6087,7 @@ const vimSpecInfo   = document.getElementById("vim-specimen-info");
 
 function clamp(v, lo, hi) { v = v | 0; if (v < lo) v = lo; if (v > hi) v = hi; return v; }
 
-// DOM id helpers — every widget is keyed by (strand, locus).
+// DOM id helpers - every widget is keyed by (strand, locus).
 const vimId = {
   ctl:   (s, n) => `vim-ctl-${s}-${n}`,
   num:   (s, n) => `vim-num-${s}-${n}`,
@@ -5422,6 +6119,9 @@ function setGene(strand, name, value) {
   // Recompute the phenome-driven annotation for this locus.
   refreshAnnot(name);
   vimRenderDirty = true;
+  if (typeof window !== "undefined" && typeof window.bcOnVimGeneChanged === "function") {
+    window.bcOnVimGeneChanged();
+  }
 }
 
 function refreshAnnot(name) {
@@ -5546,7 +6246,7 @@ function buildGeneRows() {
     for (const c of buildStrandCells(spec, "haplo0")) row.appendChild(c);
     for (const c of buildStrandCells(spec, "haplo1")) row.appendChild(c);
 
-    // Phenome value cell (glowing red, read-only) — same visual weight as
+    // Phenome value cell (glowing red, read-only) - same visual weight as
     // the specimen inspector's phenome column.
     const phenoCell = document.createElement("div");
     phenoCell.className = "pheno-val";
@@ -5554,7 +6254,7 @@ function buildGeneRows() {
     phenoCell.textContent = "0";
     row.appendChild(phenoCell);
 
-    // Conditional note cell ("<< shooting-star" etc.) — white glow, matches
+    // Conditional note cell ("<< shooting-star" etc.) - white glow, matches
     // the .note treatment in the specimen inspector.
     const annot = document.createElement("div");
     annot.className = "gene-annot";
@@ -5727,6 +6427,42 @@ document.getElementById("vim-btn-load-popsim").addEventListener("click", () => {
 document.getElementById("vim-btn-load-borg").addEventListener("click", () => {
   seedFromView(borgView);
 });
+document.getElementById("vim-btn-send-to-skeet").addEventListener("click", () => {
+  const h0 = new Uint8Array(N_LOCI);
+  const h1 = new Uint8Array(N_LOCI);
+  for (let li = 0; li < N_LOCI; li++) {
+    const name = VIM_LOCUS_NAMES[li];
+    h0[li] = vimGene.haplo0[name];
+    h1[li] = vimGene.haplo1[name];
+  }
+  const idx = BADGE_TYPES.indexOf(vimGeneType);
+  sendToSkeet({
+    haplo0: h0,
+    haplo1: h1,
+    badgeTypeIdx: idx >= 0 ? idx : BT.None,
+    label: `${vimGeneType} :: from vim gene`,
+  });
+  scrollToTop();
+});
+document.getElementById("vim-btn-send-to-badgecestry").addEventListener("click", () => {
+  // vim gene already IS the shared specimen; badgecestry reads it directly.
+  if (typeof window.badgecestry === "object" && window.badgecestry && typeof window.badgecestry.resetGametePanel === "function") {
+    window.badgecestry.resetGametePanel();
+  }
+  activateTab("badgecestry");
+  scrollToTop();
+});
+document.getElementById("vim-btn-swap-haplos").addEventListener("click", () => {
+  // Snapshot both haplos first (setGene mutates in place; without the copy we'd
+  // overwrite haplo0 with haplo1 and then read haplo0-that-is-now-haplo1 back
+  // into haplo1).
+  const snap0 = {}, snap1 = {};
+  for (const n of VIM_LOCUS_NAMES) { snap0[n] = vimGene.haplo0[n]; snap1[n] = vimGene.haplo1[n]; }
+  for (const n of VIM_LOCUS_NAMES) {
+    setGene("haplo0", n, snap1[n]);
+    setGene("haplo1", n, snap0[n]);
+  }
+});
 document.getElementById("vim-tile-style").addEventListener("change", (ev) => {
   vimStyle = TILE_STYLES[ev.target.value] || TILE_STYLES.ring7;
   vimRenderDirty = true;
@@ -5771,7 +6507,7 @@ const rootSpecCanvas = document.getElementById("root-specimen");
 const rootSpecCtx    = rootSpecCanvas.getContext("2d", { alpha: false });
 const rootInfoEl     = document.getElementById("root-info");
 
-// Scratch phenome for ROOT — computed by phenotype(rootDiploid) using the
+// Scratch phenome for ROOT - computed by phenotype(rootDiploid) using the
 // same rule as popsim and the vim gene tab, so all three previews agree.
 const _rootPheno = new Uint8Array(N_LOCI);
 
@@ -5917,7 +6653,7 @@ function qrRender(targetEl, base45Text) {
   const q = qrcode(0, "M");
   q.addData(base45Text, "Alphanumeric");
   q.make();
-  // No `scalable` — that omits width/height from the SVG, which then collapses
+  // No `scalable` - that omits width/height from the SVG, which then collapses
   // to zero inside a `flex: 0 0 auto` wrapper (Firefox / Safari especially).
   // cellSize 5 gives a comfortable 145x145..205x205 depending on QR version.
   targetEl.innerHTML = q.createSvgTag({ cellSize: 5, margin: 4 });
@@ -5938,9 +6674,14 @@ function qrTryLoadK(hexInput, quiet) {
   const raw = (hexInput || "").trim();
   let bytes;
   try { bytes = unhexStr(raw); }
-  catch (e) { if (!quiet) qrSetStatus("qr-k-status", "not valid hex", "bad"); return false; }
+  catch (e) {
+    if (!quiet) qrSetStatus("qr-k-status", "not valid hex", "bad");
+    if (!quiet && typeof refreshKPanels === "function") refreshKPanels("qr-k");
+    return false;
+  }
   if (bytes.length !== 32) {
     if (!quiet) qrSetStatus("qr-k-status", `got ${bytes.length} bytes, need 32`, "bad");
+    if (!quiet && typeof refreshKPanels === "function") refreshKPanels("qr-k");
     return false;
   }
   const digest = sha256(bytes);
@@ -5958,6 +6699,7 @@ function qrTryLoadK(hexInput, quiet) {
   } else {
     qrSetStatus("qr-k-status", `custom k accepted; oracle not checked (sha256 starts ${digest.slice(0,8)})`, "warn");
   }
+  if (typeof refreshKPanels === "function") refreshKPanels("qr-k");
   return true;
 }
 
@@ -5976,7 +6718,7 @@ function qrPhase1Extract() {
   qrParsedNonce = n;
   qrSetStatus("qr-phase1-status", `extracted nonce: ${hexStr(n)}`, "good");
   // Phase 2 is now unblocked. Update its status so it stops saying "do phase 1 first."
-  qrSetStatus("qr-seal-status", `phase 1 nonce loaded: ${hexStr(n)} — press seal`, "");
+  qrSetStatus("qr-seal-status", `phase 1 nonce loaded: ${hexStr(n)}: press seal`, "");
 }
 
 // ---------- phase 2: seal ----------
@@ -6028,9 +6770,9 @@ function qrDoSeal() {
   document.getElementById("qr-seal-b15").textContent = `${btIdx} (${BADGE_TYPES[btIdx]})`;
   qrRender(document.getElementById("qr-seal-canvas"), b45);
   qrSetStatus("qr-seal-status",
-    `sealed under nonce ${hexStr(n)} :: source=${source}${rngOverride ? " (seeded)" : ""} — scan the QR with your badge`,
+    `sealed under nonce ${hexStr(n)} :: source=${source}${rngOverride ? " (seeded)" : ""}: scan the QR with your badge`,
     "good");
-  qrSetStatus("qr-decode-status", "phase 2 seal ready — press decode phase 2 for a round-trip check", "");
+  qrSetStatus("qr-decode-status", "phase 2 seal ready: press decode phase 2 for a round-trip check", "");
 }
 
 // ---------- decode ----------
@@ -6096,7 +6838,7 @@ function qrDoDecode() {
     `round-trip ok :: haploid + badge type\n${geneLines}\n  byte 15      = ${b15} (${btName})`;
   qrRenderHaploidPreview(document.getElementById("qr-decode-canvas"), hap);
   preview.hidden = false;
-  qrSetStatus("qr-decode-status", `round-trip ok — opened under nonce ${hexStr(qrParsedNonce)}`, "good");
+  qrSetStatus("qr-decode-status", `round-trip ok: opened under nonce ${hexStr(qrParsedNonce)}`, "good");
 }
 
 // ---------- wiring ----------
@@ -6126,12 +6868,12 @@ function qrInitPanel() {
 
   // When the vim badge type changes (via seedFromType / seedFromView / etc.),
   // resync the seal dropdown default so the user's convenience default tracks
-  // whatever the vim tab is currently displaying — unless they've explicitly
+  // whatever the vim tab is currently displaying - unless they've explicitly
   // picked a value that no longer matches (respect the override).
   const btSel = document.getElementById("qr-seal-badgetype");
   const observer = new MutationObserver(() => qrSyncBadgeTypeDefault());
   // Hook into vim-status text so we re-sync after any seed operation that
-  // touches vim state — those all update vim-status.
+  // touches vim state - those all update vim-status.
   const vs = document.getElementById("vim-status");
   if (vs) observer.observe(vs, { characterData: true, childList: true, subtree: true });
 }
@@ -6172,6 +6914,452 @@ function qrSelfTests() {
 }
 
 /* ==========================================================================
+ * SKEET :: meiosis-as-gamete-enumeration for a single diploid
+ *
+ * The skeet slot IS the parent diploid. With 5 fair coins over 5 linkage
+ * groups (see synthetic-population-genetics.md §3), the badge can produce
+ * exactly 2^5 = 32 distinct gametes. Skeet enumerates all 32 rather than
+ * sampling them. One gamete may be picked as the payload for a QR exchange
+ * with a physical badge, mirroring the vim gene panel's three-phase flow.
+ * ========================================================================== */
+const SKEET_GROUPS = [[0,1,2], [3], [4,5,6], [7], [8]];  // must match meiosis() GROUPS
+const SKEET_GROUP_OF_LOCUS = (() => {
+  const out = new Array(N_LOCI);
+  for (let g = 0; g < SKEET_GROUPS.length; g++) {
+    for (const li of SKEET_GROUPS[g]) out[li] = g;
+  }
+  return out;
+})();
+const SKEET_LOCUS_NAMES = VIM_LOCUS_NAMES;
+
+let skeetSlot = null;          // { haplo0: Uint8Array(9), haplo1: Uint8Array(9),
+                               //   badgeTypeIdx: int, label: string }
+let skeetPickedPattern = null; // int 0..31 or null
+let skeetParsedNonce  = null;  // Uint8Array(12) or null
+let skeetSealedBytes  = null;  // Uint8Array(32) or null (16 ct + 16 tag)
+let skeetInitialized  = false;
+let skeetTabActive    = false;
+let skeetRenderDirty  = true;
+const _skeetDiploid   = new Uint8Array(2 * N_LOCI);
+const _skeetPheno     = new Uint8Array(N_LOCI);
+
+// Gray-code walk of all 32 patterns, XORed with a nonzero start seed so the
+// sequence begins somewhere other than 00000. Standard binary-reflected Gray
+// code: gray(i) = i ^ (i >> 1). Successive rows still differ by exactly one
+// bit flip, which reads as one linkage group swap per row.
+const SKEET_GRAY_START = 0b10101;  // 21 :: A on, B off, C on, D off, E on
+const SKEET_PATTERN_ORDER = (() => {
+  const out = new Int8Array(32);
+  for (let i = 0; i < 32; i++) out[i] = (i ^ (i >> 1) ^ SKEET_GRAY_START) & 31;
+  return out;
+})();
+
+function skeetBuildGameteFromPattern(pattern) {
+  const out = new Uint8Array(N_LOCI);
+  for (let g = 0; g < SKEET_GROUPS.length; g++) {
+    const pick = (pattern >> g) & 1;
+    const src = pick === 0 ? skeetSlot.haplo0 : skeetSlot.haplo1;
+    for (const li of SKEET_GROUPS[g]) out[li] = src[li];
+  }
+  return out;
+}
+
+function skeetPatternLabel(pattern) {
+  // Standard MSB-on-left binary: bit 4 (group E) leftmost, bit 0 (group A) rightmost.
+  let s = "";
+  for (let b = 4; b >= 0; b--) s += ((pattern >> b) & 1).toString();
+  return s;
+}
+
+function sendToSkeet(payload) {
+  skeetSlot = {
+    haplo0: new Uint8Array(payload.haplo0),
+    haplo1: new Uint8Array(payload.haplo1),
+    badgeTypeIdx: payload.badgeTypeIdx | 0,
+    label: payload.label || "",
+  };
+  skeetPickedPattern = null;
+  skeetParsedNonce = null;
+  skeetSealedBytes = null;
+  skeetRenderDirty = true;
+  activateTab("skeet");
+  // activateTab -> ensureSkeetInitialized -> renderSkeetPanels
+}
+
+function ensureSkeetInitialized() {
+  if (skeetInitialized) return;
+  skeetInitialized = true;
+
+  // Populate byte-15 dropdown (same option format vim gene's uses).
+  const sel = document.getElementById("skeet-qr-seal-badgetype");
+  sel.innerHTML = "";
+  for (let i = 0; i < BADGE_TYPES.length; i++) {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = `${i} :: ${BADGE_TYPES[i]}` + (BADGE_TYPES[i] === "None" ? " (suppresses receiver mutation)" : "");
+    sel.appendChild(opt);
+  }
+  sel.addEventListener("change", skeetUpdateByteWarn);
+
+  // k slot: seed from the same localStorage key vim gene uses.
+  const stored = localStorage.getItem("badge-genetics-sim.k");
+  const initial = stored || DEFAULT_K0;
+  document.getElementById("skeet-qr-k").value = initial;
+  // If qrK is already loaded (vim tab initialized qr first), just mirror status.
+  if (qrK) {
+    refreshKPanels("skeet-qr-k");
+  } else {
+    // Verify quietly so status text is populated even if user never touches vim tab.
+    qrTryLoadK(initial, true);
+    refreshKPanels("skeet-qr-k");
+  }
+
+  document.getElementById("skeet-qr-k-save").addEventListener("click", () => {
+    const raw = document.getElementById("skeet-qr-k").value;
+    document.getElementById("qr-k").value = raw;
+    qrTryLoadK(raw, false);
+  });
+  document.getElementById("skeet-qr-k-reset").addEventListener("click", () => {
+    document.getElementById("skeet-qr-k").value = DEFAULT_K0;
+    document.getElementById("qr-k").value = DEFAULT_K0;
+    qrTryLoadK(DEFAULT_K0, false);
+  });
+
+  document.getElementById("skeet-qr-phase1-go").addEventListener("click", skeetPhase1Extract);
+  document.getElementById("skeet-qr-seal-go").addEventListener("click", skeetDoSeal);
+
+  document.getElementById("skeet-btn-clear").addEventListener("click", skeetClearSlot);
+}
+
+function refreshKPanels(source) {
+  // Sync both tabs' k inputs and status lines to the current qrK / DOM state.
+  // `source` names the input that just changed so we don't clobber the caret /
+  // selection in the tab the user is actively typing into.
+  const vimIn = document.getElementById("qr-k");
+  const skeetIn = document.getElementById("skeet-qr-k");
+  if (vimIn && skeetIn) {
+    if (source !== "qr-k")     vimIn.value   = skeetIn.value;
+    if (source !== "skeet-qr-k") skeetIn.value = vimIn.value;
+    // Prefer whichever value was authoritative (the one that was verified).
+    // qrTryLoadK stores raw into localStorage on success; fall back to that.
+    const stored = localStorage.getItem("badge-genetics-sim.k");
+    if (stored) {
+      if (source !== "qr-k")       vimIn.value   = stored;
+      if (source !== "skeet-qr-k") skeetIn.value = stored;
+    }
+  }
+  const vimStat = document.getElementById("qr-k-status");
+  const skeetStat = document.getElementById("skeet-qr-k-status");
+  if (vimStat && skeetStat) {
+    // Copy vim's status text/class into skeet's status (single source of truth).
+    // vim-side qrSetStatus already handled the vim status; mirror it verbatim.
+    skeetStat.textContent = vimStat.textContent;
+    skeetStat.className = vimStat.className;
+  }
+}
+
+function skeetPhase1Extract() {
+  const raw = document.getElementById("skeet-qr-badge-input").value;
+  let n;
+  try { n = parseNonceInput(raw); }
+  catch (e) { qrSetStatus("skeet-qr-phase1-status", "can't parse that string: " + e.message, "bad"); return; }
+  skeetParsedNonce = n;
+  qrSetStatus("skeet-qr-phase1-status", `extracted nonce: ${hexStr(n)}`, "good");
+  qrSetStatus("skeet-qr-seal-status", `phase 1 nonce loaded: ${hexStr(n)}: pick a gamete and press seal`, "");
+}
+
+function skeetSyncBadgeTypeDefault() {
+  if (!skeetSlot) return;
+  const sel = document.getElementById("skeet-qr-seal-badgetype");
+  sel.value = String(skeetSlot.badgeTypeIdx);
+  skeetUpdateByteWarn();
+}
+
+function skeetUpdateByteWarn() {
+  const idx = parseInt(document.getElementById("skeet-qr-seal-badgetype").value, 10);
+  const name = BADGE_TYPES[idx];
+  const el = document.getElementById("skeet-qr-seal-btwarn");
+  if (name === "None") {
+    el.textContent = `byte 15 = ${idx} (None) → suppresses receiver inbreeding mutation`;
+  } else {
+    el.textContent = `byte 15 = ${idx} (${name}) → if receiver is also ${name}, firmware raises the mutation rate and scrambles these genes`;
+  }
+}
+
+function skeetDoSeal() {
+  if (!qrK) { qrSetStatus("skeet-qr-seal-status", "load k first", "bad"); return; }
+  if (!skeetParsedNonce) { qrSetStatus("skeet-qr-seal-status", "do phase 1 first (paste badge string and press extract)", "bad"); return; }
+  if (skeetPickedPattern === null) { qrSetStatus("skeet-qr-seal-status", "pick a gamete first (press + Pick on one of the 32 rows)", "bad"); return; }
+  const gam = skeetBuildGameteFromPattern(skeetPickedPattern);
+  const btIdx = parseInt(document.getElementById("skeet-qr-seal-badgetype").value, 10);
+  const pt = vimBuildPlaintext(gam, btIdx);
+  let sealed;
+  try { sealed = gcmSivSeal(qrK, skeetParsedNonce, pt); }
+  catch (e) { qrSetStatus("skeet-qr-seal-status", "seal failed: " + e.message, "bad"); return; }
+  skeetSealedBytes = sealed;
+  const b45 = b45encode(sealed);
+  document.getElementById("skeet-qr-seal-plaintext").textContent = hexStr(pt);
+  document.getElementById("skeet-qr-seal-b15").textContent = `${btIdx} (${BADGE_TYPES[btIdx]})`;
+  qrRender(document.getElementById("skeet-qr-seal-canvas"), b45);
+  qrSetStatus("skeet-qr-seal-status",
+    `sealed under nonce ${hexStr(skeetParsedNonce)} :: gamete pattern ${skeetPatternLabel(skeetPickedPattern)}: scan the QR with your badge`,
+    "good");
+}
+
+function skeetClearSlot() {
+  skeetSlot = null;
+  skeetPickedPattern = null;
+  skeetParsedNonce = null;
+  skeetSealedBytes = null;
+  renderSkeetPanels();
+}
+
+function skeetPickGamete(pattern) {
+  if (skeetPickedPattern === pattern) {
+    skeetUnpickGamete();
+    return;
+  }
+  skeetPickedPattern = pattern;
+  skeetSealedBytes = null;  // any prior seal is invalid against a new gamete
+  renderSkeetPanelC();
+  skeetSyncBadgeTypeDefault();
+  renderSkeetPanelBRows();  // update button labels + picked row styling
+}
+
+function skeetUnpickGamete() {
+  skeetPickedPattern = null;
+  skeetSealedBytes = null;
+  renderSkeetPanelC();
+  renderSkeetPanelBRows();
+}
+
+function renderSkeetPanels() {
+  renderSkeetPanelA();
+  renderSkeetPanelB();
+  renderSkeetPanelC();
+}
+
+// Ring-tile paint for the skeet slot specimen, mirroring renderVimGene/
+// renderRoot. Called from animLoop when the skeet tab is active.
+const _skeetSpecCanvas = () => document.getElementById("skeet-specimen");
+function renderSkeetSpecimen(t) {
+  const canvas = _skeetSpecCanvas();
+  if (!canvas || !skeetSlot) return;
+  const ctx = canvas.getContext("2d");
+  const style = vimStyle;   // share the vim gene tile style toggle
+  const M = style.M;
+  const width = canvas.width, height = canvas.height;
+  const scale = Math.floor(width / M);
+
+  for (let li = 0; li < N_LOCI; li++) {
+    _skeetDiploid[li]          = skeetSlot.haplo0[li];
+    _skeetDiploid[N_LOCI + li] = skeetSlot.haplo1[li];
+  }
+  phenotype(_skeetDiploid, 0, _skeetPheno, 0, currentVimNonlinMode());
+
+  const img = ctx.createImageData(width, height);
+  const data = img.data;
+  for (let k = 0; k < data.length; k += 4) { data[k]=0; data[k+1]=0; data[k+2]=0; data[k+3]=255; }
+  const tSec = (t || 0) / 1000;
+  const g = precomputeCell(_skeetPheno, 0, tSec);
+  const scratch = new Uint8ClampedArray(M * M * 4);
+  if (style.kind === "ring") paintRingTile(style, g, 0, 0, tSec, scratch, M);
+  else                       paintPackedTile(g,   0, 0, tSec, scratch, M);
+  for (let cy = 0; cy < M; cy++) {
+    for (let cx = 0; cx < M; cx++) {
+      const so = (cy * M + cx) * 4;
+      const r = scratch[so], gc = scratch[so+1], b = scratch[so+2];
+      for (let sy = 0; sy < scale; sy++) {
+        for (let sx = 0; sx < scale; sx++) {
+          const o = ((cy*scale+sy) * width + (cx*scale+sx)) * 4;
+          data[o] = r; data[o+1] = gc; data[o+2] = b;
+        }
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function renderSkeetPanelA() {
+  const labelEl = document.getElementById("skeet-slot-label");
+  const infoEl  = document.getElementById("skeet-slot-info");
+  const specWrap = document.getElementById("skeet-specimen-wrap");
+  const clearBtn = document.getElementById("skeet-btn-clear");
+  if (!skeetSlot) {
+    labelEl.textContent = "[ no organism loaded ]";
+    infoEl.textContent = "[ send one from popsim / borg / vim gene ]";
+    if (specWrap) specWrap.style.display = "none";
+    clearBtn.disabled = true;
+    return;
+  }
+  if (specWrap) specWrap.style.display = "";
+  clearBtn.disabled = false;
+  labelEl.textContent = skeetSlot.label || "[ loaded ]";
+
+  // Same inspector-shaped table as popsim/borg/vim: locus | haplo0 | haplo1 | phenome.
+  // Compute phenome so the display + sprite share one source of truth.
+  for (let li = 0; li < N_LOCI; li++) {
+    _skeetDiploid[li]          = skeetSlot.haplo0[li];
+    _skeetDiploid[N_LOCI + li] = skeetSlot.haplo1[li];
+  }
+  phenotype(_skeetDiploid, 0, _skeetPheno, 0, currentVimNonlinMode());
+
+  const locusNames = SKEET_LOCUS_NAMES;
+  const nameW = Math.max(...locusNames.map(n => n.length));
+  const haploLbl0 = "[haplo0]";
+  const haploLbl1 = "[haplo1]";
+  const phenoHdr  = "---phenome---";
+  const haploW = haploLbl0.length;
+  const phenoW = phenoHdr.length;
+  const gap = "  ";
+  const phenoMid = Math.floor(phenoW / 2);
+  const haploCell = (strand, li) => {
+    const raw = (strand === 0 ? skeetSlot.haplo0[li] : skeetSlot.haplo1[li]).toString();
+    return `<span class="geno">${raw.padStart(haploW)}</span>`;
+  };
+  const phenoShift = 4;
+  const phenoCell = (li) => {
+    const raw = _skeetPheno[li].toString();
+    const left  = " ".repeat(Math.max(0, phenoMid + 1 + phenoShift - raw.length));
+    const right = " ".repeat(Math.max(0, phenoW + phenoShift - left.length - raw.length));
+    return left + `<span class="pheno">${raw}</span>` + right;
+  };
+  const annot = (li) => {
+    const nm = locusNames[li];
+    if (nm === "chaser" && _skeetPheno[L.chaser] < 88) return gap + `<span class="note">&lt;&lt; shooting-star</span>`;
+    if (nm === "nonlin" && _skeetPheno[L.nonlin] > 127) return gap + `<span class="note">&lt;&lt; gamma rolloff</span>`;
+    return "";
+  };
+  const nameGap = " ";
+  const haploGap = " ";
+  const midGap = gap;
+  const genomeSpan = haploW + haploGap.length + haploW;
+  const genomeHdr = "---diploid genome---";
+  const centered = (s, w) => {
+    if (s.length >= w) return s;
+    const l = Math.floor((w - s.length) / 2);
+    const r = w - s.length - l;
+    return " ".repeat(l) + s + " ".repeat(r);
+  };
+  const hdrTop =
+    "".padEnd(nameW) + nameGap +
+    centered(genomeHdr, genomeSpan) + midGap +
+    phenoHdr;
+  const hdrSub =
+    "".padEnd(nameW) + nameGap +
+    haploLbl0 + haploGap + haploLbl1 + midGap +
+    "".padEnd(phenoW);
+  const rows = locusNames.map((n, li) =>
+    `<span class="locus">${n.padEnd(nameW)}</span>` + nameGap +
+    haploCell(0, li) + haploGap + haploCell(1, li) + midGap +
+    phenoCell(li) + annot(li)
+  ).join("\n");
+  infoEl.innerHTML =
+    `<span class="k">${hdrTop}</span>\n` +
+    `<span class="k">${hdrSub}</span>\n` +
+    rows;
+}
+
+// Column-slot definitions for the 5-group grid: for each locus we know which
+// segment (first/mid/last) of its group it is, so we can slap g-first/g-last
+// on the outer cells and let the internal cells collapse into one block.
+// Group layout: A(0,1,2), B(3), C(4,5,6), D(7), E(8).
+const SKEET_GROUP_MEMBERS = [[0,1,2],[3],[4,5,6],[7],[8]];
+const SKEET_GROUP_LETTERS = ["A","B","C","D","E"];
+const SKEET_CELL_POSITION = (() => {
+  // For each locus, ["first"|"mid"|"last"|"solo"].
+  const out = new Array(N_LOCI);
+  for (let g = 0; g < SKEET_GROUP_MEMBERS.length; g++) {
+    const m = SKEET_GROUP_MEMBERS[g];
+    for (let i = 0; i < m.length; i++) {
+      const li = m[i];
+      if (m.length === 1) out[li] = "solo";
+      else if (i === 0)   out[li] = "first";
+      else if (i === m.length - 1) out[li] = "last";
+      else out[li] = "mid";
+    }
+  }
+  return out;
+})();
+
+function renderSkeetPanelB() {
+  const panel = document.getElementById("skeet-gametes-panel");
+  if (!skeetSlot) { panel.hidden = true; return; }
+  panel.hidden = false;
+
+  // Row 1: linkage-group letters spanning their loci, with spacer cells for
+  // the gap columns between groups.
+  const gHead = document.getElementById("skeet-gam-grouphead");
+  const gParts = ['<div class="gh-spacer"></div>'];  // pattern column
+  for (let g = 0; g < SKEET_GROUP_MEMBERS.length; g++) {
+    const span = SKEET_GROUP_MEMBERS[g].length;
+    gParts.push(`<div class="gh" style="grid-column: span ${span};">window ${SKEET_GROUP_LETTERS[g]}</div>`);
+    if (g < SKEET_GROUP_MEMBERS.length - 1) gParts.push('<div class="gh-spacer"></div>');
+  }
+  gParts.push('<div class="gh-spacer"></div>');  // action column
+  gHead.innerHTML = gParts.join("");
+
+  // Row 2: per-locus short names, with spacer cells between groups.
+  const head = document.getElementById("skeet-gam-head");
+  const shortByLocus = ["cdp","cdr","cdd","sat","hrd","hb","hbd","chs","nl"];
+  const headParts = ['<div class="h pat">pattern</div>'];
+  for (let g = 0; g < SKEET_GROUP_MEMBERS.length; g++) {
+    for (const li of SKEET_GROUP_MEMBERS[g]) headParts.push(`<div class="h">${shortByLocus[li]}</div>`);
+    if (g < SKEET_GROUP_MEMBERS.length - 1) headParts.push('<div class="h" style="border-bottom:none;"></div>');
+  }
+  headParts.push('<div class="h pick">action</div>');
+  head.innerHTML = headParts.join("");
+
+  renderSkeetPanelBRows();
+}
+
+function renderSkeetPanelBRows() {
+  if (!skeetSlot) return;
+  const rowsEl = document.getElementById("skeet-gam-rows");
+  const parts = [];
+  for (let r = 0; r < 32; r++) {
+    const pattern = SKEET_PATTERN_ORDER[r];
+    const picked = pattern === skeetPickedPattern;
+    const rowClass = "skeet-gam-row" + (picked ? " picked" : "");
+    parts.push(`<div class="${rowClass}" data-pattern="${pattern}">`);
+    parts.push(`<div class="pat">${skeetPatternLabel(pattern)}</div>`);
+    for (let g = 0; g < SKEET_GROUP_MEMBERS.length; g++) {
+      for (const li of SKEET_GROUP_MEMBERS[g]) {
+        const bit = (pattern >> g) & 1;
+        const bitCls = bit === 0 ? "h0" : "h1";
+        const pos = SKEET_CELL_POSITION[li];
+        let posCls = "";
+        if (pos === "first") posCls = " g-first";
+        else if (pos === "last") posCls = " g-last";
+        else if (pos === "solo") posCls = " g-first g-last";
+        const val = bit === 0 ? skeetSlot.haplo0[li] : skeetSlot.haplo1[li];
+        parts.push(`<div class="cell ${bitCls}${posCls}">${val}</div>`);
+      }
+      if (g < SKEET_GROUP_MEMBERS.length - 1) parts.push(`<div class="cell-spacer"></div>`);
+    }
+    const btnLabel = picked ? "picked" : "+ pick";
+    parts.push(`<div class="pickwrap"><button type="button" data-pattern="${pattern}">${btnLabel}</button></div>`);
+    parts.push(`</div>`);
+  }
+  rowsEl.innerHTML = parts.join("");
+  rowsEl.querySelectorAll("button[data-pattern]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const p = parseInt(btn.getAttribute("data-pattern"), 10);
+      skeetPickGamete(p);
+    });
+  });
+}
+
+function renderSkeetPanelC() {
+  const panel = document.getElementById("skeet-qr-panel");
+  panel.hidden = !skeetSlot || skeetPickedPattern === null;
+}
+
+/* Wire the skeet tab-button click through activateTab (activateTab already
+ * listens for .tab clicks; we just need the ensureSkeetInitialized hook it
+ * expects to exist, which is defined above). */
+
+/* ==========================================================================
  * BOOT
  * ========================================================================== */
 selfTests();
@@ -6180,5 +7368,1563 @@ animHandle = requestAnimationFrame(animLoop);
 qrInitPanel();
 qrSelfTests();
 </script>
+
+<!-- ==========================================================================
+     BADGECESTRY :: two-stage ancestry HMM (U.S. Pat. 12,626,778)
+     Loaded last so it can call the tile-rendering helpers (paintRingTile,
+     precomputeCell, phenotype, TILE_STYLES) defined in the main script.
+     See badgecestry.md and hmm/*.py for design and reference.
+     ========================================================================== -->
+<script>
+(function () {
+"use strict";
+
+/* -------------------------------------------------------------------------
+ * decoder :: JS port of hmm/*.py (numerically identical to double eps)
+ * ----------------------------------------------------------------------- */
+const N_LOCI    = 9;
+const N_ALLELES = 256;
+
+const BC_LOCUS = {
+  cd_period:0, cd_rate:1, cd_dir:2, sat:3,
+  hue_ratedir:4, hue_base:5, hue_bound:6, chaser:7, nonlin:8,
+};
+const LOCUS_NAMES = ["cd_period","cd_rate","cd_dir","sat","hue_ratedir","hue_base","hue_bound","chaser","nonlin"];
+
+const TYPES = ["Goon","Community","Village","Human","Other","CtfContest","Uber","None"];
+const N_TYPES = TYPES.length;
+const TYPE_INDEX = Object.fromEntries(TYPES.map((t,i)=>[t,i]));
+const INACTIVE = new Set(["None"]);
+const ACTIVE_MASK = TYPES.map(t => !INACTIVE.has(t));
+const ACTIVE_IDX  = TYPES.map((t,i)=>i).filter(i=>ACTIVE_MASK[i]);
+const N_ACTIVE = ACTIVE_IDX.length;
+
+// Short display name per type - keeps the internals panels compact.
+const TYPE_SHORT = {Goon:"Goon", Community:"Comm", Village:"Vlge", Human:"Hum",
+                    Other:"Oth", CtfContest:"CTF", Uber:"Uber", None:"None"};
+// Accent color per type - computed below from TYPE_TABLE so each chip
+// visually matches how a badge of that type actually renders.
+const TYPE_COLOR = {};
+
+const WINDOWS = [
+  ["W_A",  [BC_LOCUS.cd_period, BC_LOCUS.cd_rate, BC_LOCUS.cd_dir]],
+  ["W_B",  [BC_LOCUS.sat]],
+  ["W_C",  [BC_LOCUS.hue_ratedir, BC_LOCUS.hue_base, BC_LOCUS.hue_bound]],
+  ["W_DE", [BC_LOCUS.chaser, BC_LOCUS.nonlin]],
+];
+const N_WINDOWS = WINDOWS.length;
+const WINDOW_NAMES = WINDOWS.map(w=>w[0]);
+const WINDOW_LOCI  = WINDOWS.map(w=>w[1]);
+const W_DE_INDEX = WINDOW_NAMES.indexOf("W_DE");
+
+const RATE_VALUES = {None:0, Baseline:64, Elevated:100, Radioactive:140, Apocalyptic:240};
+const RATE_BITS   = {None:0, Baseline:0x01, Elevated:0x03, Radioactive:0x07, Apocalyptic:0x1F};
+const T_GRID = [0, 1, 2, 4, 8, 16, 32, 64, 128];
+
+const TYPE_TABLE = {
+  Goon:       {hue:[0,20],    sat:[160,255], chaser:[90,255], nonlin:[0,255], cd_dir:[0,255], cd_period_max:4},
+  Community:  {hue:[32,80],   sat:[32,160],  chaser:[90,255], nonlin:[0,255], cd_dir:[0,255], cd_period_max:2},
+  Village:    {hue:[80,128],  sat:[32,160],  chaser:[90,255], nonlin:[0,255], cd_dir:[0,45],  cd_period_max:4},
+  Human:      {hue:[128,160], sat:[32,255],  chaser:[90,255], nonlin:[0,255], cd_dir:[0,255], cd_period_max:5},
+  Other:      {hue:[160,192], sat:[16,255],  chaser:[0,255],  nonlin:[0,90],  cd_dir:[0,255], cd_period_max:6},
+  CtfContest: {hue:[192,220], sat:[16,255],  chaser:[90,255], nonlin:[0,90],  cd_dir:[0,255], cd_period_max:6},
+  Uber:       {hue:[220,255], sat:[130,255], chaser:[0,45],   nonlin:[0,44],  cd_dir:[0,45],  cd_period_max:3},
+  None:       {hue:[128,160], sat:[32,255],  chaser:[90,255], nonlin:[0,255], cd_dir:[0,255], cd_period_max:4},
+};
+
+// Build TYPE_COLOR from TYPE_TABLE so each chip visually matches how a badge
+// of that type actually paints on-screen. Sampling rule:
+//   - hue = midpoint of the type's effective [hue_base, hue_bound] range,
+//     honoring the Goon (hue_base forced to 0) and Uber (hue_bound forced to
+//     255) overrides from Haploid::from_type.
+//   - sat = midpoint of the type's sat range.
+//   - value = 255, so chips read on the black chrome regardless of the type's
+//     saturation range.
+// Uses the same hsv255ToCss() the tile renderer uses, so a chip is exactly
+// one of the pixel colors that a badge of that type could actually paint.
+(function initTypeColors() {
+  for (const [T, row] of Object.entries(TYPE_TABLE)) {
+    let hueLo = row.hue[0], hueHi = row.hue[1];
+    if (T === "Goon") hueLo = 0;              // hue_base forced to 0
+    if (T === "Uber") hueHi = 255;            // hue_bound forced to 255
+    const hue = (hueLo + hueHi) >> 1;
+    const sat = (row.sat[0] + row.sat[1]) >> 1;
+    TYPE_COLOR[T] = hsv255ToCss(hue, sat, 255);
+  }
+  // "None" is not shown in badgecestry (excluded by design) but keep a
+  // recognizably dead color in case anything queries it.
+  TYPE_COLOR.None = "#444";
+})();
+
+function uniformRange(lo, hi) {
+  const out = new Float64Array(N_ALLELES);
+  const v = 1 / (hi - lo + 1);
+  for (let a = lo; a <= hi; a++) out[a] = v;
+  return out;
+}
+function hueBoundPmf(lo, hi) {
+  const out = new Float64Array(N_ALLELES);
+  const nBase = hi - lo + 1;
+  for (let a = lo; a <= hi; a++) {
+    const span = hi - a + 1;
+    for (let b = a; b <= hi; b++) out[b] += (1/nBase) * (1/span);
+  }
+  return out;
+}
+function buildFounderPanel() {
+  const pi = new Float64Array(N_TYPES * N_LOCI * N_ALLELES);
+  for (const [T, row] of Object.entries(TYPE_TABLE)) {
+    const ti = TYPE_INDEX[T];
+    const base = ti * N_LOCI * N_ALLELES;
+    pi.set(uniformRange(0, row.cd_period_max), base + BC_LOCUS.cd_period * N_ALLELES);
+    pi.set(uniformRange(0, 255),               base + BC_LOCUS.cd_rate   * N_ALLELES);
+    pi.set(uniformRange(row.cd_dir[0], row.cd_dir[1]), base + BC_LOCUS.cd_dir * N_ALLELES);
+    pi.set(uniformRange(row.sat[0], row.sat[1]),       base + BC_LOCUS.sat    * N_ALLELES);
+    pi.set(uniformRange(0, 255),                       base + BC_LOCUS.hue_ratedir * N_ALLELES);
+    if (T === "Goon") pi[base + BC_LOCUS.hue_base * N_ALLELES + 0] = 1;
+    else pi.set(uniformRange(row.hue[0], row.hue[1]),  base + BC_LOCUS.hue_base * N_ALLELES);
+    if (T === "Uber") pi[base + BC_LOCUS.hue_bound * N_ALLELES + 255] = 1;
+    else pi.set(hueBoundPmf(row.hue[0], row.hue[1]),   base + BC_LOCUS.hue_bound * N_ALLELES);
+    pi.set(uniformRange(row.chaser[0], row.chaser[1]), base + BC_LOCUS.chaser * N_ALLELES);
+    pi.set(uniformRange(row.nonlin[0], row.nonlin[1]), base + BC_LOCUS.nonlin * N_ALLELES);
+  }
+  return pi;
+}
+const FOUNDER_PANEL = buildFounderPanel();
+function panelSlice(pi, T, ell) {
+  const s = T * N_LOCI * N_ALLELES + ell * N_ALLELES;
+  return pi.subarray(s, s + N_ALLELES);
+}
+
+const GRAY_ENCODE = new Uint8Array(256);
+const GRAY_DECODE = new Uint8Array(256);
+for (let i = 0; i < 256; i++) GRAY_ENCODE[i] = i ^ (i >>> 1);
+for (let i = 0; i < 256; i++) GRAY_DECODE[GRAY_ENCODE[i]] = i;
+
+function buildKernel(rateName, cdPeriod) {
+  const val = RATE_VALUES[rateName], bits = RATE_BITS[rateName];
+  const p = val / 256;
+  const K = new Float64Array(256 * 256);
+  for (let a = 0; a < 256; a++) K[a*256 + a] = 1 - p;
+  if (val === 0) return K;
+  const w = p / 8;
+  for (let shift = 0; shift < 8; shift++) {
+    const mask = (bits << shift) & 0xFF;
+    for (let a = 0; a < 256; a++) {
+      const enc = GRAY_ENCODE[a];
+      const dec = GRAY_DECODE[enc ^ mask];
+      const na  = cdPeriod ? (dec % 7) : dec;
+      K[a*256 + na] += w;
+    }
+  }
+  return K;
+}
+function matmul256(A, B) {
+  const C = new Float64Array(256 * 256);
+  for (let i = 0; i < 256; i++) {
+    for (let k = 0; k < 256; k++) {
+      const aik = A[i*256 + k];
+      if (aik === 0) continue;
+      const bRow = k*256, cRow = i*256;
+      for (let j = 0; j < 256; j++) C[cRow + j] += aik * B[bRow + j];
+    }
+  }
+  return C;
+}
+function matrixPower256(K, n) {
+  if (n === 0) {
+    const I = new Float64Array(256*256);
+    for (let i = 0; i < 256; i++) I[i*256 + i] = 1;
+    return I;
+  }
+  let result = null;
+  let base = K.slice();
+  while (n > 0) {
+    if (n & 1) result = result === null ? base.slice() : matmul256(result, base);
+    n >>>= 1;
+    if (n > 0) base = matmul256(base, base);
+  }
+  return result;
+}
+function rowMatmul256(row, K) {
+  const out = new Float64Array(256);
+  for (let a = 0; a < 256; a++) {
+    const ra = row[a];
+    if (ra === 0) continue;
+    const kRow = a*256;
+    for (let b = 0; b < 256; b++) out[b] += ra * K[kRow + b];
+  }
+  return out;
+}
+function buildEmissionTensor(rateName) {
+  const Kgen = buildKernel(rateName, false);
+  const Kcd  = buildKernel(rateName, true);
+  const KgenPow = T_GRID.map(t => matrixPower256(Kgen, t));
+  const KcdPow  = T_GRID.map(t => matrixPower256(Kcd,  t));
+  const E = [];
+  for (let ti = 0; ti < T_GRID.length; ti++) {
+    const perType = [];
+    for (let T = 0; T < N_TYPES; T++) {
+      const perLocus = [];
+      for (let ell = 0; ell < N_LOCI; ell++) {
+        const K = (ell === BC_LOCUS.cd_period) ? KcdPow[ti] : KgenPow[ti];
+        perLocus.push(rowMatmul256(panelSlice(FOUNDER_PANEL, T, ell), K));
+      }
+      perType.push(perLocus);
+    }
+    E.push(perType);
+  }
+  return E;
+}
+function snapTToGrid(t) {
+  let best = 0, bd = Infinity;
+  for (let i = 0; i < T_GRID.length; i++) {
+    const d = Math.abs(T_GRID[i] - t);
+    if (d < bd) { bd = d; best = i; }
+  }
+  return best;
+}
+
+function perWindowEmission(haploid, E_TLA) {
+  const out = new Float64Array(N_WINDOWS * N_TYPES);
+  for (let w = 0; w < N_WINDOWS; w++) {
+    const loci = WINDOW_LOCI[w];
+    for (let T = 0; T < N_TYPES; T++) {
+      let p = 1;
+      for (let li = 0; li < loci.length; li++) p *= E_TLA[T][loci[li]][haploid[loci[li]]];
+      out[w*N_TYPES + T] = p;
+    }
+  }
+  return out;
+}
+function forwardBackward(emissions, f_T) {
+  const em = new Float64Array(N_WINDOWS * N_TYPES);
+  for (let w = 0; w < N_WINDOWS; w++) {
+    let s = 0;
+    for (let T = 0; T < N_TYPES; T++) s += emissions[w*N_TYPES + T];
+    if (s <= 0) for (let T = 0; T < N_TYPES; T++) em[w*N_TYPES + T] = 1;
+    else for (let T = 0; T < N_TYPES; T++) em[w*N_TYPES + T] = emissions[w*N_TYPES + T];
+  }
+  const alpha = new Float64Array(N_WINDOWS * N_TYPES);
+  const beta  = new Float64Array(N_WINDOWS * N_TYPES);
+  const scales = new Float64Array(N_WINDOWS);
+  // Rank-1 transition collapses to α_w(T') ∝ f_{T'} * E_w(T').
+  for (let w = 0; w < N_WINDOWS; w++) {
+    let s = 0;
+    for (let T = 0; T < N_TYPES; T++) {
+      const v = f_T[T] * em[w*N_TYPES + T];
+      alpha[w*N_TYPES + T] = v;
+      s += v;
+    }
+    scales[w] = s;
+    for (let T = 0; T < N_TYPES; T++) alpha[w*N_TYPES + T] /= s;
+  }
+  // β collapses to uniform under rank-1.
+  const b = 1 / N_TYPES;
+  for (let w = 0; w < N_WINDOWS; w++)
+    for (let T = 0; T < N_TYPES; T++) beta[w*N_TYPES + T] = b;
+  let logL = 0;
+  for (let w = 0; w < N_WINDOWS; w++) logL += Math.log(scales[w]);
+  return { alpha, beta, logL };
+}
+function decodeHaplotype(haploid, E_TLA, f_T_in, topK) {
+  if (topK === undefined) topK = 3;
+  const f_T = new Float64Array(N_TYPES);
+  let s = 0;
+  for (let T = 0; T < N_TYPES; T++) if (ACTIVE_MASK[T]) { f_T[T] = f_T_in[T]; s += f_T_in[T]; }
+  if (s <= 0) throw new Error("f_T has zero mass on active types");
+  for (let T = 0; T < N_TYPES; T++) f_T[T] /= s;
+  const emissions = perWindowEmission(haploid, E_TLA);
+  const { alpha, beta, logL } = forwardBackward(emissions, f_T);
+  const posteriors = new Float64Array(N_WINDOWS * N_TYPES);
+  for (let w = 0; w < N_WINDOWS; w++) {
+    let rs = 0;
+    for (let T = 0; T < N_TYPES; T++) {
+      const v = alpha[w*N_TYPES + T] * beta[w*N_TYPES + T];
+      posteriors[w*N_TYPES + T] = v;
+      rs += v;
+    }
+    if (rs > 0) for (let T = 0; T < N_TYPES; T++) posteriors[w*N_TYPES + T] /= rs;
+  }
+  const summed = new Float64Array(N_TYPES);
+  for (let w = 0; w < N_WINDOWS; w++)
+    for (let T = 0; T < N_TYPES; T++) summed[T] += posteriors[w*N_TYPES + T];
+  const ranked = [];
+  for (let T = 0; T < N_TYPES; T++) if (ACTIVE_MASK[T]) ranked.push([T, summed[T]]);
+  ranked.sort((a,b) => b[1] - a[1]);
+  const topKIdx = ranked.slice(0, topK).map(x=>x[0]);
+  return { emissions, alpha, beta, posteriors, summedPosterior: summed, topKIndices: topKIdx, logL };
+}
+
+function satAdd(x, y) { return Math.min(255, (x|0) + (y|0)); }
+function phenotypeNonlin(dip) { return satAdd(dip[BC_LOCUS.chaser], dip[N_LOCI + BC_LOCUS.nonlin]); }
+
+function stage2Emission(dip, E_TLA, C0, C1, useBug) {
+  const k0 = C0.length, k1 = C1.length;
+  const E = new Float64Array(N_WINDOWS * k0 * k1 * 2);
+  const e0 = new Float64Array(N_TYPES * N_WINDOWS);
+  const e1 = new Float64Array(N_TYPES * N_WINDOWS);
+  for (let T = 0; T < N_TYPES; T++) {
+    for (let w = 0; w < N_WINDOWS; w++) {
+      let p0 = 1, p1 = 1;
+      const loci = WINDOW_LOCI[w];
+      for (let li = 0; li < loci.length; li++) {
+        const ell = loci[li];
+        p0 *= E_TLA[T][ell][dip[ell]];
+        p1 *= E_TLA[T][ell][dip[N_LOCI + ell]];
+      }
+      e0[T*N_WINDOWS + w] = p0;
+      e1[T*N_WINDOWS + w] = p1;
+    }
+  }
+  for (let w = 0; w < N_WINDOWS; w++) {
+    for (let i = 0; i < k0; i++) {
+      const T0 = C0[i];
+      for (let j = 0; j < k1; j++) {
+        const T1 = C1[j];
+        E[((w*k0 + i)*k1 + j)*2 + 0] = e0[T0*N_WINDOWS + w] * e1[T1*N_WINDOWS + w];
+        E[((w*k0 + i)*k1 + j)*2 + 1] = e1[T0*N_WINDOWS + w] * e0[T1*N_WINDOWS + w];
+      }
+    }
+  }
+  if (useBug) {
+    const obs = phenotypeNonlin(dip);
+    const s0 = satAdd(dip[BC_LOCUS.chaser],           dip[N_LOCI + BC_LOCUS.nonlin]);
+    const s1 = satAdd(dip[N_LOCI + BC_LOCUS.chaser],  dip[BC_LOCUS.nonlin]);
+    const w = W_DE_INDEX;
+    if (s0 !== obs) for (let i = 0; i < k0; i++) for (let j = 0; j < k1; j++) E[((w*k0+i)*k1+j)*2+0] = 0;
+    if (s1 !== obs) for (let i = 0; i < k0; i++) for (let j = 0; j < k1; j++) E[((w*k0+i)*k1+j)*2+1] = 0;
+  }
+  return E;
+}
+function decodeDiploid(dip, E_TLA, f_T_in, C0, C1, useBug) {
+  if (useBug === undefined) useBug = true;
+  const f_T = new Float64Array(N_TYPES);
+  let sT = 0;
+  for (let T = 0; T < N_TYPES; T++) if (ACTIVE_MASK[T]) { f_T[T] = f_T_in[T]; sT += f_T_in[T]; }
+  for (let T = 0; T < N_TYPES; T++) f_T[T] = sT > 0 ? f_T[T]/sT : 0;
+  const k0 = C0.length, k1 = C1.length;
+  const pT0 = new Float64Array(k0); let s0 = 0;
+  for (let i = 0; i < k0; i++) { pT0[i] = f_T[C0[i]]; s0 += pT0[i]; }
+  if (s0 > 0) for (let i = 0; i < k0; i++) pT0[i] /= s0; else for (let i = 0; i < k0; i++) pT0[i] = 1/k0;
+  const pT1 = new Float64Array(k1); let s1 = 0;
+  for (let j = 0; j < k1; j++) { pT1[j] = f_T[C1[j]]; s1 += pT1[j]; }
+  if (s1 > 0) for (let j = 0; j < k1; j++) pT1[j] /= s1; else for (let j = 0; j < k1; j++) pT1[j] = 1/k1;
+  const stride = k1 * 2;
+  const prior = new Float64Array(k0 * k1 * 2);
+  for (let i = 0; i < k0; i++)
+    for (let j = 0; j < k1; j++)
+      for (let s = 0; s < 2; s++) prior[i*stride + j*2 + s] = pT0[i] * pT1[j] * 0.5;
+  const emissions = stage2Emission(dip, E_TLA, C0, C1, useBug);
+  const em = new Float64Array(emissions.length);
+  const perW = k0 * k1 * 2;
+  for (let w = 0; w < N_WINDOWS; w++) {
+    let ss = 0;
+    for (let ii = 0; ii < perW; ii++) ss += emissions[w*perW + ii];
+    if (ss <= 0) for (let ii = 0; ii < perW; ii++) em[w*perW + ii] = 1;
+    else for (let ii = 0; ii < perW; ii++) em[w*perW + ii] = emissions[w*perW + ii];
+  }
+  const alpha = new Float64Array(N_WINDOWS * perW);
+  const scales = new Float64Array(N_WINDOWS);
+  for (let w = 0; w < N_WINDOWS; w++) {
+    let ss = 0; const base = w * perW;
+    for (let ii = 0; ii < perW; ii++) { const v = prior[ii] * em[base + ii]; alpha[base + ii] = v; ss += v; }
+    scales[w] = ss;
+    for (let ii = 0; ii < perW; ii++) alpha[base + ii] /= ss;
+  }
+  const joint = alpha;  // β is uniform under factored rank-1, so joint ∝ α.
+  const composition = new Float64Array(N_TYPES);
+  for (let w = 0; w < N_WINDOWS; w++) {
+    const base = w * perW;
+    for (let i = 0; i < k0; i++) {
+      let ph0 = 0;
+      for (let j = 0; j < k1; j++) ph0 += joint[base + i*stride + j*2 + 0] + joint[base + i*stride + j*2 + 1];
+      composition[C0[i]] += ph0;
+    }
+    for (let j = 0; j < k1; j++) {
+      let ph1 = 0;
+      for (let i = 0; i < k0; i++) ph1 += joint[base + i*stride + j*2 + 0] + joint[base + i*stride + j*2 + 1];
+      composition[C1[j]] += ph1;
+    }
+  }
+  let cs = 0;
+  for (let T = 0; T < N_TYPES; T++) cs += composition[T];
+  if (cs > 0) for (let T = 0; T < N_TYPES; T++) composition[T] /= cs;
+  let logL = 0;
+  for (let w = 0; w < N_WINDOWS; w++) logL += Math.log(scales[w]);
+  return { C0, C1, emissions, jointPosteriors: joint, composition, logL, k0, k1 };
+}
+function composePercentages(comp, minThreshold) {
+  if (minThreshold === undefined) minThreshold = 0.05;
+  const n = comp.length;
+  let total = 0;
+  for (let i = 0; i < n; i++) total += comp[i];
+  const p = new Float64Array(n);
+  for (let i = 0; i < n; i++) p[i] = comp[i] / total;
+  let survSum = 0;
+  const surv = new Float64Array(n);
+  for (let i = 0; i < n; i++) if (p[i] >= minThreshold) { surv[i] = p[i]; survSum += p[i]; }
+  if (survSum <= 0) {
+    let mi = 0, mv = -Infinity;
+    for (let i = 0; i < n; i++) if (p[i] > mv) { mv = p[i]; mi = i; }
+    surv[mi] = 1; survSum = 1;
+  }
+  for (let i = 0; i < n; i++) surv[i] /= survSum;
+  const raw = new Float64Array(n), floors = new Int32Array(n);
+  let fs = 0;
+  for (let i = 0; i < n; i++) { raw[i] = surv[i] * 100; floors[i] = Math.floor(raw[i]); fs += floors[i]; }
+  let sh = 100 - fs;
+  const order = Array.from({length:n}, (_,i)=>i);
+  order.sort((a,b) => (raw[b]-floors[b]) - (raw[a]-floors[a]));
+  for (let k = 0; k < Math.abs(sh); k++) floors[order[k]] += sh > 0 ? 1 : -1;
+  return Array.from(floors);
+}
+function uniformSnapshot(t) {
+  const f = new Float64Array(N_TYPES);
+  for (let T = 0; T < N_TYPES; T++) if (ACTIVE_MASK[T]) f[T] = 1 / N_ACTIVE;
+  return { t: t|0, f_T: f };
+}
+function biasedSnapshot(fractions, t) {
+  const f = new Float64Array(N_TYPES);
+  for (const [name, val] of Object.entries(fractions)) {
+    if (INACTIVE.has(name)) continue;
+    const idx = TYPE_INDEX[name];
+    if (idx === undefined) throw new Error("unknown type: " + name);
+    f[idx] = val;
+  }
+  let s = 0; for (let T = 0; T < N_TYPES; T++) s += f[T];
+  if (s <= 0) throw new Error("fractions must sum to > 0 on active types");
+  for (let T = 0; T < N_TYPES; T++) f[T] /= s;
+  return { t: t|0, f_T: f };
+}
+
+// The DC34 conference prior used as the default in the tab.
+const DC34_PRIOR = { Human:0.70, Goon:0.10, Community:0.05, Village:0.05,
+                     Other:0.05, CtfContest:0.03, Uber:0.01 };
+
+/* -------------------------------------------------------------------------
+ * UI :: state, wiring, viz
+ * ----------------------------------------------------------------------- */
+
+// Cached emission tensors, one per rate name.
+const emissionCache = {};
+function getEmissionTensor(rateName) {
+  if (!emissionCache[rateName]) emissionCache[rateName] = buildEmissionTensor(rateName);
+  return emissionCache[rateName];
+}
+
+// Mutable state for settings + last decode. The diploid itself is sourced
+// from the vim gene tab so both tabs always show the same specimen.
+const bcState = {
+  tIdx: 0,
+  rate: "Baseline",
+  priorMode: "admixture",  // "admixture" (uniform prior) | "population" (mix preset prior)
+  overrideDiploid: null,   // set from pasted QR gametes; null = use the provided genome
+  gameteDim: false,        // true while any gamete/nonce box has content (dim the tile)
+  lastDecode: null,
+  initialized: false,
+  style: null,     // set to TILE_STYLES.ring7 on init
+};
+
+// Read the current diploid straight out of vim gene state. Returns a fresh
+// Uint8Array(18) so downstream code can subarray/copy freely without aliasing.
+function bcCurrentDiploid() {
+  // Pasted QR gametes override the provided (vimGene) genome.
+  if (bcState.overrideDiploid) return bcState.overrideDiploid.slice();
+  if (typeof vimGene === "undefined") return null;
+  const out = new Uint8Array(2 * N_LOCI);
+  for (let li = 0; li < N_LOCI; li++) {
+    out[li]          = vimGene.haplo0[LOCUS_NAMES[li]] & 0xff;
+    out[N_LOCI + li] = vimGene.haplo1[LOCUS_NAMES[li]] & 0xff;
+  }
+  return out;
+}
+
+// Write a diploid back into vim gene state, going through the vim tab's own
+// setter so vim's UI widgets refresh and every downstream subscriber (this
+// tab included, via bcOnVimGeneChanged) fires.
+function bcWriteDiploidToVimGene(bytes) {
+  if (typeof setGene !== "function") throw new Error("vim gene not initialized");
+  for (let li = 0; li < N_LOCI; li++) {
+    setGene("haplo0", LOCUS_NAMES[li], bytes[li]);
+    setGene("haplo1", LOCUS_NAMES[li], bytes[N_LOCI + li]);
+  }
+}
+
+function currentSnapshot() {
+  const t = T_GRID[bcState.tIdx];
+  // Admixture (default): uniform prior over the active types, so the composition
+  // answers "what fraction of the genome descends from each founder type" rather
+  // than "which population is this badge drawn from". Population mode uses the
+  // popsim mix-preset fractions as the prior (the classification view).
+  if (bcState.priorMode === "admixture") return uniformSnapshot(t);
+  const snap = window.popsim && window.popsim.snapshot ? window.popsim.snapshot() : null;
+  if (snap) return { t, f_T: snap.f_T };
+  // Live sim unavailable (shouldn't happen - popsim initializes on load).
+  // Fall back to the static DC34 prior so the tab still decodes.
+  return biasedSnapshot(DC34_PRIOR, t);
+}
+
+// One-shot sanity check that window.popsim.snapshot() returns a well-formed
+// f_T (sums to 1 over the active types, None zeroed). Logged on tab init.
+function checkLiveSnapshot() {
+  const snap = window.popsim && window.popsim.snapshot ? window.popsim.snapshot() : null;
+  if (!snap) { clog("[badgecestry] live snapshot unavailable (popsim not initialized)", "warn"); return; }
+  let s = 0;
+  for (let T = 0; T < N_TYPES; T++) s += snap.f_T[T];
+  const noneIdx = TYPE_INDEX.None;
+  const ok = Math.abs(s - 1) < 1e-9 && snap.f_T[noneIdx] === 0 && snap.t >= 0;
+  clog(ok
+    ? `[badgecestry] live snapshot ok: t=${snap.t} f_T sum=${s.toFixed(6)}`
+    : `[badgecestry] live snapshot BAD: t=${snap.t} f_T sum=${s.toFixed(6)}`,
+    ok ? "ok" : "err");
+}
+
+/* --- tile rendering (uses the shared ring7 renderer for visual consistency) --- */
+
+let bcTileCanvas, bcTileCtx, bcSpecInfo;
+const _bcPheno = new Uint8Array(N_LOCI);
+const _bcScratchDip = new Uint8Array(2 * N_LOCI);
+
+// Fill _bcScratchDip from vim gene and compute the phenotype into _bcPheno.
+// Returns true if a diploid was available, false otherwise.
+function bcComputePheno() {
+  const dip = bcCurrentDiploid();
+  if (!dip) return false;
+  _bcScratchDip.set(dip);
+  phenotype(_bcScratchDip, 0, _bcPheno, 0, "shipped");
+  return true;
+}
+
+window.bcRenderTile = function bcRenderTile(t) {
+  if (!bcTileCanvas || !bcState.style) return;
+  if (bcState.gameteDim) {
+    // Gamete inputs active: blank the tile. The pasted gametes are meiosis
+    // haplotypes, not a single visual badge, so don't pretend to render one.
+    bcTileCtx.fillStyle = "#000";
+    bcTileCtx.fillRect(0, 0, bcTileCanvas.width, bcTileCanvas.height);
+    if (bcSpecInfo) bcSpecInfo.textContent = "[ gamete input active - preview dimmed ]";
+    return;
+  }
+  if (!bcComputePheno()) {
+    bcTileCtx.fillStyle = "#000";
+    bcTileCtx.fillRect(0, 0, bcTileCanvas.width, bcTileCanvas.height);
+    return;
+  }
+  const style = bcState.style;
+  const M = style.M;
+  const width = bcTileCanvas.width, height = bcTileCanvas.height;
+  const scale = Math.floor(width / M);
+  const img = bcTileCtx.createImageData(width, height);
+  const data = img.data;
+  for (let k = 0; k < data.length; k += 4) { data[k]=0; data[k+1]=0; data[k+2]=0; data[k+3]=255; }
+  const tSec = t / 1000;
+  const g = precomputeCell(_bcPheno, 0, tSec);
+  const scratch = new Uint8ClampedArray(M * M * 4);
+  if (style.kind === "ring") paintRingTile(style, g, 0, 0, tSec, scratch, M);
+  else                       paintPackedTile(g,   0, 0, tSec, scratch, M);
+  for (let cy = 0; cy < M; cy++) {
+    for (let cx = 0; cx < M; cx++) {
+      const so = (cy * M + cx) * 4;
+      const r = scratch[so], gc = scratch[so+1], b = scratch[so+2];
+      for (let sy = 0; sy < scale; sy++) {
+        for (let sx = 0; sx < scale; sx++) {
+          const px = cx * scale + sx, py = cy * scale + sy;
+          const o = (py * width + px) * 4;
+          data[o] = r; data[o+1] = gc; data[o+2] = b;
+        }
+      }
+    }
+  }
+  bcTileCtx.putImageData(img, 0, 0);
+  renderSpecimenInfo();
+};
+
+/* --- geno/pheno info block :: mirrors vim gene's layout --- */
+
+function renderSpecimenInfo() {
+  if (!bcSpecInfo) return;
+  const dip = bcCurrentDiploid();
+  if (!dip) { bcSpecInfo.textContent = "[ no diploid loaded ]"; return; }
+  const nameW = Math.max(...LOCUS_NAMES.map(n => n.length));
+  const haploLbl0 = "[haplo0]";
+  const haploLbl1 = "[haplo1]";
+  const phenoHdr  = "---phenome---";
+  const haploW = haploLbl0.length;
+  const phenoW = phenoHdr.length;
+  const gap = "  ";
+  const phenoMid = Math.floor(phenoW / 2);
+  const phenoShift = 4;
+  const haploCell = (slot, li) => {
+    const raw = dip[slot * N_LOCI + li].toString();
+    return `<span class="geno">${raw.padStart(haploW)}</span>`;
+  };
+  const phenoCell = (li) => {
+    const raw = _bcPheno[li].toString();
+    const left  = " ".repeat(Math.max(0, phenoMid + 1 + phenoShift - raw.length));
+    const right = " ".repeat(Math.max(0, phenoW + phenoShift - left.length - raw.length));
+    return left + `<span class="pheno">${raw}</span>` + right;
+  };
+  const annot = (li) => {
+    if (li === BC_LOCUS.chaser && _bcPheno[BC_LOCUS.chaser] < 88) return gap + `<span class="note">&lt;&lt; shooting-star</span>`;
+    if (li === BC_LOCUS.nonlin && _bcPheno[BC_LOCUS.nonlin] > 127) return gap + `<span class="note">&lt;&lt; gamma rolloff</span>`;
+    return "";
+  };
+  const nameGap = " ", haploGap = " ", midGap = gap;
+  const genomeSpan = haploW + haploGap.length + haploW;
+  const genomeHdr  = "---diploid genome---";
+  const centered = (s, w) => {
+    if (s.length >= w) return s;
+    const l = Math.floor((w - s.length) / 2);
+    const r = w - s.length - l;
+    return " ".repeat(l) + s + " ".repeat(r);
+  };
+  const hdrTop = "".padEnd(nameW) + nameGap + centered(genomeHdr, genomeSpan) + midGap + phenoHdr;
+  const hdrSub = "".padEnd(nameW) + nameGap + haploLbl0 + haploGap + haploLbl1 + midGap + "".padEnd(phenoW);
+  const rows = LOCUS_NAMES.map((n, li) =>
+    `<span class="k">${n.padEnd(nameW)}</span>` + nameGap +
+    haploCell(0, li) + haploGap + haploCell(1, li) + midGap +
+    phenoCell(li) + annot(li)
+  ).join("\n");
+  const typeName = (typeof vimGeneType === "string") ? vimGeneType : "?";
+  bcSpecInfo.innerHTML =
+    `<span class="k">type</span>      <span class="geno">${typeName}</span>\n` +
+    `\n<span class="k">${hdrTop}</span>\n` +
+    `<span class="k">${hdrSub}</span>\n` +
+    rows;
+}
+
+/* --- decode + full re-render --- */
+
+let rafPending = false;
+function scheduleRerender() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => {
+    rafPending = false;
+    bcRecomputeAndDraw();
+  });
+}
+
+function bcRecomputeAndDraw() {
+  const dip = bcCurrentDiploid();
+  if (!dip) { renderEmptyState(); return; }
+  const snap = currentSnapshot();
+  const E = getEmissionTensor(bcState.rate);
+  const tIdx = snapTToGrid(snap.t);
+  const E_TLA = E[tIdx];
+  const haplo0 = dip.subarray(0, N_LOCI);
+  const haplo1 = dip.subarray(N_LOCI, 2*N_LOCI);
+  const r0 = decodeHaplotype(haplo0, E_TLA, snap.f_T, 3);
+  const r1 = decodeHaplotype(haplo1, E_TLA, snap.f_T, 3);
+  const res2 = decodeDiploid(dip, E_TLA, snap.f_T, r0.topKIndices, r1.topKIndices);
+  const MIN_THRESHOLD = 0.05;
+  const percentages = composePercentages(res2.composition, MIN_THRESHOLD);
+  bcState.lastDecode = { snap, E_TLA, tIdx, r0, r1, res2, percentages };
+  const candidateUnion = new Set([...r0.topKIndices, ...r1.topKIndices]);
+  drawCompositionPie(percentages, res2.composition, candidateUnion, MIN_THRESHOLD);
+  drawPerWindowBestLineage(res2);
+  drawEmissionHeatmaps(E_TLA);
+  drawStage1Posteriors(r0, r1);
+  drawCandidatesBlock(r0, r1);
+  drawJointPosteriors(res2);
+  drawMessagesTrace(r0, r1);
+  window.bcRenderDirty = true;  // re-paint tile too
+}
+
+function renderEmptyState() {
+  document.getElementById("bc-composition-summary").textContent = "[ waiting for diploid ]";
+  document.getElementById("bc-pie-legend").innerHTML = "";
+  const pie = document.getElementById("bc-pie");
+  const ctx = pie.getContext("2d");
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, pie.width, pie.height);
+  document.getElementById("bc-per-window").innerHTML = "";
+  ["bc-viz-emissions","bc-viz-stage1","bc-viz-candidates","bc-viz-joint","bc-viz-messages"].forEach(id => {
+    document.getElementById(id).innerHTML = "";
+  });
+}
+
+/* --- composition pie / bar --- */
+
+function drawCompositionPie(percentages, composition, candidateUnion, minThreshold) {
+  const canvas = document.getElementById("bc-pie");
+  const ctx = canvas.getContext("2d");
+  const dispW = Math.max(1, Math.round(canvas.getBoundingClientRect().width));
+  canvas.width = dispW;                           // match internal res to display width
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+
+  // Categorize each type into one of three buckets:
+  //   kept   : shown in the bar (percentages > 0)
+  //   below  : made it through stage-1 pruning (composition > 0) but claim-10
+  //            display threshold zeroed the display percentage
+  //   pruned : never entered stage-2 - not in either haplotype's top-3 set
+  const kept = [], below = [], pruned = [];
+  for (let T = 0; T < N_TYPES; T++) {
+    if (!ACTIVE_MASK[T]) continue;
+    if (percentages[T] > 0) kept.push(T);
+    else if (candidateUnion && candidateUnion.has(T) && composition[T] > 0) below.push(T);
+    else pruned.push(T);
+  }
+  // Sort each bucket by raw composition descending so display order matches
+  // the "who has the most mass" intuition.
+  const byMass = (a, b) => composition[b] - composition[a];
+  kept.sort(byMass); below.sort(byMass); pruned.sort(byMass);
+
+  // Reserve fixed-width space for each below-threshold sliver so kept slices
+  // don't have to fight for their percentage-proportional width.
+  const SLIVER_W = 8;
+  const belowReserve = below.length * SLIVER_W;
+  const keptWidth = Math.max(0, W - belowReserve);
+
+  let x = 0;
+  for (const T of kept) {
+    const p = percentages[T];
+    const w = Math.round((p / 100) * keptWidth);
+    ctx.fillStyle = TYPE_COLOR[TYPES[T]];
+    ctx.fillRect(x, 0, w, H);
+    if (w > 30) {
+      ctx.fillStyle = "#000";
+      ctx.font = "bold 20px 'Courier New', monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`${p}%`, x + w/2, H/2 - 8);
+      ctx.font = "10px 'Courier New', monospace";
+      ctx.fillText(TYPE_SHORT[TYPES[T]], x + w/2, H/2 + 12);
+    }
+    x += w;
+  }
+  // Below-threshold slivers on the right, in mass-descending order. Reduced
+  // alpha so they read as "present but below the display cutoff", not as
+  // full-weight slices.
+  for (const T of below) {
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = TYPE_COLOR[TYPES[T]];
+    ctx.fillRect(x, 0, SLIVER_W, H);
+    ctx.restore();
+    // Diagonal-hatch overlay so the sliver reads as visually different from a
+    // regular slice even when the color is close.
+    ctx.strokeStyle = "rgba(0,0,0,0.6)";
+    ctx.lineWidth = 1;
+    for (let y = -H; y < H; y += 4) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + SLIVER_W, y + SLIVER_W);
+      ctx.stroke();
+    }
+    x += SLIVER_W;
+  }
+
+  ctx.strokeStyle = "#017FA4";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, W-1, H-1);
+
+  // Text summary above the bar.
+  document.getElementById("bc-composition-summary").textContent =
+    kept.map(T => `${percentages[T]}% ${TYPES[T]}`).join("  //  ") || "[ all mass below display threshold ]";
+
+  // Three-section legend so the reason each type shows what it shows is legible.
+  const legend = document.getElementById("bc-pie-legend");
+  legend.innerHTML = "";
+  const thresholdPct = Math.round((minThreshold || 0.05) * 100);
+
+  const makeChip = (T, kind) => {
+    const el = document.createElement("span");
+    el.style.cssText = "display:inline-flex; align-items:center; gap:0.3rem; margin-right:0.9rem;";
+    const sw = document.createElement("span");
+    if (kind === "kept") {
+      sw.style.cssText = `display:inline-block; width:0.75rem; height:0.75rem; background:${TYPE_COLOR[TYPES[T]]}; border:1px solid #333;`;
+    } else if (kind === "below") {
+      sw.style.cssText = `display:inline-block; width:0.75rem; height:0.75rem; background:${TYPE_COLOR[TYPES[T]]}; opacity:0.45; border:1px solid #333;`;
+    } else {
+      sw.style.cssText = `display:inline-block; width:0.75rem; height:0.75rem; background:transparent; border:1px dashed ${TYPE_COLOR[TYPES[T]]};`;
+    }
+    el.appendChild(sw);
+    const txt = document.createElement("span");
+    const raw = (composition[T] * 100).toFixed(2);
+    if (kind === "kept") {
+      txt.textContent = `${TYPES[T]}: ${percentages[T]}% (raw ${raw}%)`;
+      txt.style.color = "var(--fg)";
+    } else if (kind === "below") {
+      txt.textContent = `${TYPES[T]}: raw ${raw}% (below ${thresholdPct}% display threshold → 0%)`;
+      txt.style.color = "var(--fg)";
+      txt.style.fontStyle = "italic";
+    } else {
+      txt.textContent = `${TYPES[T]}: pruned by stage-1 (not in either haplotype's top-3)`;
+      txt.style.color = "var(--fg)";
+      txt.style.opacity = "0.6";
+    }
+    el.appendChild(txt);
+    return el;
+  };
+
+  const section = (label, items, kind) => {
+    if (!items.length) return;
+    const hdr = document.createElement("div");
+    hdr.textContent = label;
+    hdr.style.cssText = "width:100%; margin:0.35rem 0 0.15rem; color:var(--fg); font-size:0.85rem;";
+    legend.appendChild(hdr);
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex; flex-wrap:wrap; gap:0.15rem 0;";
+    for (const T of items) row.appendChild(makeChip(T, kind));
+    legend.appendChild(row);
+  };
+
+  section(`// KEPT :: shown in bar, rounded to 100%`, kept, "kept");
+  section(`// BELOW ${thresholdPct}% :: hatched sliver in bar; mass is real but display-zeroed by claim-10 rounding`, below, "below");
+  section(`// PRUNED :: never considered by stage-2 (outside stage-1 top-3 per haplotype)`, pruned, "pruned");
+
+  // Legend footer: one-line reminder of the rules.
+  const foot = document.createElement("div");
+  foot.style.cssText = "width:100%; margin-top:0.35rem; font-size:0.85rem; color:var(--fg); opacity:0.75;";
+  foot.innerHTML =
+    `stage-1 keeps the top 3 types per haplotype (§5.5 pruning) &nbsp;&middot;&nbsp; ` +
+    `stage-2 assigns mass over C<sub>0</sub>∪C<sub>1</sub> &nbsp;&middot;&nbsp; ` +
+    `claim-10 zeroes anything under ${thresholdPct}% for display and delta-rounds the survivors to 100`;
+  legend.appendChild(foot);
+}
+
+/* --- per-window best lineage --- */
+
+function drawPerWindowBestLineage(res2) {
+  const root = document.getElementById("bc-per-window");
+  const k0 = res2.k0, k1 = res2.k1;
+  const stride = k1 * 2;
+  const rows = [];
+  for (let w = 0; w < N_WINDOWS; w++) {
+    const base = w * k0 * k1 * 2;
+    // Per-haplo0 label posteriors this window (marginalize j and s).
+    const p0 = new Float64Array(k0);
+    for (let i = 0; i < k0; i++) {
+      let s = 0;
+      for (let j = 0; j < k1; j++) s += res2.jointPosteriors[base + i*stride + j*2 + 0]
+                                     + res2.jointPosteriors[base + i*stride + j*2 + 1];
+      p0[i] = s;
+    }
+    const p1 = new Float64Array(k1);
+    for (let j = 0; j < k1; j++) {
+      let s = 0;
+      for (let i = 0; i < k0; i++) s += res2.jointPosteriors[base + i*stride + j*2 + 0]
+                                     + res2.jointPosteriors[base + i*stride + j*2 + 1];
+      p1[j] = s;
+    }
+    let bi0 = 0, bv0 = -1; for (let i = 0; i < k0; i++) if (p0[i] > bv0) { bv0 = p0[i]; bi0 = i; }
+    let bi1 = 0, bv1 = -1; for (let j = 0; j < k1; j++) if (p1[j] > bv1) { bv1 = p1[j]; bi1 = j; }
+    const t0 = TYPES[res2.C0[bi0]], t1 = TYPES[res2.C1[bi1]];
+    const genes = WINDOW_LOCI[w].map(li => LOCUS_NAMES[li]).join(", ");
+    const td = "padding:0.25rem 0.75rem 0.25rem 0;";
+    rows.push(
+      `<tr>` +
+      `<td style="${td} color:var(--fg); white-space:nowrap;">${WINDOW_NAMES[w]}</td>` +
+      `<td style="${td} color:var(--fg);">${genes}</td>` +
+      `<td style="${td}"><span style="color:${TYPE_COLOR[t0]};">${t0}</span> <span style="color:var(--fg); font-size:0.85rem;">(${(bv0*100).toFixed(0)}%)</span></td>` +
+      `<td style="${td}"><span style="color:${TYPE_COLOR[t1]};">${t1}</span> <span style="color:var(--fg); font-size:0.85rem;">(${(bv1*100).toFixed(0)}%)</span></td>` +
+      `</tr>`
+    );
+  }
+  const th = "text-align:left; padding:0.25rem 0.75rem 0.25rem 0; color:var(--fg); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.08em; border-bottom:1px solid var(--fg-faint);";
+  root.innerHTML =
+    `<table style="border-collapse:collapse; font-size:0.9rem;">` +
+    `<thead><tr>` +
+    `<th style="${th}">window</th><th style="${th}">genes</th><th style="${th}">haplo0</th><th style="${th}">haplo1</th>` +
+    `</tr></thead>` +
+    `<tbody>${rows.join("")}</tbody></table>`;
+}
+
+function renderWindowMap() {
+  const el = document.getElementById("bc-window-map");
+  if (!el) return;
+  const td = "padding:0.15rem 0.75rem 0.15rem 0;";
+  const rows = WINDOWS.map((w, i) =>
+    `<tr>` +
+    `<td style="${td} color:var(--fg); white-space:nowrap;">${WINDOW_NAMES[i]}</td>` +
+    `<td style="${td} color:var(--fg);">${WINDOW_LOCI[i].map(li => LOCUS_NAMES[li]).join(", ")}</td>` +
+    `</tr>`
+  ).join("");
+  el.innerHTML = `<table style="border-collapse:collapse; font-size:0.9rem;"><tbody>${rows}</tbody></table>`;
+}
+
+/* --- panel 1: emission heatmaps --- */
+
+function drawEmissionHeatmaps(E_TLA) {
+  const root = document.getElementById("bc-viz-emissions");
+  root.innerHTML = "";
+  const dip = bcCurrentDiploid();
+  // Layout: for each locus, one row of 7 mini-heatmaps (one per active type) + labels.
+  const table = document.createElement("table");
+  table.style.cssText = "border-collapse:collapse; width:100%; font-size:0.85rem;";
+  // Header row: type names.
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  hr.appendChild(document.createElement("th"));  // corner
+  for (const idx of ACTIVE_IDX) {
+    const th = document.createElement("th");
+    th.textContent = TYPE_SHORT[TYPES[idx]];
+    th.style.cssText = `color:${TYPE_COLOR[TYPES[idx]]}; padding:0.15rem; text-align:center;`;
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  for (let ell = 0; ell < N_LOCI; ell++) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th");
+    th.textContent = LOCUS_NAMES[ell];
+    th.style.cssText = "color:var(--fg); text-align:right; padding:0.1rem 0.35rem; white-space:nowrap;";
+    tr.appendChild(th);
+    for (const T of ACTIVE_IDX) {
+      const td = document.createElement("td");
+      td.style.cssText = "padding:1px;";
+      const CELL_H = 20;
+      const CELL_W = 256;
+      const c = document.createElement("canvas");
+      c.width = CELL_W; c.height = CELL_H;
+      // Fixed CSS width == source width so 1 source pixel = 1 CSS pixel. This
+      // eliminates the sub-pixel antialiasing that was making some 3-column
+      // ticks read as thin hairlines at fractional CSS scales.
+      c.style.cssText = `display:block; width:${CELL_W}px; height:${CELL_H}px; image-rendering:pixelated;`;
+      const cx = c.getContext("2d");
+      const pmf = E_TLA[T][ell];
+      // Per-locus display domain. Vim gene already established these ranges
+      // (see VIM_GENE_SPECS + the num.max=6 for cd_period): cd_period is a
+      // 7-value locus (0..6) with the mutation kernel wrapping via `% 7`, so
+      // it never has mass outside [0,6]. Rendering it over 0..255 crushes 7
+      // bright columns into ~3 pixels and hides the distribution entirely.
+      // Other loci genuinely span 0..255 in both storage and support.
+      const domainMax = LOCUS_NAMES[ell] === "cd_period" ? 6 : 255;
+      const domainSize = domainMax + 1;
+      let mx = 0; for (let a = 0; a <= domainMax; a++) if (pmf[a] > mx) mx = pmf[a];
+      const img = cx.createImageData(CELL_W, CELL_H);
+      // Fill uses the DC34 dark-teal from the theme (--fg-dim = #017FA4).
+      // Punchier against black than mint and pushes the magenta/gold ticks
+      // forward instead of fighting them for attention.
+      const FILL_R = 0x01, FILL_G = 0x7F, FILL_B = 0xA4;
+      // For each ALLELE in the locus's display domain, paint the horizontal
+      // pixel range that allele occupies on the CELL_W-column canvas. When
+      // the domain is small (cd_period=7) each allele reads as a solid wide
+      // bar of its own normalized probability. When the domain is 256 each
+      // allele spans exactly 1 column.
+      for (let a = 0; a <= domainMax; a++) {
+        const xLo = Math.floor(a       * CELL_W / domainSize);
+        const xHi = Math.floor((a + 1) * CELL_W / domainSize);
+        const norm = mx > 0 ? Math.min(1, pmf[a] / mx) : 0;
+        const r = Math.floor(norm * FILL_R);
+        const g = Math.floor(norm * FILL_G);
+        const b = Math.floor(norm * FILL_B);
+        for (let x = xLo; x < xHi && x < CELL_W; x++) {
+          for (let y = 0; y < CELL_H; y++) {
+            const o = (y * CELL_W + x) * 4;
+            img.data[o] = r; img.data[o+1] = g; img.data[o+2] = b; img.data[o+3] = 255;
+          }
+        }
+      }
+      // Ticks for observed alleles on the two haploids. 3-px column at full
+      // color, no halo. The DC34-blue fill is dim enough that a pure tick
+      // reads clearly against it without needing an outline. Clamp the center
+      // to [TICK_HALF_W, CELL_W-1-TICK_HALF_W] so the full 3 columns are
+      // always in-canvas.
+      const TICK_HALF_W = 1;
+      const drawTick = (a, r, g, b) => {
+        const xRaw = Math.floor(a * CELL_W / domainSize);
+        const xc = Math.max(TICK_HALF_W, Math.min(CELL_W - 1 - TICK_HALF_W, xRaw));
+        for (let dx = -TICK_HALF_W; dx <= TICK_HALF_W; dx++) {
+          const x = xc + dx;
+          for (let y = 0; y < CELL_H; y++) {
+            const o = (y * CELL_W + x) * 4;
+            img.data[o] = r; img.data[o+1] = g; img.data[o+2] = b; img.data[o+3] = 255;
+          }
+        }
+      };
+      if (dip) {
+        // Draw haplo0 last so it wins when the two alleles land on the same
+        // display column.
+        drawTick(dip[N_LOCI + ell],  241, 180, 53);  // gold    (haplo1, --warn)
+        drawTick(dip[ell],           224, 0, 78);    // magenta (haplo0, --err)
+      }
+      cx.putImageData(img, 0, 0);
+      td.appendChild(c);
+      td.title = `E[${TYPES[T]}, ${LOCUS_NAMES[ell]}] (0..255)`;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  root.appendChild(table);
+  const legend = document.createElement("div");
+  legend.style.cssText = "font-size:0.85rem; color:var(--fg); margin-top:0.3rem;";
+  legend.innerHTML = `each cell = P(allele | type, ℓ, t=${T_GRID[bcState.tIdx]}) over 0..255<br>` +
+                     `<span style="color:#E0004E;">▍</span> haplo0 tick &nbsp; ` +
+                     `<span style="color:#f1b435;">▍</span> haplo1 tick &nbsp; ` +
+                     `<span style="color:#017FA4;">▍</span> fill = P(allele | type, ℓ)`;
+  root.appendChild(legend);
+}
+
+/* --- panel 2: stage-1 per-window posteriors --- */
+
+function drawStage1Posteriors(r0, r1) {
+  const root = document.getElementById("bc-viz-stage1");
+  root.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "display:flex; gap:1rem; flex-wrap:wrap;";
+  wrap.appendChild(oneStage1Matrix("haplo0", r0));
+  wrap.appendChild(oneStage1Matrix("haplo1", r1));
+  root.appendChild(wrap);
+}
+function oneStage1Matrix(label, res) {
+  const container = document.createElement("div");
+  container.style.cssText = "flex:1; min-width:320px;";
+  const h = document.createElement("div");
+  h.textContent = `// ${label}`;
+  h.style.cssText = "font-size:0.9rem; color:var(--fg); margin-bottom:0.2rem;";
+  container.appendChild(h);
+  const table = document.createElement("table");
+  table.style.cssText = "border-collapse:collapse; width:100%; font-size:0.85rem;";
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  hr.appendChild(document.createElement("th"));
+  for (const idx of ACTIVE_IDX) {
+    const th = document.createElement("th");
+    th.textContent = TYPE_SHORT[TYPES[idx]];
+    th.style.cssText = `color:${TYPE_COLOR[TYPES[idx]]}; padding:0.15rem;`;
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr);
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  for (let w = 0; w < N_WINDOWS; w++) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th");
+    th.textContent = WINDOW_NAMES[w];
+    th.style.cssText = "color:var(--fg); padding:0.1rem 0.35rem; text-align:right;";
+    tr.appendChild(th);
+    for (const T of ACTIVE_IDX) {
+      const v = res.posteriors[w*N_TYPES + T];
+      const td = document.createElement("td");
+      const alpha = Math.min(1, Math.max(0.02, v));
+      td.textContent = v >= 0.005 ? v.toFixed(2) : "";
+      td.style.cssText = `padding:0.2rem 0.3rem; text-align:center;
+        background: rgba(108,205,184,${alpha.toFixed(3)});
+        color: ${v > 0.5 ? "#000" : "var(--fg)"};
+        border:1px solid #111;`;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  container.appendChild(table);
+  return container;
+}
+
+/* --- panel 3: C0 / C1 candidate chips --- */
+
+function drawCandidatesBlock(r0, r1) {
+  const root = document.getElementById("bc-viz-candidates");
+  root.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "display:flex; gap:1rem; flex-wrap:wrap;";
+  wrap.appendChild(oneCandidateChip("C₀ (haplo0)", r0.topKIndices, r0.summedPosterior));
+  wrap.appendChild(oneCandidateChip("C₁ (haplo1)", r1.topKIndices, r1.summedPosterior));
+  root.appendChild(wrap);
+}
+function oneCandidateChip(label, topK, summed) {
+  const container = document.createElement("div");
+  container.style.cssText = "flex:1; min-width:320px; border:1px solid var(--fg-dim); padding:0.5rem;";
+  const h = document.createElement("div");
+  h.textContent = label;
+  h.style.cssText = "font-size:0.9rem; color:var(--fg); margin-bottom:0.4rem;";
+  container.appendChild(h);
+  const keptRow = document.createElement("div");
+  keptRow.style.cssText = "margin-bottom:0.35rem;";
+  const keptLbl = document.createElement("span");
+  keptLbl.textContent = "kept: ";
+  keptLbl.style.cssText = "font-size:0.85rem; color:var(--fg); margin-right:0.35rem;";
+  keptRow.appendChild(keptLbl);
+  const keptSet = new Set(topK);
+  for (const T of topK) {
+    const chip = document.createElement("span");
+    chip.textContent = `${TYPES[T]} ${(summed[T]).toFixed(2)}`;
+    chip.style.cssText = `display:inline-block; margin:0 0.25rem 0.25rem 0; padding:0.2rem 0.45rem;
+      background:${TYPE_COLOR[TYPES[T]]}; color:#000; font-weight:bold; font-size:0.9rem;
+      border:1px solid #000;`;
+    keptRow.appendChild(chip);
+  }
+  container.appendChild(keptRow);
+  const prunedRow = document.createElement("div");
+  const prunedLbl = document.createElement("span");
+  prunedLbl.textContent = "pruned: ";
+  prunedLbl.style.cssText = "font-size:0.85rem; color:var(--fg); margin-right:0.35rem;";
+  prunedRow.appendChild(prunedLbl);
+  for (const T of ACTIVE_IDX) {
+    if (keptSet.has(T)) continue;
+    const chip = document.createElement("span");
+    chip.textContent = `${TYPES[T]} ${(summed[T]).toFixed(2)}`;
+    chip.style.cssText = `display:inline-block; margin:0 0.2rem 0.2rem 0; padding:0.15rem 0.35rem;
+      background:transparent; color:var(--fg); font-size:0.85rem;
+      border:1px dashed var(--fg-faint);`;
+    prunedRow.appendChild(chip);
+  }
+  container.appendChild(prunedRow);
+  return container;
+}
+
+/* --- panel 4: stage-2 joint posteriors --- */
+
+function drawJointPosteriors(res2) {
+  const root = document.getElementById("bc-viz-joint");
+  root.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:0.8rem;";
+  for (let w = 0; w < N_WINDOWS; w++) {
+    wrap.appendChild(oneJointWindow(w, res2));
+  }
+  root.appendChild(wrap);
+}
+function oneJointWindow(w, res2) {
+  const box = document.createElement("div");
+  box.style.cssText = "border:1px solid var(--fg-dim); padding:0.4rem;";
+  const h = document.createElement("div");
+  h.innerHTML = `<span style="color:var(--fg);">${WINDOW_NAMES[w]}</span>` +
+                (w === W_DE_INDEX ? ' <span style="color:var(--warn); font-size:0.85rem;">◄ nonlin δ-factor active</span>' : '');
+  h.style.cssText = "font-size:0.9rem; margin-bottom:0.35rem;";
+  box.appendChild(h);
+  const grids = document.createElement("div");
+  grids.style.cssText = "display:flex; gap:0.6rem;";
+  grids.appendChild(oneSwitchGrid("switch=0", w, 0, res2));
+  grids.appendChild(oneSwitchGrid("switch=1", w, 1, res2));
+  box.appendChild(grids);
+  return box;
+}
+function oneSwitchGrid(label, w, s, res2) {
+  const k0 = res2.k0, k1 = res2.k1;
+  const stride = k1 * 2;
+  const container = document.createElement("div");
+  container.style.cssText = "flex:1; min-width:120px;";
+  const lbl = document.createElement("div");
+  lbl.textContent = label;
+  lbl.style.cssText = "font-size:0.65rem; color:var(--fg); margin-bottom:0.2rem; text-align:center;";
+  container.appendChild(lbl);
+  const table = document.createElement("table");
+  table.style.cssText = "border-collapse:collapse; width:100%; font-size:0.6rem; margin:0 auto;";
+  // Header row: C1 labels.
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  hr.appendChild(document.createElement("th"));
+  for (let j = 0; j < k1; j++) {
+    const th = document.createElement("th");
+    th.textContent = TYPE_SHORT[TYPES[res2.C1[j]]];
+    th.style.cssText = `color:${TYPE_COLOR[TYPES[res2.C1[j]]]}; padding:0.1rem; text-align:center; font-size:0.62rem;`;
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr);
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  for (let i = 0; i < k0; i++) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th");
+    th.textContent = TYPE_SHORT[TYPES[res2.C0[i]]];
+    th.style.cssText = `color:${TYPE_COLOR[TYPES[res2.C0[i]]]}; padding:0.1rem 0.25rem; text-align:right; font-size:0.62rem;`;
+    tr.appendChild(th);
+    for (let j = 0; j < k1; j++) {
+      const v = res2.jointPosteriors[w*k0*k1*2 + i*stride + j*2 + s];
+      const td = document.createElement("td");
+      const alpha = Math.min(1, Math.max(0.02, v));
+      td.textContent = v >= 0.005 ? v.toFixed(2) : "";
+      td.style.cssText = `padding:0.15rem 0.25rem; text-align:center;
+        background: rgba(108,205,184,${alpha.toFixed(3)});
+        color: ${v > 0.5 ? "#000" : "var(--fg)"};
+        border:1px solid #111;`;
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  container.appendChild(table);
+  return container;
+}
+
+/* --- panel 5: α / β message trace --- */
+
+function drawMessagesTrace(r0, r1) {
+  const root = document.getElementById("bc-viz-messages");
+  root.innerHTML = "";
+  const note = document.createElement("div");
+  note.style.cssText = "margin-bottom:0.4rem; font-size:0.85rem; color:var(--fg);";
+  note.innerHTML =
+    `<span style="color:var(--warn);">// β is flat here:</span> under the rank-1 ` +
+    `transition β carries no information, so every row reads as uniform.`;
+  root.appendChild(note);
+  const stack = document.createElement("div");
+  // Stack haplo0 above haplo1 so each row gets the full container width and
+  // the bar canvases can render bigger.
+  stack.style.cssText = "display:flex; flex-direction:column; gap:0.7rem;";
+  stack.appendChild(oneMessageBlock("haplo0", r0));
+  stack.appendChild(oneMessageBlock("haplo1", r1));
+  root.appendChild(stack);
+}
+function oneMessageBlock(label, res) {
+  const container = document.createElement("div");
+  container.style.cssText = "width:100%;";
+  const h = document.createElement("div");
+  h.textContent = `// ${label}`;
+  h.style.cssText = "font-size:0.9rem; color:var(--fg); margin-bottom:0.2rem;";
+  container.appendChild(h);
+  const grid = document.createElement("div");
+  // Wider bar canvases now that each block spans the full row.
+  grid.style.cssText = "display:grid; grid-template-columns:auto repeat(4,1fr); gap:0.2rem 0.5rem; font-size:0.6rem;";
+  const corner = document.createElement("div"); corner.textContent = "";
+  grid.appendChild(corner);
+  for (let w = 0; w < N_WINDOWS; w++) {
+    const th = document.createElement("div");
+    th.textContent = WINDOW_NAMES[w];
+    th.style.cssText = "color:var(--fg); text-align:center;";
+    grid.appendChild(th);
+  }
+  const alphaLbl = document.createElement("div");
+  alphaLbl.textContent = "α"; alphaLbl.style.cssText = "color:var(--fg); align-self:center;";
+  grid.appendChild(alphaLbl);
+  for (let w = 0; w < N_WINDOWS; w++) grid.appendChild(makeBarsCell(res.alpha, w, label, "α"));
+  const betaLbl = document.createElement("div");
+  betaLbl.textContent = "β"; betaLbl.style.cssText = "color:var(--fg); align-self:center;";
+  grid.appendChild(betaLbl);
+  for (let w = 0; w < N_WINDOWS; w++) grid.appendChild(makeBarsCell(res.beta, w, label, "β"));
+  container.appendChild(grid);
+  return container;
+}
+function makeBarsCell(vec, w, haploLabel, msgLabel) {
+  // Wrapper div is a positioned container so we can overlay a tooltip block.
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "position:relative;";
+  const c = document.createElement("canvas");
+  c.width = 280; c.height = 42;
+  c.style.cssText = "display:block; width:100%; height:42px; image-rendering:pixelated; background:#000; border:1px solid #111; cursor:crosshair;";
+  const cx = c.getContext("2d");
+  const barW = Math.floor(c.width / N_ACTIVE);
+  const values = [];
+  for (let k = 0; k < N_ACTIVE; k++) {
+    const T = ACTIVE_IDX[k];
+    const v = vec[w*N_TYPES + T];
+    values.push({ T, v });
+    const h = Math.round(v * c.height);
+    cx.fillStyle = TYPE_COLOR[TYPES[T]];
+    cx.fillRect(k * barW, c.height - h, barW - 1, h);
+  }
+  // Full-summary title attribute - always available as a browser tooltip.
+  const summaryLines = values.map(({T, v}) => `${TYPES[T].padEnd(10)} ${v.toFixed(4)}`);
+  c.title = `${haploLabel} · ${msgLabel} · ${WINDOW_NAMES[w]}\n` + summaryLines.join("\n");
+  // Custom position-aware tooltip: shows just the bar under the cursor.
+  const tip = document.createElement("div");
+  tip.style.cssText =
+    "position:absolute; pointer-events:none; background:#000; border:1px solid var(--fg);" +
+    "color:var(--fg); font-size:0.85rem; padding:0.15rem 0.35rem; white-space:nowrap;" +
+    "display:none; z-index:10; transform:translate(-50%,-100%); margin-top:-4px;";
+  wrap.appendChild(c);
+  wrap.appendChild(tip);
+  c.addEventListener("mousemove", (ev) => {
+    const rect = c.getBoundingClientRect();
+    // Map screen-x into canvas-x (canvas is scaled by CSS).
+    const canvasX = ((ev.clientX - rect.left) / rect.width) * c.width;
+    const k = Math.max(0, Math.min(N_ACTIVE - 1, Math.floor(canvasX / barW)));
+    const { T, v } = values[k];
+    tip.textContent = `${TYPES[T]}  ${v.toFixed(4)}`;
+    tip.style.color = TYPE_COLOR[TYPES[T]];
+    tip.style.borderColor = TYPE_COLOR[TYPES[T]];
+    tip.style.left = ((ev.clientX - rect.left) / rect.width * 100) + "%";
+    tip.style.top  = ((ev.clientY - rect.top)  / rect.height * 100) + "%";
+    tip.style.display = "block";
+  });
+  c.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+  return wrap;
+}
+
+/* --- controls wiring --- */
+
+/* --- gamete loading (paste QR contents, no camera) --- */
+
+function bcGameteRows() {
+  const root = document.getElementById("bc-gamete-rows");
+  return root ? Array.from(root.querySelectorAll(".bc-gamete-row")) : [];
+}
+
+function bcAnyGameteContent() {
+  return bcGameteRows().some(row => {
+    const g = row.querySelector(".bc-gamete");
+    return (g && g.value.trim() !== "") || !!row._nonce;
+  });
+}
+
+// Generate a fresh 12-byte nonce and render its phase-1 QR (header || nonce).
+// The badge scans this QR, seals its gamete under the nonce, and shows the
+// sealed-gamete QR that the user pastes back into this row.
+function bcGenerateNonce(row) {
+  const nonce = new Uint8Array(12);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(nonce);
+  } else {
+    for (let i = 0; i < 12; i++) nonce[i] = (Math.random() * 256) | 0;
+  }
+  row._nonce = nonce;
+  const payload = new Uint8Array(28);
+  payload.set(DC34_HEADER, 0);
+  payload.set(nonce, 16);
+  qrRender(row.querySelector(".bc-nonce-qr"), b45encode(payload));
+  const hexEl = row.querySelector(".bc-nonce-hex");
+  if (hexEl) hexEl.textContent = hexStr(nonce);
+  bcState.gameteDim = bcAnyGameteContent();
+  window.bcRenderDirty = true;
+}
+
+function bcLoadFromGametes() {
+  const statusEl = document.getElementById("bc-gamete-status");
+  const set = (msg) => { if (statusEl) statusEl.textContent = msg; };
+
+  const gametes = [];
+  for (const row of bcGameteRows()) {
+    const g = row.querySelector(".bc-gamete");
+    const gv = g ? g.value.trim() : "";
+    if (!gv) continue;   // no gamete pasted yet
+    if (!row._nonce) {
+      bcState.overrideDiploid = null;
+      set("[ generate a nonce before pasting that gamete ]");
+      scheduleRerender();
+      return;
+    }
+    try {
+      const sealed = b45decode(gv);
+      const k = (typeof qrK !== "undefined" && qrK) ? qrK : unhexStr(DEFAULT_K0);
+      const pt = gcmSivOpen(k, row._nonce, sealed);
+      gametes.push({ haploid: Uint8Array.from(pt.subarray(0, 9)), badgeType: pt[15] });
+    } catch (e) {
+      bcState.overrideDiploid = null;
+      set("[ gamete failed to decrypt - wrong nonce or transcription error ]");
+      scheduleRerender();
+      return;
+    }
+  }
+
+  if (gametes.length === 0) {
+    bcState.overrideDiploid = null;
+    set("[ using provided genome ]");
+    scheduleRerender();
+    return;
+  }
+
+  // Build a diploid from the gametes. A gamete is a single meiosis haploid, so
+  // one gamete is duplicated (homozygous); two provide the two strands.
+  const dip = new Uint8Array(2 * N_LOCI);
+  dip.set(gametes[0].haploid, 0);
+  dip.set(gametes.length >= 2 ? gametes[1].haploid : gametes[0].haploid, N_LOCI);
+  bcState.overrideDiploid = dip;
+  const tName = BADGE_TYPES[gametes[0].badgeType] || `?(${gametes[0].badgeType})`;
+  set(gametes.length === 1
+    ? `[ 1 gamete loaded: homozygous ${tName} ]`
+    : `[ ${gametes.length} gametes: first two form the diploid (${tName}) ]`);
+  scheduleRerender();
+}
+
+function bcAddGameteRow() {
+  const root = document.getElementById("bc-gamete-rows");
+  if (!root) return;
+  const row = document.createElement("div");
+  row.className = "bc-gamete-row";
+  row.style.cssText = "margin-bottom:0.5rem;";
+  row.innerHTML =
+    `<div style="display:flex; gap:0.4rem; align-items:center; margin-bottom:0.4rem;">` +
+      `<button class="bc-nonce-gen" style="flex:0 0 auto;">generate nonce</button>` +
+      `<button class="bc-gamete-add" title="add another gamete row" style="flex:0 0 auto;">+</button>` +
+      `<span class="bc-nonce-hex" style="font-size:0.72rem; color:var(--fg); opacity:0.7; overflow-wrap:anywhere;"></span>` +
+    `</div>` +
+    `<div class="bc-nonce-qr" style="margin-bottom:0.4rem;"></div>` +
+    `<input type="text" class="bc-gamete" placeholder="paste sealed gamete (base45)" style="width:100%; box-sizing:border-box; background:var(--bg); color:var(--fg); border:1px solid var(--fg-dim); padding:0.3rem; font-family:inherit; font-size:0.9rem;">`;
+  root.appendChild(row);
+  wireGameteRow(row);
+}
+
+function wireGameteRow(row) {
+  const gen = row.querySelector(".bc-nonce-gen");
+  const g = row.querySelector(".bc-gamete");
+  const add = row.querySelector(".bc-gamete-add");
+  if (gen) gen.addEventListener("click", () => bcGenerateNonce(row));
+  const onInput = () => {
+    bcState.gameteDim = bcAnyGameteContent();
+    window.bcRenderDirty = true;   // re-paint the (possibly dimmed) tile
+  };
+  if (g) { g.addEventListener("input", onInput); g.addEventListener("change", bcLoadFromGametes); }
+  if (add) add.addEventListener("click", bcAddGameteRow);
+}
+
+function bcInitGametePanel() {
+  bcGameteRows().forEach(wireGameteRow);
+}
+
+// Clear the gamete section back to a blank single row and drop the override so
+// badgecestry reads the provided genome again.
+function resetGametePanel() {
+  bcState.overrideDiploid = null;
+  bcState.gameteDim = false;
+  const rows = bcGameteRows();
+  for (let i = rows.length - 1; i > 0; i--) rows[i].remove();   // drop extra rows
+  if (rows[0]) {
+    const g = rows[0].querySelector(".bc-gamete");
+    if (g) g.value = "";
+    rows[0]._nonce = null;
+    const qr = rows[0].querySelector(".bc-nonce-qr");
+    if (qr) qr.innerHTML = "";
+    const hex = rows[0].querySelector(".bc-nonce-hex");
+    if (hex) hex.textContent = "";
+  }
+  const statusEl = document.getElementById("bc-gamete-status");
+  if (statusEl) statusEl.textContent = "[ using provided genome ]";
+}
+
+function bcInit() {
+  if (bcState.initialized) return;
+  bcState.initialized = true;
+  bcTileCanvas = document.getElementById("bc-tile");
+  bcTileCtx = bcTileCanvas.getContext("2d");
+  bcSpecInfo = document.getElementById("bc-specimen-info");
+  bcState.style = TILE_STYLES.ring7;
+
+  document.getElementById("bc-tile-style").addEventListener("change", (ev) => {
+    const v = ev.target.value;
+    bcState.style = TILE_STYLES[v] || TILE_STYLES.ring7;
+    window.bcRenderDirty = true;
+  });
+
+  const tSlider = document.getElementById("bc-t-slider");
+  const tLabel  = document.getElementById("bc-t-label");
+  // Force the slider back to its authored default. Browsers (Firefox in
+  // particular) restore range-input values across reloads and bfcache
+  // navigations without firing an `input` event, which leaves the thumb
+  // at e.g. slider=8 while bcState.tIdx stays at 0 - the UI then shows a
+  // t=128 slider position but decodes as if t=0.
+  tSlider.value = String(bcState.tIdx);
+  tLabel.textContent = `t = ${T_GRID[bcState.tIdx]}`;
+  tSlider.addEventListener("input", () => {
+    bcState.tIdx = parseInt(tSlider.value, 10);
+    tLabel.textContent = `t = ${T_GRID[bcState.tIdx]}`;
+    scheduleRerender();
+  });
+
+  const rateSelect = document.getElementById("bc-rate-select");
+  rateSelect.value = bcState.rate;
+  rateSelect.addEventListener("change", (ev) => {
+    bcState.rate = ev.target.value;
+    scheduleRerender();
+  });
+  const priorSelect = document.getElementById("bc-prior-select");
+  priorSelect.value = bcState.priorMode;
+  priorSelect.addEventListener("change", (ev) => {
+    bcState.priorMode = ev.target.value;
+    scheduleRerender();
+  });
+  bcInitGametePanel();
+  renderWindowMap();
+  // Re-render on window resize so the composition canvas re-syncs its internal
+  // resolution to the (changed) display width instead of being stretched.
+  window.addEventListener("resize", () => { if (window.bcTabActive) scheduleRerender(); });
+  checkLiveSnapshot();
+  renderEmptyState();
+}
+
+// Push a diploid into the shared vim gene state. Kept exported for external
+// callers (Phase B "Send to badgecestry" buttons on other tabs).
+function loadDiploid(bytes) {
+  if (!(bytes instanceof Uint8Array) || bytes.length !== 18) {
+    throw new Error("loadDiploid: need Uint8Array(18)");
+  }
+  bcWriteDiploidToVimGene(bytes);
+  resetGametePanel();
+}
+
+// Called by the vim gene tab whenever its diploid mutates (via setGene).
+window.bcOnVimGeneChanged = function bcOnVimGeneChanged() {
+  if (!bcState.initialized) return;
+  if (window.bcTabActive) scheduleRerender();
+};
+
+// Public API for other tabs to hand a diploid off. Routes through vim gene
+// so the display in both tabs stays consistent.
+window.badgecestry = window.badgecestry || {};
+window.badgecestry.loadDiploid = (bytes) => loadDiploid(bytes);
+window.badgecestry.resetGametePanel = () => resetGametePanel();
+
+// Read-only snapshot of the live popsim sim: current generation `t` and the
+// badge-type prior `f_T`. The prior is the popsim tab's selected mix preset
+// proportions, exactly - not the realized founding sample. This mirrors real
+// ancestry inference, where the population fractions are an assumed estimate
+// from a reference panel rather than a perfect census of the true mix.
+// `f_T` is indexed by the badgecestry HMM type order, with "None" dropped and
+// the active types renormalized to 1. Returns null when popsim isn't running.
+window.popsim = window.popsim || {};
+window.popsim.snapshot = function snapshot() {
+  const pop = (typeof popsimView !== "undefined") && popsimView.pop;
+  if (!pop) return null;
+  const mixSel = document.getElementById("mix-preset");
+  const mixName = mixSel ? mixSel.value : "defcon34";
+  const mix = MIX_PRESETS[mixName] || MIX_PRESETS.defcon34;
+  const f = new Float64Array(N_TYPES);
+  for (let T = 0; T < N_TYPES; T++) {
+    if (ACTIVE_MASK[T]) f[T] = mix[TYPES[T]] || 0;
+  }
+  let s = 0;
+  for (let T = 0; T < N_TYPES; T++) s += f[T];
+  if (s > 0) for (let T = 0; T < N_TYPES; T++) f[T] /= s;
+  return { t: pop.generation, f_T: f };
+};
+
+// Advance a population-state clone one generation (Phase C evolve-me-forward).
+// Mutates `state` in place; the live popsim population is never touched.
+window.popsim.step = (state) => advanceGeneration(state);
+window.badgecestry.decodeComposition = function decodeComposition(diploid, snapshot, opts) {
+  opts = opts || {};
+  const E = opts.emissionTensor || getEmissionTensor(opts.rateName || "Baseline");
+  const tIdx = snapTToGrid(snapshot.t);
+  const E_TLA = E[tIdx];
+  const haplo0 = diploid.subarray(0, N_LOCI);
+  const haplo1 = diploid.subarray(N_LOCI, 2*N_LOCI);
+  const r0 = decodeHaplotype(haplo0, E_TLA, snapshot.f_T, opts.topK || 3);
+  const r1 = decodeHaplotype(haplo1, E_TLA, snapshot.f_T, opts.topK || 3);
+  const res2 = decodeDiploid(diploid, E_TLA, snapshot.f_T, r0.topKIndices, r1.topKIndices);
+  return {
+    percentages: composePercentages(res2.composition, opts.minThreshold === undefined ? 0.05 : opts.minThreshold),
+    composition: res2.composition,
+    C0: r0.topKIndices, C1: r1.topKIndices,
+    tUsed: T_GRID[tIdx],
+    stage1H0Posteriors: r0.posteriors,
+    stage1H1Posteriors: r1.posteriors,
+    jointPosteriors: res2.jointPosteriors,
+  };
+};
+// Also expose primitives so a Node harness (parity_check.js) can call them.
+Object.assign(window.badgecestry, {
+  TYPES, TYPE_INDEX, TYPE_COLOR, TYPE_SHORT,
+  ACTIVE_MASK, ACTIVE_IDX, N_ACTIVE_TYPES: N_ACTIVE,
+  WINDOWS, WINDOW_NAMES, T_GRID, RATE_VALUES, RATE_BITS, FOUNDER_PANEL,
+  buildEmissionTensor, snapTToGrid,
+  uniformSnapshot, biasedSnapshot,
+  decodeHaplotype, decodeDiploid, composePercentages,
+});
+
+window.bcOnTabActivate = function bcOnTabActivate() {
+  if (!bcState.initialized) bcInit();
+  // Ensure vim gene has a diploid to source from - this seeds vimGene from
+  // popsim/borg selection or Human fallback on first-ever activation.
+  if (typeof ensureVimGeneInitialized === "function") ensureVimGeneInitialized();
+  scheduleRerender();
+};
+
+// Also initialize immediately if the DOM is ready (button wiring must exist
+// before the user might click), but the tab activation flag drives rendering.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bcInit);
+} else {
+  bcInit();
+}
+
+})();
+</script>
+
 </body>
 </html>
