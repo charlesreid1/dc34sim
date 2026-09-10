@@ -541,7 +541,10 @@ separate file. Its functions mirror the Python modules one-to-one:
 `decodeHaplotype`, `decodeDiploid`, `composePercentages`. On top of that
 port sits the one layer with no Python twin - the canvas renderer for the
 five panels (§4) and the `window.badgecestry` surface (`loadDiploid`,
-`decodeComposition`) that the other tabs hand diploids into.
+`decodeComposition`) that the other tabs hand diploids into. Vim gene, the
+popsim specimen inspector, and [eggstraction](eggstraction.md) (for physical
+badges reconstructed from observed gametes) all feed diploids in through
+the same entry point.
 
 ### 5.3 The order
 

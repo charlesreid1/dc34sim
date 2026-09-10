@@ -7,6 +7,7 @@ rests on, and how to hand a picked gamete to a physical DEF CON 34 badge.
 Related:
 - [`synthetic-population-genetics.md`](synthetic-population-genetics.md) - the genetics core (haploids, loci, meiosis, mating). Read that first for the math.
 - [`gene-exchange.md`](gene-exchange.md) - the three-phase QR protocol skeet's Panel C rides on top of.
+- [`eggstraction.md`](eggstraction.md) - the inverse map: many observed gametes from a physical badge, worked back to the diploid that produced them.
 - [`plan-skeet.md`](plan-skeet.md) - design notes for the tab itself.
 - [`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md) - the QR wire format, byte by byte.
 
@@ -86,7 +87,9 @@ nine coins instead of five.
 Five coins => `2^5 = 32` distinct coin patterns. Every gamete a badge can
 produce corresponds to exactly one of those 32 patterns. If the naive
 "nine coins" model were right it would be `2^9 = 512`, and every locus
-would look more diverse than it actually is.
+would look more diverse than it actually is. The same 32-not-512 fact is
+what makes reconstructing a physical badge's diploid tractable from
+observed gametes; see [`eggstraction.md`](eggstraction.md) §2.
 
 A 5-bit pattern encodes one gamete: bit `g` = 0 means group `g` comes
 from `haplo0`, bit = 1 means from `haplo1`. Skeet labels rows with the

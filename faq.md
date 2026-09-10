@@ -1,23 +1,24 @@
 # FAQ
 
-- [What is this?](#what-is-this)
+- [What is dc34sim?](#what-is-dc34sim)
 - [Using the simulator](#using-the-simulator)
 - [Skeet](#skeet)
 - [Badgecestry](#badgecestry)
+- [Eggstraction](#eggstraction)
 - [Your physical badge](#your-physical-badge)
 - [Under the hood](#under-the-hood)
 - [Related repositories](#related-repositories)
 
 ---
 
-## What is this?
+## What is dc34sim?
 
 A browser simulation of the DEF CON 34 badge's population-genetics system:
 10,000+ virtual badges evolving in your tab, plus a widget that can talk to
 your physical DC34 badge over the QR exchange. See
 [`synthetic-population-genetics.md`](synthetic-population-genetics.md).
 
-It's a CRT-styled terminal with five tabs across the top. Each is a different
+dc34sim is a console with six tabs across the top. Each is a different
 lens on the same genetics core:
 
 - **popsim** - evolve a whole population of badges. Click any cell to inspect it.
@@ -25,15 +26,15 @@ lens on the same genetics core:
 - **skeet** - take one diploid and enumerate every gamete it can produce (all 32), then seal one for a real badge to accept.
 - **borg** - same as popsim, but every mating uses one frozen partner, ROOT.
 - **badgecestry** - decode one badge's ancestry composition with a two-stage hidden Markov model.
-
-<!-- SCREENSHOT: full-page view with the five tabs circled -->
+- **eggstraction** - non-destructively read a physical badge's diploid by collecting enough of its sealed gametes.
 
 ### Do I need a camera?
 
 No. Nothing on the page needs a camera, and everything is click-driven. To
 bring in a physical badge, you read the badge's screen with your own phone or
-a QR reader app, then paste the text into the widget. See
-[Your physical badge](#your-physical-badge) below.
+a QR reader app, then paste the text into the widget.
+
+See [Your physical badge](#your-physical-badge) below.
 
 ## Using the simulator
 
@@ -212,18 +213,139 @@ It sets t, the number of generations of mutation since the founding
 population. Drag it up and the ancestry signal decays. See
 [`badgecestry.md`](badgecestry.md) section 4.6.
 
+## Eggstraction
+
+### What is eggstraction?
+
+Eggstraction is a non-destructive readout of a physical DC34 badge's full
+diploid. The badge has no "print my genome" command - the only thing it will
+hand out is one meiosis-sampled gamete per exchange. Point enough minted
+nonces at the badge, collect enough sealed gametes, and the underlying two
+haploids fall out of the accumulated statistics. Stock firmware, no JTAG, no
+debugger, just the QR protocol the badge already speaks. See
+[`eggstraction.md`](eggstraction.md).
+
+Sister to skeet: skeet is the forward map (one diploid -> all 32 possible
+gametes at once), eggstraction is the inverse map (observed gametes -> the
+diploid that produced them).
+
+### Do I need a physical badge for the eggstraction tab?
+
+Yes. Unlike every other tab, eggstraction is exclusively about physical
+badges - there is no simulated counterpart. Without a real badge in your
+hand, the tab does nothing useful.
+
+<!-- SCREENSHOT: the eggstraction tab overview with a badge nearby -->
+
+### How do I run a scan?
+
+1. Open the **eggstraction** tab and give your badge a **label** (top-left
+   panel) so you don't accidentally mix its scans with another badge's.
+2. In the **QR gene exchange** panel (right), phase 1, press **MINT NONCE**.
+   The widget draws a QR.
+3. Show the QR to your badge's camera. The badge meioses a gamete under its
+   own diploid and displays a sealed phase-2 QR on its OLED.
+4. Scan the badge's screen with your phone or a QR reader app, copy the
+   decoded base45 text, paste it into the phase-2 textarea, and press
+   **open & record**.
+5. The gamete lands in the **gamete accumulator** (right), the coverage
+   line updates, and the reconstructed diploid so far is displayed above.
+6. Press **MINT NEXT NONCE** and repeat. Batch mode: mint several nonces
+   at once and paste multiple sealed strings, one per line.
+
+See [`eggstraction.md`](eggstraction.md) section 10.
+
+<!-- SCREENSHOT: phase 1 minted nonce QR shown on the widget -->
+<!-- SCREENSHOT: phase 2 textarea with a sealed base45 string pasted -->
+
+### How many exchanges do I need?
+
+Rules of thumb, from [`eggstraction.md`](eggstraction.md) section 5.2:
+
+- **~6 exchanges**: about 85% of linkage groups locked on a typical
+  heterozygous badge.
+- **~10 exchanges**: usually 99% locked and the coverage line reads
+  "diploid known" for a badge with no unusual structure.
+- **15+ exchanges**: needed when a lot of linkage groups are homozygous,
+  because you're waiting on Gray-neighbor evidence to sort out.
+
+### What does the coverage line at the top mean?
+
+The line above the gamete rows reads something like:
+
+```
+[ 8 exchanges :: 4/5 linkage groups locked :: P(diploid known) ≈ 0.71 ]
+```
+
+- **`n exchanges`** - raw gamete count in the log.
+- **`K/5 linkage groups locked`** - groups whose loci all cleared the
+  per-locus confidence threshold of 0.85, after phasing and tuple-consensus
+  overrides.
+- **`P(diploid known)`** - product of per-locus posterior confidences.
+  Conservative chained-AND bound.
+
+See [`eggstraction.md`](eggstraction.md) sections 5 and 8.
+
+### Why is the reconstruction "mutation-aware"?
+
+Every gamete the badge emits has been through one Baseline mutation pass on
+the way out. So any observed byte is the true value 75% of the time and one
+of its eight Gray-1 neighbors 25% of the time. You cannot read a single scan
+as identity. The estimator scores every candidate `{v0, v1}` pair per locus
+against the observed histogram and reports a proper softmax posterior. See
+[`eggstraction.md`](eggstraction.md) sections 3, 4, and 5.
+
+### What is a HOM tag in the reconstruction?
+
+A linkage group is **homozygous** if the estimator's argmax has `v0 == v1` -
+both haploids carry the same value there. Those cells render with a **HOM**
+tag and both haplo0 and haplo1 boxes show the same value in the "matches
+hom" swatch color. Homozygous groups are the sticky case: there is no
+"other allele" to observe, so it takes more scans to reject the alternative
+that the badge is heterozygous with a Gray-neighbor. See
+[`eggstraction.md`](eggstraction.md) section 7.
+
+### Can I send an eggstracted badge into the sim?
+
+Yes - that's the point. Once the reconstruction is coherent enough, the
+**send to vim gene** button (top of the reconstructed-diploid header) is
+enabled. Click it and the estimator's ordered `(haplo0, haplo1)` per-locus
+representative is loaded into vim gene, from which you can phenotype it,
+edit it, feed it to borg as ROOT, or draw sim gametes off it. Eggstraction
+is the bridge from atoms to bits.
+
+<!-- SCREENSHOT: reconstructed-diploid header with "send to vim gene" enabled -->
+
+### Can I pause a scan and resume later?
+
+Yes. The **export / import** panel (top-left) copies the whole accumulator
+- nonces, observed gametes, label - as a JSON blob. Press **export**, then
+**copy export to clipboard**, and stash the text anywhere. To resume, paste
+into the same textarea and press **load import**. This replaces the current
+slot, so label your exports.
+
+### What does "reset" do, and when should I use it?
+
+**reset** wipes the current accumulator (nonces, observed gametes, label).
+Do this between different physical badges. The tab does not detect mid-scan
+badge switches - if you feed it gametes from two different badges under one
+label, it will happily mix them and produce a nonsense reconstruction. See
+[`eggstraction.md`](eggstraction.md) section 9.
+
 ## Your physical badge
 
-### Do I need my badge to use the widget?
+### Do I need a DEF CON 34 badge to use dc34sim?
 
-No. Only the QR exchange needs it. Simulation, editing, and badgecestry all
-run in the browser with nothing but the page.
+Certainly not required, but if you do have one, the site can interact with it
+via QR code exchanges!
+
+Simulation, editing, and badgecestry all use virtual badges.
 
 ### What is k0, and where do I get it?
 
 k0 is the published default badge secret that encrypts the QR exchange. The
 widget ships with it pre-loaded. See [`gene-exchange.md`](gene-exchange.md)
-"Where k0 sits".
+("Where k0 sits").
 
 ### How do I generate a nonce?
 
@@ -245,8 +367,8 @@ In the **QR gene exchange** panel, phase 2: choose a gamete source and press
 ### What do I scan, and with what?
 
 Your badge scans the QRs the widget draws. You scan your badge's screen with
-your own phone and paste the text into the widget. There is no camera on the
-page. See [`gene-exchange.md`](gene-exchange.md) PHASE 3.
+your own phone/device, and copy-paste the QR code contents into the widget.
+There is no camera on the page. See [`gene-exchange.md`](gene-exchange.md) PHASE 3.
 
 <!-- SCREENSHOT: phone scanning the widget QR / badge screen -->
 
@@ -263,9 +385,15 @@ section 1.
 
 ### What is the genome / "the nine loci"?
 
-Nine one-byte loci (each 0-255) make up the genome. The phenotype you see on
-the LEDs is computed from the two haploids. See
-[`synthetic-population-genetics.md`](synthetic-population-genetics.md)
+Each badge has a "genome" that consists of nine one-byte loci
+(each a 0-255 integer value). What genes you have is called
+your "genotype."
+
+The visible flashing LED pattern on the badge is the expressed
+result of the genes. What pattern is expressed via the genes
+is called your "phenotype."
+
+See [`synthetic-population-genetics.md`](synthetic-population-genetics.md)
 sections 1 and 4.
 
 ### What is mutation?
@@ -296,7 +424,7 @@ ROOT is a frozen diploid used as the fixed partner in every borg mating, so
 its genome steadily spreads through the colony. See
 [`borg-genetics.md`](borg-genetics.md).
 
-## Related repositories
+## Related resources
 
 - [`bunnie/dc34-api`](https://github.com/bunnie/dc34-api) - genetics core: `Haploid`, `Diploid`, `BadgeType`, `phenotype`, `meiosis`, `mutate`.
 - [`bunnie/dc34-vault`](https://github.com/bunnie/dc34-vault) - exchange state machine and the k0 oracle.

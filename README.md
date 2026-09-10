@@ -19,12 +19,13 @@ camera required.
 
 ## Tabs
 
-Five tabs, each a different lens on the same
+Six tabs, each a different lens on the same
 genetics core:
 
 - **popsim** - evolve a whole population of badges. Click any cell to inspect it.
 - **vim gene** - edit one badge's genome (a diploid: 2 x 9 bytes) and mint QRs a real badge will accept.
 - **skeet** - take one diploid and enumerate every gamete it can produce (all `2^5 = 32`), then pick one and seal it into a QR for a real badge.
+- **eggstraction** - non-destructive genome readout of a physical badge: mint nonces, collect the badge's sealed gametes, and reconstruct its diploid from the accumulated statistics.
 - **borg** - same as popsim, but every mating uses one frozen partner, ROOT.
 - **badgecestry** - decode one badge's ancestry composition with a two-stage hidden Markov model.
 
@@ -52,6 +53,7 @@ that nonce, and hand back a QR your badge will accept as a mate. See the
 - [`borg-genetics.md`](borg-genetics.md) - the ROOT-partner colony variant.
 - [`badgecestry.md`](badgecestry.md) - the two-stage HMM used for ancestry decoding.
 - [`skeet.md`](skeet.md) - the gamete-enumeration tab: genetics primer + physical-badge exchange.
+- [`eggstraction.md`](eggstraction.md) - inverse of skeet: reconstruct a physical badge's diploid from many observed gametes (mutation-aware).
 
 ## Related repositories
 

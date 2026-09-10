@@ -8,6 +8,7 @@ population.
 Related:
 [`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md) - the wire format spec, byte-by-byte.
 [`bunnie/dc34-vault`](https://github.com/bunnie/dc34-vault) - the firmware side of the exchange.
+[eggstraction.md](eggstraction.md) - the same protocol inverted: sim plays receiver, iterates against a physical badge to reconstruct its diploid from many observed gametes.
 
 ---
 

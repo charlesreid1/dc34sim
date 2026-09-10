@@ -242,6 +242,8 @@ of the cleanest ways to quantify the bug's actual population-level effect. The s
 
 From `mutate()`, `mutation_func()`, and the Gray-code helpers in `dc34-api/src/lib.rs:537-584`, plus `MutationRate` in `:178-225`.
 
+**Invariant:** every mating exchange has up to three mutation events: (1) the sender ALWAYS mutates its sperm before sending, at the sender's own `final_rate`; (2) the receiver ALWAYS mutates its egg, at plain `rate` for cross-type or elevated `rate` for same-type; (3) if same-type (inbreeding), the sperm gets an EXTRA mutation pass on the receiver side at the elevated rate. The sender-side sperm mutation is the one that operates on the QR data anyone else can observe.
+
 ### 5.1 How Often A Locus Mutates
 
 Each of the nine loci gets its own independent Bernoulli roll:
@@ -317,10 +319,9 @@ Two rates matter in the shipped code (`dc34-vault/src/config.rs:306, 342, 357`):
 - **`mutation_rate`** - the live value derived from `mutation_param`, changing continuously.
 - **`final_rate`** - the value captured at the moment the QR is displayed (`lock_rate()`).
 
-The gamete is mutated with `final_rate`. This is a snapshot semantic so the visible level at the moment of exchange
-is what governs the mutation, not whatever the meter has decayed to by the time the QR actually gets scanned.
-Scanning takes real time, and this prevents people from cheesing it by locking high and letting the meter decay
-before the exchange.
+Whenever a badge produces a gamete for a QR (`get_padded_gamete()` at `config.rs:341`), the sender **always** runs `mutate(gamete, final_rate)` before handing it over. This sender-side pass is unconditional — it happens on every gamete production regardless of who the recipient is, whether it's same-type, or whether inbreeding applies. The `final_rate` here is the sender's own locked rate at QR display time (see below), NOT anything the recipient chose.
+
+The snapshot semantic exists so the visible level at the moment of exchange is what governs the mutation, not whatever the meter has decayed to by the time the QR actually gets scanned. Scanning takes real time, and this prevents people from cheesing it by locking high and letting the meter decay before the exchange.
 
 In simulation there is no meter to decay, so `final_rate` = whatever rate the policy chose for this mating event.
 It only matters if you want to model the human "lock high, exchange later" trick.
@@ -331,8 +332,7 @@ It only matters if you want to model the human "lock high, exchange later" trick
 
 From `dc34-vault/src/main.rs:704-732`.
 
-When the incoming badge type equals the receiver's badge type, the donor's sperm gets an **extra** mutation pass on
-the receiving side, at a rate that is `max(inbreeding_floor, donor_final_rate)`:
+On top of the unconditional sender-side pass in §5.4, when the incoming badge type equals the receiver's own badge type, the sperm gets a **second, extra** mutation pass on the receiving side, at a rate that is `max(inbreeding_floor, donor_final_rate)`:
 
 - Human's inbreeding floor is `Elevated` (100/256).
 - Every other type's inbreeding floor is `Baseline` (64/256).
@@ -369,7 +369,7 @@ Putting §3, §5, §6, §4 together, a single mating event `(egg_parent, sperm_p
 
 ```
 1. sperm = meiosis(sperm_parent)          # §3
-   mutate(sperm, rate)                    # §5
+   mutate(sperm, rate)                    # §5 -- ALWAYS, on the sender side, every gamete
 2. egg = meiosis(egg_parent)              # §3
 3. if sperm_parent.type == egg_parent.type:
        inbreed_rate = max(rate,
