@@ -8,7 +8,6 @@ Related:
 - [`synthetic-population-genetics.md`](synthetic-population-genetics.md) - the genetics core (haploids, loci, meiosis, mating). Read that first for the math.
 - [`gene-exchange.md`](gene-exchange.md) - the three-phase QR protocol skeet's Panel C rides on top of.
 - [`eggstraction.md`](eggstraction.md) - the inverse map: many observed gametes from a physical badge, worked back to the diploid that produced them.
-- [`plan-skeet.md`](plan-skeet.md) - design notes for the tab itself.
 - [`nastea1/dc34-gamete/PROTOCOL.md`](https://github.com/nastea1/dc34-gamete/blob/main/PROTOCOL.md) - the QR wire format, byte by byte.
 
 ---
