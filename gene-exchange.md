@@ -109,7 +109,9 @@ it does, but your badge still rejects the QR, the problem is badge-side
 (state, camera focus, badge rotated its nonce, badge has wrong key value),
 not with vim gene.
 
-![vim gene screenshot: phase 4 round trip showing recovered badge pattern](img/phase4.png)
+![vim gene screenshot: phase 4 before pressing decode - phase 2 seal ready, preview empty](img/phase4a.png)
+
+![vim gene screenshot: phase 4 after decode - round-trip ok, recovered badge pattern shown](img/phase4b.png)
 
 ---
 
