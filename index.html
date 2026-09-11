@@ -978,6 +978,529 @@
   #skeet-slot-info .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
   #skeet-slot-info .locus { color: var(--fg); text-shadow: 0 0 6px rgba(108,205,184,0.75); }
   #skeet-slot-info .note  { color: #ffffff;  text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
+
+  /* Eggstraction :: physical-badge readout appliance. Two-column badgecestry-
+     style layout: slot + io stack on the left, gamete accumulator + QR panel
+     stack on the right. Re-uses skeet's row grid for the accumulator, with a
+     distinct id-prefix so styles don't leak. */
+  #tab-eggstraction .layout {
+    grid-template-columns: clamp(320px, 32%, 460px) minmax(0, 1fr);
+  }
+  #tab-eggstraction #egg-left,
+  #tab-eggstraction #egg-right { min-width: 0; }
+  #tab-eggstraction #egg-right .panel { min-width: 0; overflow-x: auto; }
+  @media (max-width: 1080px) {
+    #tab-eggstraction .layout { grid-template-columns: 1fr; }
+  }
+  #egg-slot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+  }
+  #egg-slot-label {
+    color: var(--fg);
+    font-size: 0.8rem;
+    text-shadow: 0 0 6px rgba(108,205,184,0.65);
+  }
+  #egg-slot-info {
+    font-size: 0.72rem;
+    color: var(--fg);
+    line-height: 1.5;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  #egg-slot-info .k     { color: var(--fg); text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #egg-slot-info .val   { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85); }
+  #egg-slot-info .locus { color: var(--fg); text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #egg-slot-info .note  { color: #ffffff; text-shadow: 0 0 6px rgba(255,255,255,0.85); }
+  #egg-slot-info .dim   { color: var(--fg-dim); }
+  #egg-label-input {
+    background: transparent;
+    border: 1px solid var(--fg-dim);
+    color: var(--fg);
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.4rem;
+    min-width: 14rem;
+  }
+  /* Gamete accumulator: re-use the same grid template as skeet's gam grid. */
+  #egg-gam-legend {
+    font-size: 0.72rem;
+    color: var(--fg);
+    margin-bottom: 0.45rem;
+    line-height: 1.5;
+  }
+  #egg-gam-legend .sw {
+    display: inline-block;
+    width: 10px; height: 10px;
+    vertical-align: middle;
+    border: 1px solid var(--fg-faint);
+    margin: 0 0.15rem;
+  }
+  #egg-gam-legend .sw-h0 { background: #0d294a; }
+  #egg-gam-legend .sw-h1 { background: var(--fg-dim); }
+  #egg-gam-legend .sw-hom {
+    background: linear-gradient(to bottom, var(--fg-dim) 0%, #0d294a 100%);
+  }
+  #egg-gam-legend .egg-hom-tag {
+    display: inline-block;
+    padding: 0 0.35em;
+    font-size: 0.65em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.28);
+    color: #000;
+    border: 1px solid var(--warn);
+    background-color: var(--warn);
+    border-radius: 2px;
+    vertical-align: middle;
+    font-weight: normal;
+  }
+  #egg-coverage-line {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.75rem;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.6);
+    padding: 0.35rem 0.5rem;
+    border: 1px dashed var(--fg-faint);
+    margin-bottom: 0.6rem;
+    white-space: pre-wrap;
+  }
+  #egg-coverage-line.good { border-color: var(--fg); }
+  #egg-coverage-line.warn { border-color: var(--warn); color: var(--warn); }
+  /* Reconstructed diploid strip: two haplo rows, same 9-cell grid geometry
+     used below for the gamete rows. Right column is "coverage" label, not a
+     pick button. */
+  #egg-gam-grouphead, #egg-gam-head, #egg-gam-rows {
+    display: grid;
+    grid-template-columns:
+      5rem
+      repeat(3, minmax(2.6rem, 1fr))  0.6rem
+      repeat(1, minmax(2.6rem, 1fr))  0.6rem
+      repeat(3, minmax(2.6rem, 1fr))  0.6rem
+      repeat(1, minmax(2.6rem, 1fr))  0.6rem
+      repeat(1, minmax(2.6rem, 1fr))
+      5.5rem;
+    column-gap: 0;
+    row-gap: 0.15rem;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.72rem;
+  }
+  #egg-gam-grouphead {
+    row-gap: 0;
+    margin-bottom: 0.2rem;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.7);
+  }
+  #egg-gam-grouphead .gh {
+    text-align: center;
+    padding: 0.15rem 0;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--fg-faint);
+    font-weight: bold;
+  }
+  #egg-gam-head {
+    row-gap: 0;
+    margin-bottom: 0.25rem;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.65);
+  }
+  #egg-gam-head .h {
+    padding: 0.2rem 0.15rem;
+    text-align: center;
+    border-bottom: 1px dashed var(--fg-faint);
+    letter-spacing: 0.05em;
+  }
+  #egg-gam-head .h.pat { text-align: left; }
+  #egg-gam-head .h.pick { text-align: right; }
+  .egg-gam-row {
+    display: contents;
+  }
+  .egg-gam-row .pat {
+    padding: 0.25rem 0.25rem;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.6);
+    letter-spacing: 0.08em;
+    align-self: center;
+  }
+  .egg-gam-row .cell {
+    padding: 0.25rem 0;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    align-self: stretch;
+    border-top: 1px solid var(--fg-faint);
+    border-bottom: 1px solid var(--fg-faint);
+  }
+  .egg-gam-row .cell.g-first { border-left:  1px solid var(--fg-faint); }
+  .egg-gam-row .cell.g-last  { border-right: 1px solid var(--fg-faint); }
+  .egg-gam-row .cell.h0 {
+    background: #0d294a;
+    color: #ffffff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.65);
+  }
+  .egg-gam-row .cell.h1 {
+    background: var(--fg-dim);
+    color: #ffffff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.65);
+  }
+  .egg-gam-row .cell.hom {
+    /* Homozygous-locus matched cell :: dark teal at top, navy at bottom.
+       Distinct from flat h0/h1 fills so hom rows read as "this matches the
+       hom value" not as "this came from h0 specifically". */
+    background: linear-gradient(to bottom, var(--fg-dim) 0%, #0d294a 100%);
+    color: #ffffff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.75);
+  }
+  .egg-gam-row .cell.unk {
+    background: transparent;
+    color: var(--fg-dim);
+    border-style: dashed;
+  }
+
+  /* Reconstructed-diploid inspector - same layout + palette family as
+     #vim-specimen-info / #skeet-slot-info. Rows are loci, columns are
+     haplo0 / haplo1 / phenome. Known cells glow gold with dark text
+     ("wheel of fortune" reveal); unresolved groups show a dashed [??] tile.
+     Phenome is per-locus deterministic given both haplo values via phenotype(). */
+  #egg-recon-info #egg-send-row-slot {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0.3rem 0 0.5rem 0;
+  }
+  #egg-recon-info {
+    margin-top: 0.4rem;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.72rem;
+    color: var(--fg);
+    line-height: 1.4;
+    overflow-x: auto;
+  }
+  #egg-recon-info .egg-recon-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    align-items: baseline;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px dashed var(--fg-faint);
+  }
+  #egg-recon-info .egg-recon-summary .sep { color: var(--fg-dim); }
+  #egg-recon-info .k     { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #egg-recon-info .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); }
+  #egg-recon-info .note  { color: #ffffff;     text-shadow: 0 0 6px rgba(255,255,255,0.85), 0 0 12px rgba(255,255,255,0.5); }
+  #egg-recon-info .pheno-blank { color: var(--fg-dim); opacity: 0.55; }
+
+  /* Reconstruction table :: five columns line up by actual table layout so
+     the previous mono/pre column-drift is gone. Cell widths are set to
+     natural minimums with .locus taking whatever the widest name needs. */
+  #egg-recon-info table.egg-recon-table {
+    border-collapse: separate;
+    border-spacing: 0.3rem 0.15rem;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.72rem;
+    color: var(--fg);
+  }
+  #egg-recon-info table.egg-recon-table th {
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.7);
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.3rem;
+    text-align: center;
+  }
+  #egg-recon-info table.egg-recon-table th.group-hdr {
+    border-bottom: 1px dashed var(--fg-faint);
+    padding-bottom: 0.25rem;
+  }
+  #egg-recon-info table.egg-recon-table th.col-hdr {
+    color: var(--fg-dim);
+    font-weight: normal;
+  }
+  #egg-recon-info table.egg-recon-table th.col-hdr.num {
+    text-align: right;
+  }
+  #egg-recon-info table.egg-recon-table th.col-hdr.tile-hdr {
+    text-align: center;
+  }
+  #egg-recon-info table.egg-recon-table td {
+    padding: 0.15rem 0.3rem;
+    vertical-align: middle;
+  }
+  #egg-recon-info table.egg-recon-table td.locus {
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.75);
+    white-space: nowrap;
+  }
+  #egg-recon-info table.egg-recon-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  #egg-recon-info table.egg-recon-table td.tile-cell {
+    text-align: center;
+    padding: 0.1rem 0.2rem;
+  }
+
+  /* "Wheel of fortune" tiles :: fixed pixel width per tile now that
+     surrounding column is a real table cell (was 8ch chars). */
+  #egg-recon-info .gold,
+  #egg-recon-info .blank {
+    display: inline-block;
+    min-width: 3.5em;
+    text-align: center;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.2;
+    padding: 0.1rem 0.4rem;
+  }
+  #egg-recon-info .gold {
+    background: var(--warn);
+    color: #000;
+    border: 1px solid var(--warn);
+    box-shadow: 0 0 6px rgba(241,180,53,0.85), 0 0 12px rgba(241,180,53,0.35);
+    text-shadow: none;
+    font-weight: bold;
+  }
+  #egg-recon-info .gold.prov {
+    background: rgba(241,180,53,0.35);
+    color: #000;
+    box-shadow: 0 0 4px rgba(241,180,53,0.35);
+    border-color: rgba(241,180,53,0.55);
+    font-weight: normal;
+  }
+  #egg-recon-info .blank {
+    color: var(--fg-dim);
+    border: 1px dashed var(--fg-faint);
+    background: transparent;
+    text-shadow: none;
+  }
+  /* Homozygous-locus tile spans both haplo columns and gets a small "hom" tag. */
+  #egg-recon-info .gold.hom {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.15rem 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  #egg-recon-info .gold.hom .hom-tag {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0 0.35em;
+    font-size: 0.65em;
+    font-weight: normal;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.28);
+    color: #000;
+    border-radius: 2px;
+  }
+  #egg-recon-info .gold.prov.hom .hom-tag {
+    background: rgba(0,0,0,0.15);
+  }
+  .egg-gam-row .stamp {
+    padding-left: 0.5rem;
+    align-self: center;
+    text-align: right;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    color: var(--fg-dim);
+  }
+  .egg-gam-row .stamp.new  { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.75); }
+  .egg-gam-row.landed .cell {
+    outline: 1px solid var(--warn);
+    outline-offset: -1px;
+  }
+  #egg-nonce-list {
+    display: flex; flex-direction: column; gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  .egg-nonce-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.35rem;
+    border: 1px solid var(--fg-faint);
+    background: rgba(0,0,0,0.25);
+  }
+  .egg-nonce-item .idx {
+    font-family: "Courier New", Courier, monospace;
+    color: var(--warn);
+    text-shadow: 0 0 4px rgba(241,180,53,0.6);
+    font-size: 0.85rem;
+    min-width: 2.2rem; text-align: center;
+  }
+  .egg-nonce-item .qr-canvas { display: block; }
+  .egg-nonce-item .meta {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.65rem;
+    color: var(--fg-dim);
+    word-break: break-all;
+  }
+  .egg-nonce-item.used { opacity: 0.45; }
+  .egg-nonce-item.used .idx { color: var(--fg-dim); text-shadow: none; }
+  #egg-histogram {
+    display: grid;
+    grid-template-columns: repeat(32, 1fr);
+    gap: 1px;
+    margin-top: 0.6rem;
+    padding: 0.3rem;
+    border: 1px dashed var(--fg-faint);
+  }
+  #egg-histogram .bin {
+    height: 40px;
+    background: rgba(108,205,184,0.05);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  #egg-histogram .bin .fill {
+    width: 100%;
+    background: var(--fg);
+    opacity: 0.6;
+    box-shadow: 0 0 4px rgba(108,205,184,0.6);
+  }
+  #egg-histogram .bin .lbl {
+    position: absolute; bottom: -0.9rem;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.55rem;
+    color: var(--fg-dim);
+  }
+  #egg-hist-cap {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+    margin-top: 1.4rem;
+    margin-bottom: 0.3rem;
+    text-align: center;
+  }
+  /* QR panel :: reuse skeet-qr-panel styling. */
+  #egg-qr-panel details.qr-row {
+    border: 1px solid var(--fg-faint);
+    margin-bottom: 0.4rem;
+    background: rgba(0,0,0,0.25);
+  }
+  #egg-qr-panel details.qr-row[open] { border-color: var(--fg); }
+  #egg-qr-panel details.qr-row summary {
+    padding: 0.5rem 0.6rem;
+    cursor: pointer;
+    color: var(--fg);
+    text-shadow: 0 0 6px rgba(108,205,184,0.6);
+    letter-spacing: 0.05em;
+    list-style: none;
+  }
+  #egg-qr-panel details.qr-row summary::-webkit-details-marker { display: none; }
+  #egg-qr-panel details.qr-row summary .hint {
+    color: var(--fg-dim);
+    text-shadow: none;
+    margin-left: 0.5rem;
+  }
+  #egg-qr-panel .qr-row-body {
+    padding: 0.4rem 0.6rem 0.6rem 0.6rem;
+    border-top: 1px dashed var(--fg-faint);
+  }
+  /* Export/import panel textarea (plain .panel container, not a <details>). */
+  #egg-io-panel-container textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: transparent;
+    border: 1px solid var(--fg-dim);
+    color: var(--fg);
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.4rem;
+    resize: vertical;
+    word-break: break-all;
+  }
+  #egg-qr-panel input[type="text"],
+  #egg-qr-panel input[type="number"],
+  #egg-qr-panel textarea,
+  #egg-qr-panel select {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--fg-dim);
+    color: var(--fg);
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.4rem;
+  }
+  #egg-qr-panel textarea { resize: vertical; }
+  #egg-qr-panel label {
+    display: block;
+    color: var(--fg-dim);
+    font-size: 0.7rem;
+    margin: 0.35rem 0 0.15rem 0;
+    letter-spacing: 0.05em;
+  }
+  #egg-qr-panel .qr-out {
+    display: flex; flex-wrap: wrap; gap: 0.8rem;
+    align-items: flex-start;
+    margin-top: 0.4rem;
+  }
+  #egg-qr-panel .qr-out-text {
+    flex: 1 1 240px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+  #egg-qr-panel .qr-out-text .k   { color: var(--fg); }
+  #egg-qr-panel .qr-out-text .val { color: var(--warn); text-shadow: 0 0 4px rgba(241,180,53,0.55); }
+  #egg-qr-panel .mono { font-family: "Courier New", Courier, monospace; }
+  #egg-qr-panel .qr-canvas-wrap {
+    flex: 0 0 auto;
+    background: #fff;
+    padding: 4px;
+  }
+  #egg-qr-panel .qr-canvas svg { display: block; }
+  #egg-next-nonce-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.8rem;
+    padding-top: 0.6rem;
+    border-top: 1px dashed var(--fg-faint);
+  }
+  #egg-qr-panel button.big-mint {
+    padding: 0.9rem 1.6rem;
+    font-size: 1.05rem;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    background: var(--fg);
+    color: #000;
+    border: 2px solid var(--fg);
+    box-shadow: 0 0 10px rgba(108,205,184,0.75), 0 0 22px rgba(108,205,184,0.35);
+    text-shadow: none;
+    cursor: pointer;
+  }
+  #egg-qr-panel button.big-mint:hover {
+    background: #8fe3cc;
+    border-color: #8fe3cc;
+    box-shadow: 0 0 14px rgba(108,205,184,0.95), 0 0 30px rgba(108,205,184,0.55);
+  }
+  #egg-qr-panel button.big-mint:active { transform: translateY(1px); }
+  #egg-coverage-inline {
+    margin-top: 0.4rem;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    letter-spacing: 0.02em;
+  }
+  #egg-coverage-inline .k     { color: var(--fg);   text-shadow: 0 0 6px rgba(108,205,184,0.75); }
+  #egg-coverage-inline .val   { color: var(--warn); text-shadow: 0 0 6px rgba(241,180,53,0.85); }
+  #egg-coverage-inline .pheno { color: var(--err);  text-shadow: 0 0 6px rgba(224,0,78,0.9), 0 0 12px rgba(224,0,78,0.6); font-weight: bold; }
+  #egg-qr-panel .status.subtle {
+    color: var(--fg-dim);
+    border-color: transparent;
+    background: transparent;
+    padding: 0.2rem 0;
+    font-size: 0.7rem;
+  }
+  #egg-qr-panel .status.good { border-color: var(--fg); color: var(--fg); }
+  #egg-qr-panel .status.bad  { border-color: var(--err); color: var(--err); }
+  #egg-qr-panel .status.warn { border-color: var(--warn); color: var(--warn); }
 </style>
 </head>
 <body>
@@ -999,6 +1522,7 @@
   <button class="tab active" data-tab="popsim"       role="tab" aria-selected="true">popsim</button>
   <button class="tab"        data-tab="vim-gene"     role="tab" aria-selected="false">vim gene</button>
   <button class="tab"        data-tab="skeet"        role="tab" aria-selected="false">skeet</button>
+  <button class="tab"        data-tab="eggstraction" role="tab" aria-selected="false">eggstraction</button>
   <button class="tab"        data-tab="borg"         role="tab" aria-selected="false">borg</button>
   <button class="tab"        data-tab="badgecestry"  role="tab" aria-selected="false">badgecestry</button>
 </div>
@@ -1312,9 +1836,6 @@
     <h2>&gt; skeet slot <span class="hint">parent diploid :: single-organism gamete enumeration</span></h2>
     <div id="skeet-slot-header">
       <div id="skeet-slot-label" class="mono">[ no organism loaded ]</div>
-      <div class="btn-row">
-        <button id="skeet-btn-clear" disabled>clear slot</button>
-      </div>
     </div>
     <div class="specimen-wrap" id="skeet-specimen-wrap">
       <canvas id="skeet-specimen" width="240" height="240"></canvas>
@@ -1391,6 +1912,121 @@
   </div>
 </div>
 </div><!-- /#tab-skeet -->
+
+<div id="tab-eggstraction" class="tab-panel">
+<div class="layout" id="egg-layout">
+
+  <div id="egg-left">
+  <div class="panel" id="egg-slot-panel">
+    <h2>&gt; eggstraction slot</h2>
+    <div id="egg-slot-header">
+      <div id="egg-slot-label" class="mono">[ no exchanges recorded yet ]</div>
+      <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+        <label for="egg-label-input" style="color:var(--fg-dim); font-size:0.7rem; letter-spacing:0.05em;">label</label>
+        <input type="text" id="egg-label-input" class="mono" placeholder="my badge" spellcheck="false" autocomplete="off">
+        <button id="egg-btn-reset" class="warn">reset</button>
+      </div>
+    </div>
+    <div id="egg-slot-info" class="mono">[ mint a nonce below, scan into badge, paste the returned QR ]</div>
+  </div>
+
+  <div class="panel" id="egg-io-panel-container">
+    <h2>&gt; export / import</h2>
+    <div class="hint" style="margin-bottom:0.4rem">export copies the current accumulator (nonces + observed gametes + label) as JSON. import replaces it. useful for pausing a physical scan and resuming later.</div>
+    <div class="btn-row" style="margin-bottom:0.4rem;">
+      <button id="egg-btn-export">export</button>
+      <button id="egg-btn-import">import</button>
+    </div>
+    <textarea id="egg-io-text" rows="6" spellcheck="false" placeholder='paste an eggstraction export JSON here, then press "load import"'></textarea>
+    <div class="btn-row" style="margin-top:0.4rem;">
+      <button id="egg-btn-io-copy">copy export to clipboard</button>
+      <button id="egg-btn-io-load">load import</button>
+    </div>
+    <div class="status mono" id="egg-io-status">[ press export to fill this box ]</div>
+  </div>
+  </div><!-- /#egg-left -->
+
+  <div id="egg-right">
+  <div class="panel" id="egg-gametes-panel">
+    <h2>&gt; gamete accumulator <span class="hint">observed gametes :: 5 linkage-group coupon collector</span></h2>
+    <div id="egg-coverage-line" class="mono">[ 0 exchanges :: 0/5 linkage groups locked :: P(diploid known) &asymp; 0.000 ]</div>
+    <div id="egg-gam-legend" class="mono">
+      <span class="sw sw-h0"></span> haplo0 &nbsp;
+      <span class="sw sw-h1"></span> haplo1 &nbsp;
+      <span class="sw sw-hom"></span> matches hom value &nbsp;
+      <span class="egg-hom-tag">HOM</span> = homozygous locus &nbsp;
+      <span class="k">uncolored</span> = mutation or unresolved
+    </div>
+
+    <div class="hint" style="margin-bottom:0.3rem">reconstructed diploid so far <span style="color:var(--fg-dim)">::</span> gold tile = allele known, dashed <span class="mono">[??]</span> = group not yet resolved</div>
+    <div id="egg-recon-info"></div>
+    <!-- Persistent button element - lives outside #egg-recon-info so innerHTML
+         rewrites of the recon table don't destroy it and its click handler.
+         Every render call moves this into #egg-send-row-slot (which the
+         recon-info render creates immediately below the summary row) via
+         appendChild, which preserves event listeners and disabled state. -->
+    <button id="egg-btn-send-to-vim" disabled>send to vim gene &raquo;</button>
+
+    <div class="hint" style="margin:0.7rem 0 0.2rem 0">observed gametes (append-only, in observation order)</div>
+    <div id="egg-gam-grouphead" class="mono"></div>
+    <div id="egg-gam-head" class="mono"></div>
+    <div id="egg-gam-rows"></div>
+
+    <div id="egg-hist-cap">coin-pattern coverage histogram :: 32 bins, one per 5-bit gamete pattern (meiosis fairness audit)</div>
+    <div id="egg-histogram"></div>
+  </div>
+
+  <div class="panel" id="egg-qr-panel">
+    <h2>&gt; QR gene exchange <span class="hint">we are all receiver :: badge are all responder</span></h2>
+    <div class="hint" style="margin-bottom:0.4rem">
+      we mint the phase-1 nonce; the badge scans it, meioses a gamete under its own diploid, and hands back a sealed phase-2 QR.
+      each opened seal lands in the accumulator above.
+    </div>
+
+    <details class="qr-row" open>
+      <summary>&gt; k <span class="hint">shared badge secret</span></summary>
+      <div class="qr-row-body">
+        <label for="egg-qr-k">k (default: k0, hex)</label>
+        <input type="text" id="egg-qr-k" spellcheck="false" autocomplete="off" placeholder="64 hex characters">
+        <div class="btn-row">
+          <button id="egg-qr-k-save">verify &amp; save</button>
+          <button id="egg-qr-k-reset" class="warn">reset to default</button>
+        </div>
+        <div class="status" id="egg-qr-k-status">[ not loaded ]</div>
+      </div>
+    </details>
+
+    <details class="qr-row" open>
+      <summary>&gt; phase 1 <span class="hint">mint a nonce for the badge to scan</span></summary>
+      <div class="qr-row-body">
+        <div class="btn-row">
+          <button id="egg-btn-mint-one" class="big-mint">MINT NONCE</button>
+        </div>
+        <div class="status mono" id="egg-mint-status">[ press mint to generate a nonce QR for your badge ]</div>
+        <div id="egg-coverage-inline" class="mono"></div>
+        <div id="egg-nonce-list"></div>
+      </div>
+    </details>
+
+    <details class="qr-row" open>
+      <summary>&gt; phase 2 <span class="hint">paste sealed gamete(s) from the badge</span></summary>
+      <div class="qr-row-body">
+        <label for="egg-seal-input">paste base45 seal(s), one per line for batch</label>
+        <textarea id="egg-seal-input" rows="3" spellcheck="false" placeholder="e.g. 7F9 /E-XUZ 6G5CSFW-XP88A..."></textarea>
+        <div class="btn-row">
+          <button id="egg-btn-open">open &amp; record</button>
+        </div>
+        <div class="status mono" id="egg-open-status">[ mint at least one nonce first ]</div>
+        <div id="egg-last-preview" class="mono" style="margin-top:0.5rem;"></div>
+        <div id="egg-next-nonce-row">
+          <button id="egg-btn-mint-next" class="big-mint">MINT NEXT NONCE &raquo;</button>
+        </div>
+      </div>
+    </details>
+  </div>
+  </div><!-- /#egg-right -->
+</div>
+</div><!-- /#tab-eggstraction -->
 
 <div id="tab-borg" class="tab-panel">
 <div class="layout">
@@ -1716,6 +2352,35 @@
         <code>data-source</code> attribute naming the decoder module it came
         from.
       </p>
+
+      <!-- Mirror of the primary T slider above. Two-way linked so users can
+           scrub T while looking at the emission heatmaps / allele-frequency
+           plots down here without having to scroll back up to the type-mix
+           panel. Both sliders share the same handler in bcTSliderChanged. -->
+      <div style="margin:0.6rem 0 0.9rem;">
+        <label for="bc-t-slider-2" style="display:block; font-size:0.9rem; color:var(--fg);">
+          generations since founding &nbsp;
+          <span id="bc-t-label-2" style="color:var(--warn);">t = 0</span>
+        </label>
+        <input type="range" id="bc-t-slider-2" min="0" max="8" step="1" value="0"
+               autocomplete="off"
+               style="width:100%; accent-color: var(--fg); display:block; margin:0;">
+        <div id="bc-t-scale-2" aria-hidden="true"
+             style="position:relative; height:1rem; color:var(--fg); margin-top:0.1rem;
+                    user-select:none;">
+          <div style="position:absolute; left:5px; right:5px; top:0; height:100%;">
+            <span style="position:absolute; left:0%;    transform:translateX(-50%); text-align:center; font-size:0.55rem;">0</span>
+            <span style="position:absolute; left:12.5%; transform:translateX(-50%); text-align:center; font-size:0.55rem;">1</span>
+            <span style="position:absolute; left:25%;   transform:translateX(-50%); text-align:center; font-size:0.55rem;">2</span>
+            <span style="position:absolute; left:37.5%; transform:translateX(-50%); text-align:center; font-size:0.55rem;">4</span>
+            <span style="position:absolute; left:50%;   transform:translateX(-50%); text-align:center; font-size:0.6rem;">8</span>
+            <span style="position:absolute; left:62.5%; transform:translateX(-50%); text-align:center; font-size:0.65rem;">16</span>
+            <span style="position:absolute; left:75%;   transform:translateX(-50%); text-align:center; font-size:0.7rem;">32</span>
+            <span style="position:absolute; left:87.5%; transform:translateX(-50%); text-align:center; font-size:0.72rem;">64</span>
+            <span style="position:absolute; left:100%;  transform:translateX(-50%); text-align:center; font-size:0.72rem;">128</span>
+          </div>
+        </div>
+      </div>
 
       <h3 style="font-size:1rem; color:var(--fg); margin:0.8rem 0 0.3rem;">
         // panel 1 :: emission distributions E<sub>T,ℓ,t</sub>
@@ -5974,8 +6639,36 @@ function activateTab(name) {
   if (typeof skeetTabActive !== "undefined") skeetTabActive = (name === "skeet");
   if (name === "skeet") {
     if (typeof ensureSkeetInitialized === "function") ensureSkeetInitialized();
+    // If nothing has been explicitly sent to skeet yet, mirror the current
+    // vim gene into the slot on activation - same convention as borg and
+    // badgecestry, so skeet's specimen preview is populated the first time
+    // the tab is opened instead of showing "no organism loaded".
+    if (typeof skeetSlot !== "undefined" && skeetSlot === null) {
+      ensureVimGeneInitialized();
+      const h0 = new Uint8Array(N_LOCI);
+      const h1 = new Uint8Array(N_LOCI);
+      for (let li = 0; li < N_LOCI; li++) {
+        const nm = VIM_LOCUS_NAMES[li];
+        h0[li] = vimGene.haplo0[nm];
+        h1[li] = vimGene.haplo1[nm];
+      }
+      const idx = BADGE_TYPES.indexOf(vimGeneType);
+      skeetSlot = {
+        haplo0: h0,
+        haplo1: h1,
+        badgeTypeIdx: idx >= 0 ? idx : BT.None,
+        label: `${vimGeneType} :: from vim gene`,
+      };
+      skeetPickedPattern = null;
+      skeetParsedNonce = null;
+      skeetSealedBytes = null;
+    }
     if (typeof renderSkeetPanels === "function") renderSkeetPanels();
     if (typeof skeetRenderDirty !== "undefined") skeetRenderDirty = true;
+  }
+  if (name === "eggstraction") {
+    if (typeof ensureEggstrInitialized === "function") ensureEggstrInitialized();
+    if (typeof renderEggstrAll === "function") renderEggstrAll();
   }
   if (vimTabActive) {
     ensureVimGeneInitialized();
@@ -7036,34 +7729,42 @@ function ensureSkeetInitialized() {
 
   document.getElementById("skeet-qr-phase1-go").addEventListener("click", skeetPhase1Extract);
   document.getElementById("skeet-qr-seal-go").addEventListener("click", skeetDoSeal);
-
-  document.getElementById("skeet-btn-clear").addEventListener("click", skeetClearSlot);
 }
 
 function refreshKPanels(source) {
-  // Sync both tabs' k inputs and status lines to the current qrK / DOM state.
-  // `source` names the input that just changed so we don't clobber the caret /
-  // selection in the tab the user is actively typing into.
-  const vimIn = document.getElementById("qr-k");
-  const skeetIn = document.getElementById("skeet-qr-k");
-  if (vimIn && skeetIn) {
-    if (source !== "qr-k")     vimIn.value   = skeetIn.value;
-    if (source !== "skeet-qr-k") skeetIn.value = vimIn.value;
-    // Prefer whichever value was authoritative (the one that was verified).
-    // qrTryLoadK stores raw into localStorage on success; fall back to that.
-    const stored = localStorage.getItem("badge-genetics-sim.k");
-    if (stored) {
-      if (source !== "qr-k")       vimIn.value   = stored;
-      if (source !== "skeet-qr-k") skeetIn.value = stored;
+  // Sync all three tabs' k inputs and status lines to the current qrK / DOM
+  // state. `source` names the input that just changed so we don't clobber the
+  // caret / selection in the tab the user is actively typing into.
+  const inputs = [
+    { id: "qr-k",       key: "qr-k" },
+    { id: "skeet-qr-k", key: "skeet-qr-k" },
+    { id: "egg-qr-k",   key: "egg-qr-k" },
+  ];
+  const stored = localStorage.getItem("badge-genetics-sim.k");
+  // Pick the authoritative value: localStorage if present, else whichever
+  // input just changed, else fall back to any other input's current value.
+  let authVal = stored;
+  if (!authVal) {
+    for (const it of inputs) {
+      const el = document.getElementById(it.id);
+      if (el && el.value) { authVal = el.value; break; }
+    }
+  }
+  if (authVal) {
+    for (const it of inputs) {
+      if (it.key === source) continue;
+      const el = document.getElementById(it.id);
+      if (el) el.value = authVal;
     }
   }
   const vimStat = document.getElementById("qr-k-status");
-  const skeetStat = document.getElementById("skeet-qr-k-status");
-  if (vimStat && skeetStat) {
-    // Copy vim's status text/class into skeet's status (single source of truth).
-    // vim-side qrSetStatus already handled the vim status; mirror it verbatim.
-    skeetStat.textContent = vimStat.textContent;
-    skeetStat.className = vimStat.className;
+  if (vimStat) {
+    for (const otherId of ["skeet-qr-k-status", "egg-qr-k-status"]) {
+      const el = document.getElementById(otherId);
+      if (!el) continue;
+      el.textContent = vimStat.textContent;
+      el.className = vimStat.className;
+    }
   }
 }
 
@@ -7113,14 +7814,6 @@ function skeetDoSeal() {
   qrSetStatus("skeet-qr-seal-status",
     `sealed under nonce ${hexStr(skeetParsedNonce)} :: gamete pattern ${skeetPatternLabel(skeetPickedPattern)}: scan the QR with your badge`,
     "good");
-}
-
-function skeetClearSlot() {
-  skeetSlot = null;
-  skeetPickedPattern = null;
-  skeetParsedNonce = null;
-  skeetSealedBytes = null;
-  renderSkeetPanels();
 }
 
 function skeetPickGamete(pattern) {
@@ -7193,16 +7886,13 @@ function renderSkeetPanelA() {
   const labelEl = document.getElementById("skeet-slot-label");
   const infoEl  = document.getElementById("skeet-slot-info");
   const specWrap = document.getElementById("skeet-specimen-wrap");
-  const clearBtn = document.getElementById("skeet-btn-clear");
   if (!skeetSlot) {
     labelEl.textContent = "[ no organism loaded ]";
     infoEl.textContent = "[ send one from popsim / borg / vim gene ]";
     if (specWrap) specWrap.style.display = "none";
-    clearBtn.disabled = true;
     return;
   }
   if (specWrap) specWrap.style.display = "";
-  clearBtn.disabled = false;
   labelEl.textContent = skeetSlot.label || "[ loaded ]";
 
   // Same inspector-shaped table as popsim/borg/vim: locus | haplo0 | haplo1 | phenome.
@@ -7369,10 +8059,1253 @@ function renderSkeetPanelC() {
  * expects to exist, which is defined above). */
 
 /* ==========================================================================
- * BOOT
+ * MUTATION MODEL :: shared with eggstraction
+ *
+ * Every gamete produced by a real badge passes through mutate() before it's
+ * sealed - see dc34-vault/src/config.rs:341-342, and synthetic-population-
+ * genetics.md §5 for the exposition. Sender-side mutation is UNCONDITIONAL:
+ * regardless of who the receiver is, the sender always mutates. The
+ * `final_rate` defaults to Baseline (mutation_param decays back to Baseline
+ * whenever the badge sits still), so any gamete we observe over the QR is
+ * a Baseline sample of the sender's true diploid.
+ *
+ * Mutation is per-locus: each locus independently rolls with probability
+ * rate/256 (Baseline = 25%). If it rolls, the value is Gray-code XOR'd with
+ * a `bits`-wide run at a random 0..7 shift. Baseline => single Gray-bit flip
+ * => small ordinary-space step.
+ *
+ * We hardcode Baseline here. Elevated/Radioactive/Apocalyptic require the
+ * badge to be actively agitated (accelerometer, side-rocker); a badge held
+ * still for the QR scan decays back to Baseline before the exchange fires.
  * ========================================================================== */
+const EGG_MUT_RATE_VALUES = {None:0, Baseline:64, Elevated:100, Radioactive:140, Apocalyptic:240};
+const EGG_MUT_RATE_BITS   = {None:0, Baseline:0x01, Elevated:0x03, Radioactive:0x07, Apocalyptic:0x1F};
+const EGG_MUT_ASSUMED_RATE = "Baseline";   // sender's assumed final_rate for reconstruction
+
+const EGG_GRAY_ENCODE = new Uint8Array(256);
+const EGG_GRAY_DECODE = new Uint8Array(256);
+for (let i = 0; i < 256; i++) EGG_GRAY_ENCODE[i] = (i ^ (i >>> 1)) & 0xff;
+for (let i = 0; i < 256; i++) EGG_GRAY_DECODE[EGG_GRAY_ENCODE[i]] = i;
+
+// Per-locus mutation probability under the assumed rate. Baseline = 0.25.
+function eggMutPMutate(rateName) {
+  const val = EGG_MUT_RATE_VALUES[rateName] || 0;
+  return val / 256;
+}
+
+// All possible post-mutation values reachable from `orig` under one Baseline
+// pass, together with their probabilities. Under Baseline (bits=0x01) the
+// mutation XORs a single bit at a random shift 0..7 into the Gray code, so
+// there are 8 equally-likely mutated neighbors. Plus the no-mutation case
+// at prob 1-p where the value stays put. Returned as a Map<u8, prob>.
+// If rate is None, the map is {orig: 1}. Callers use this to reason about
+// how much probability mass a candidate true-value would produce at each
+// observed bin.
+function eggMutForwardDistribution(orig, rateName) {
+  const p = eggMutPMutate(rateName);
+  const bits = EGG_MUT_RATE_BITS[rateName] || 0;
+  const out = new Map();
+  const keep = 1 - p;
+  if (keep > 0) out.set(orig & 0xff, keep);
+  if (p <= 0 || bits === 0) return out;
+  // Enumerate the 8 possible shifts. Each contributes p/8 mass to its
+  // mutated destination. Multiple shifts may land at the same value; sum
+  // their masses.
+  const enc = EGG_GRAY_ENCODE[orig & 0xff];
+  const per = p / 8;
+  for (let shift = 0; shift < 8; shift++) {
+    const mask = (bits << shift) & 0xff;
+    const dst = EGG_GRAY_DECODE[(enc ^ mask) & 0xff];
+    out.set(dst, (out.get(dst) || 0) + per);
+  }
+  return out;
+}
+
+// The reverse: given an observed value `obs`, what is P(obs | true=v) for
+// each v? By symmetry of Gray-flip mutation, this is the same shape as the
+// forward distribution - if v could mutate to obs with mass m, then P(obs|v)=m.
+// Precomputed as a 256x256 table so callers can score candidate true-values
+// against a histogram cheaply. table[obs][v] = P(obs | true=v).
+const EGG_MUT_LIKELIHOOD_BASELINE = (() => {
+  const T = new Array(256);
+  for (let obs = 0; obs < 256; obs++) T[obs] = new Float64Array(256);
+  for (let v = 0; v < 256; v++) {
+    const fwd = eggMutForwardDistribution(v, "Baseline");
+    for (const [dst, prob] of fwd.entries()) T[dst][v] = prob;
+  }
+  return T;
+})();
+
+// Look up P(obs | true=v) under Baseline mutation. Zero for unreachable pairs.
+function eggMutLikelihood(obs, v) {
+  return EGG_MUT_LIKELIHOOD_BASELINE[obs & 0xff][v & 0xff];
+}
+
+/* ==========================================================================
+ * EGGSTRACTION :: physical-badge readout appliance
+ *
+ * We are the receiver in the two-QR gene-exchange protocol. We mint the
+ * phase-1 nonce, the badge (responder) meioses one gamete from its diploid
+ * and hands us back a phase-2 sealed QR. Each opened seal reveals nine bytes
+ * = five linkage-group values.
+ *
+ * NOTE: every observed gamete has been through mutate() at the sender's
+ * final_rate (defaults to Baseline). This means group-value tuples are NOT
+ * preserved verbatim across scans - reconstruction is per-locus statistical,
+ * not exact. See the MUTATION MODEL block above and plan-eggstraction.md.
+ * ========================================================================== */
+const EGG_GROUPS = [[0,1,2], [3], [4,5,6], [7], [8]];  // must match meiosis GROUPS
+const EGG_GROUP_LETTERS = ["A","B","C","D","E"];
+const EGG_GROUP_OF_LOCUS = (() => {
+  const out = new Array(N_LOCI);
+  for (let g = 0; g < EGG_GROUPS.length; g++) for (const li of EGG_GROUPS[g]) out[li] = g;
+  return out;
+})();
+const EGG_CELL_POSITION = (() => {
+  const out = new Array(N_LOCI);
+  for (let g = 0; g < EGG_GROUPS.length; g++) {
+    const m = EGG_GROUPS[g];
+    for (let i = 0; i < m.length; i++) {
+      const li = m[i];
+      if (m.length === 1) out[li] = "solo";
+      else if (i === 0)   out[li] = "first";
+      else if (i === m.length - 1) out[li] = "last";
+      else out[li] = "mid";
+    }
+  }
+  return out;
+})();
+const EGG_SHORT_NAMES = ["cdp","cdr","cdd","sat","hrd","hb","hbd","chs","nl"];
+
+// Per-badge state.
+//
+// `obs` is the append-only observation log (each entry is one opened seal).
+// `perLocusHist[li]` is a Uint32Array(256) counting how many scans landed
+// each raw value at locus li. This is the primary evidence store for the
+// mutation-aware modal reconstruction estimator - see eggstrEstimateLocus().
+// `groups[g].seen` is a legacy display aid for the observed-gametes row: it
+// tags each observation as "matches earlier tuple" / "new". Reconstruction
+// no longer depends on it and multiple tuples per group are fine.
+// `byte15Counts` tracks all byte-15 values seen (still used for the send-to-
+// vim type hint; the mixed-badge detector that used to gate on it is gone).
+// `nonces` is the outstanding-nonce pool: {bytes: Uint8Array(12), b45,
+// ts: Date, used: bool, seq: monotonic}.
+const eggstrState = {
+  label: "",
+  obs: [],
+  nonces: [],
+  nonceSeq: 0,
+  groups: EGG_GROUPS.map(loci => ({ loci, seen: [] })),
+  perLocusHist: Array.from({length: N_LOCI}, () => new Uint32Array(256)),
+  byte15Counts: new Map(),
+  histogram: new Int32Array(32),
+  lastLandedIdx: -1,
+  seenSeals: new Set(),
+  lastOpenFailed: false,
+};
+
+let eggstrInitialized = false;
+
+function eggstrReset() {
+  eggstrState.obs = [];
+  eggstrState.nonces = [];
+  eggstrState.nonceSeq = 0;
+  eggstrState.groups = EGG_GROUPS.map(loci => ({ loci, seen: [] }));
+  eggstrState.perLocusHist = Array.from({length: N_LOCI}, () => new Uint32Array(256));
+  eggstrState.byte15Counts = new Map();
+  eggstrState.histogram = new Int32Array(32);
+  eggstrState.lastLandedIdx = -1;
+  eggstrState.seenSeals = new Set();
+  eggstrState.lastOpenFailed = false;
+  renderEggstrAll();
+}
+
+// Compare a candidate tuple against the group's "seen" pool. Return the
+// index (0 or 1) if it matches, otherwise -1.
+function eggstrFindGroupValue(g, gam) {
+  const loci = EGG_GROUPS[g];
+  const seen = eggstrState.groups[g].seen;
+  for (let s = 0; s < seen.length; s++) {
+    const t = seen[s];
+    let eq = true;
+    for (let i = 0; i < loci.length; i++) if (t[i] !== gam[loci[i]]) { eq = false; break; }
+    if (eq) return s;
+  }
+  return -1;
+}
+
+function eggstrExtractGroupTuple(g, gam) {
+  const loci = EGG_GROUPS[g];
+  const t = new Uint8Array(loci.length);
+  for (let i = 0; i < loci.length; i++) t[i] = gam[loci[i]];
+  return t;
+}
+
+// Given the currently-known group pool, classify each of a candidate gamete's
+// five group-values as "h0" (matches first-seen), "h1" (matches second-seen),
+// or "new-<0|1>" (was not present; will be appended as slot k).
+function eggstrClassifyGamete(gam) {
+  const out = new Array(5);
+  for (let g = 0; g < 5; g++) {
+    const idx = eggstrFindGroupValue(g, gam);
+    out[g] = idx;   // -1 means new
+  }
+  return out;
+}
+
+// Return the coin pattern (5-bit int) implied by a gamete under the CURRENT
+// h0/h1 assignment. For groups where the value is new, the pattern is only
+// defined after we insert it - callers should record this AFTER appending.
+function eggstrCoinPattern(gam) {
+  let p = 0;
+  for (let g = 0; g < 5; g++) {
+    let idx = eggstrFindGroupValue(g, gam);
+    if (idx < 0) idx = 0;  // will become slot 0 (h0) on next insert
+    if (idx === 1) p |= (1 << g);
+  }
+  return p;
+}
+
+function eggstrPatternLabel(pattern) {
+  let s = "";
+  for (let b = 4; b >= 0; b--) s += ((pattern >> b) & 1).toString();
+  return s;
+}
+
+// P(all 5 groups covered by n draws), assuming every group is heterozygous
+// and each meiosis coin is fair. See plan §4.1.
+//   P = (1 - 2^(1-n))^5   for n >= 1
+// ---------- mutation-aware per-locus estimator ----------
+//
+// For each locus li, we have a histogram H over values 0..255 built from n
+// scans. Under the model, each scan draws one of the badge's two true values
+// (v0 or v1 - one per haplo) with prob 1/2 each, then Baseline-mutates with
+// prob 0.25 (single Gray-bit flip). So P(obs=b) = 0.5*L(b|v0) + 0.5*L(b|v1),
+// where L(b|v) is precomputed in EGG_MUT_LIKELIHOOD_BASELINE.
+//
+// Estimator: pick the (v0, v1) pair with highest log-likelihood of the
+// histogram. Confidence: normalized softmax gap between best and 2nd-best
+// pair.
+
+// Enumerate candidate values: any bin with count > 0, plus their gray-1
+// neighbors. Under Baseline mutation the true value is always in this set
+// (unless mutation swamps everything, in which case any pair looks equally
+// bad and confidence collapses).
+function eggstrLocusCandidates(li) {
+  const H = eggstrState.perLocusHist[li];
+  const set = new Set();
+  for (let v = 0; v < 256; v++) {
+    if (H[v] > 0) {
+      set.add(v);
+      // Gray-1 neighbors: XOR each of the 8 shifts against the Gray-encoded value.
+      const enc = EGG_GRAY_ENCODE[v];
+      for (let s = 0; s < 8; s++) set.add(EGG_GRAY_DECODE[(enc ^ (1 << s)) & 0xff]);
+    }
+  }
+  return [...set];
+}
+
+// Log-likelihood of the histogram under hypothesis {v0, v1}. Marginalizes
+// over the meiosis coin (uniform 50/50) and mutation.
+function eggstrLocusPairLL(li, v0, v1) {
+  const H = eggstrState.perLocusHist[li];
+  let ll = 0;
+  for (let b = 0; b < 256; b++) {
+    const c = H[b];
+    if (c === 0) continue;
+    const p = 0.5 * eggMutLikelihood(b, v0) + 0.5 * eggMutLikelihood(b, v1);
+    if (p <= 0) return -Infinity;
+    ll += c * Math.log(p);
+  }
+  return ll;
+}
+
+// Best (v0, v1) pair for locus li. Returns {v0, v1, ll, conf, nObs, homCandidate}.
+// Enumerates every candidate pair, computes log-likelihood, returns argmax
+// plus a proper full-softmax posterior over the candidate set. Full softmax
+// is more stable than the old top-2 gap when there are close competitors
+// (e.g. hom vs "v + gray-neighbor"), because it correctly damps a single
+// close 2nd instead of collapsing the confidence.
+function eggstrEstimateLocus(li) {
+  const H = eggstrState.perLocusHist[li];
+  let nObs = 0;
+  for (let v = 0; v < 256; v++) nObs += H[v];
+  if (nObs === 0) return {v0: -1, v1: -1, ll: -Infinity, conf: 0, nObs: 0, homCandidate: false};
+
+  const cands = eggstrLocusCandidates(li);
+  const pairs = [];   // {a, b, ll}
+  let bestLL = -Infinity;
+  let bestV0 = -1, bestV1 = -1;
+  for (let i = 0; i < cands.length; i++) {
+    const a = cands[i];
+    for (let j = i; j < cands.length; j++) {
+      const b = cands[j];
+      const ll = eggstrLocusPairLL(li, a, b);
+      pairs.push({a, b, ll});
+      if (ll > bestLL) { bestLL = ll; bestV0 = a; bestV1 = b; }
+    }
+  }
+  // Softmax posterior over all candidate pairs (uniform prior). Confidence
+  // is P(best hypothesis is true) = exp(bestLL - logsumexp).
+  let sumExp = 0;
+  for (const p of pairs) sumExp += Math.exp(p.ll - bestLL);
+  const conf = 1 / sumExp;   // = exp(bestLL - bestLL) / sumExp
+  return {v0: bestV0, v1: bestV1, ll: bestLL, conf, nObs, homCandidate: bestV0 === bestV1};
+}
+
+// Group phasing: after per-locus estimates, align the (v0, v1) labeling
+// within each linkage group so that within-group co-occurrence in the
+// observed gametes is CONSISTENT (all three loci in group A should agree
+// on "this scan was from parent 0" vs "this scan was from parent 1").
+// Under meiosis, all loci in a group inherit from the SAME parent per scan,
+// so if a scan matches est.v0 at locus 0 in group A, it should also match
+// est.v0 at loci 1 and 2 in group A most of the time (modulo mutation).
+// We fix the labeling at the group's first locus and vote-swap the rest.
+function eggstrPhaseGroups(est) {
+  for (let g = 0; g < 5; g++) {
+    const loci = EGG_GROUPS[g];
+    if (loci.length < 2) continue;
+    const anchor = loci[0];
+    const anchorE = est[anchor];
+    if (anchorE.nObs === 0 || anchorE.homCandidate) continue;
+    for (let i = 1; i < loci.length; i++) {
+      const li = loci[i];
+      const e = est[li];
+      if (e.nObs === 0 || e.homCandidate) continue;
+      if (e.v0 === e.v1) continue;
+      // Count co-occurrence: how often does a scan's value at (anchor, li)
+      // match (v0, v0) vs (v0, v1)? If (v0, v1) dominates, this locus's
+      // labels are backwards - swap.
+      let same = 0, cross = 0;
+      for (const o of eggstrState.obs) {
+        const a = o.gamete[anchor], b = o.gamete[li];
+        // Determine anchor side (0 = matches anchor.v0, 1 = matches v1).
+        let aSide = -1;
+        if (a === anchorE.v0) aSide = 0;
+        else if (a === anchorE.v1) aSide = 1;
+        else continue;
+        // Determine li side.
+        let bSide = -1;
+        if (b === e.v0) bSide = 0;
+        else if (b === e.v1) bSide = 1;
+        else continue;
+        if (aSide === bSide) same++;
+        else cross++;
+      }
+      if (cross > same) {
+        const tmp = e.v0; e.v0 = e.v1; e.v1 = tmp;
+      }
+    }
+  }
+}
+
+// Coverage estimator (mutation-aware). Returns {pDone, perGroup, locked, nDraws}.
+// - pDone = product of per-locus confidences over the 9 loci (chained AND).
+// - "locked" is the count of the 5 linkage groups whose loci ALL have conf
+//   above the threshold (default 0.85). Used only for the label ("K/5 groups locked").
+// - perGroup entries mirror the old shape so the renderers keep working.
+// Group tuple concordance: for multi-locus groups (A, C), count exact
+// tuples in the scan log. Under Baseline mutation, P(no mutation over k
+// loci) = 0.75^k, so ~42% of 3-locus scans arrive at their true unmutated
+// coin value. This means the true haplo tuples dominate the tuple histogram
+// and we can call hom/het at the group level with far more confidence than
+// per-locus scoring alone (which can't distinguish true-hom from
+// het-with-one-gray-neighbor).
+//
+// Returns {hom: bool, values: [{h0: [...], h1: [...], conf}], override: bool}
+// override=false means "not enough concordance signal, let the per-locus
+// estimator stand".
+function eggstrGroupTupleConsensus(g) {
+  const loci = EGG_GROUPS[g];
+  if (loci.length < 2) return {override: false};
+  const n = eggstrState.obs.length;
+  if (n < 4) return {override: false};   // too few scans
+  // Baseline per-scan clean-tuple probability = 0.75^k. Threshold for
+  // "dominant" = 0.35 * n (permissive vs the 0.42*n expected).
+  const HOM_MIN = 0.35 * n;
+  const HET_MIN = 0.20 * n;
+  const HOM_MAX_SECOND = 0.15 * n;
+
+  const counts = new Map();
+  for (const o of eggstrState.obs) {
+    let key = "";
+    for (const li of loci) key += o.gamete[li] + ",";
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  if (ranked.length === 0) return {override: false};
+  const [k1, c1] = ranked[0];
+  const [k2, c2] = ranked[1] || ["", 0];
+  const t1 = k1.split(",").slice(0, loci.length).map(Number);
+  const t2 = k2.split(",").slice(0, loci.length).map(Number);
+
+  // Case: strong-hom. One tuple dominates and no clear #2.
+  if (c1 >= HOM_MIN && c2 <= HOM_MAX_SECOND) {
+    const conf = Math.min(0.999, c1 / (0.42 * n));
+    return {override: true, hom: true, values: {h0: t1, h1: t1, conf}};
+  }
+  // Case: strong-het. Two tuples both dominate.
+  if (c1 >= HET_MIN && c2 >= HET_MIN) {
+    // Assign h0 = t1 (higher-count winner), h1 = t2. Confidence from the
+    // joint mass captured.
+    const conf = Math.min(0.999, (c1 + c2) / (0.42 * n));
+    return {override: true, hom: false, values: {h0: t1, h1: t2, conf}};
+  }
+  return {override: false};
+}
+
+// Estimate all 9 loci and phase within-linkage-group labels. Consumers that
+// need "the current best guess of the diploid" should call this instead of
+// per-locus eggstrEstimateLocus, so within-group h0/h1 assignments are
+// consistent. Multi-locus groups also get a tuple-concordance override that
+// uses within-scan co-occurrence to break gray-neighbor ties the per-locus
+// scorer can't (see eggstrGroupTupleConsensus).
+function eggstrEstimateAll() {
+  const est = new Array(N_LOCI);
+  for (let li = 0; li < N_LOCI; li++) est[li] = eggstrEstimateLocus(li);
+  eggstrPhaseGroups(est);
+  // Apply tuple-concordance override for multi-locus groups. Respect the
+  // phased-anchor ordering from eggstrPhaseGroups so subsequent renders
+  // don't see h0/h1 relabelling ping-pong between rounds.
+  for (let g = 0; g < 5; g++) {
+    const loci = EGG_GROUPS[g];
+    if (loci.length < 2) continue;
+    const consensus = eggstrGroupTupleConsensus(g);
+    if (!consensus.override) continue;
+    let h0 = consensus.values.h0, h1 = consensus.values.h1;
+    // Preserve the phased anchor's h0/h1 labeling. If the anchor's phased
+    // v0 matches h1[0] instead of h0[0], swap so downstream renders see a
+    // stable ordering across scans.
+    const anchorEst = est[loci[0]];
+    if (!consensus.hom && anchorEst.v0 !== -1) {
+      if (anchorEst.v0 === h1[0] && anchorEst.v0 !== h0[0]) {
+        const t = h0; h0 = h1; h1 = t;
+      }
+    }
+    for (let i = 0; i < loci.length; i++) {
+      const li = loci[i];
+      const prev = est[li];
+      est[li] = {
+        v0: h0[i],
+        v1: h1[i],
+        ll: prev.ll,
+        conf: Math.max(prev.conf, consensus.values.conf),
+        nObs: prev.nObs,
+        homCandidate: consensus.hom,
+      };
+    }
+  }
+  return est;
+}
+
+function eggstrCoverage() {
+  const LOCK_THRESH = 0.85;
+  const perLocus = eggstrEstimateAll();
+  let pDone = 1;
+  for (const e of perLocus) pDone *= Math.max(0.001, e.conf);
+
+  const perGroup = [];
+  let locked = 0;
+  for (let g = 0; g < 5; g++) {
+    const loci = EGG_GROUPS[g];
+    const confs = loci.map(li => perLocus[li].conf);
+    const groupConf = confs.reduce((a, b) => a * b, 1);
+    const anyEmpty = loci.some(li => perLocus[li].nObs === 0);
+    const allLocked = loci.every(li => perLocus[li].conf >= LOCK_THRESH);
+    if (allLocked) locked++;
+    let state, msg;
+    if (anyEmpty) { state = "empty"; msg = `${EGG_GROUP_LETTERS[g]}: no draws yet`; }
+    else if (allLocked) { state = "locked"; msg = `${EGG_GROUP_LETTERS[g]}: locked (per-locus conf > ${(LOCK_THRESH*100)|0}%)`; }
+    else { state = "partial"; msg = `${EGG_GROUP_LETTERS[g]}: partial (min-locus conf=${Math.min(...confs).toFixed(2)})`; }
+    perGroup.push({state, msg, pKnown: groupConf});
+  }
+  return {pDone, perGroup, locked, nDraws: eggstrState.obs.length, perLocus};
+}
+
+// Mint one 12-byte nonce, prepend the 16-byte DC34 header to form the phase-1
+// wire payload, base45-encode it. Records into the outstanding pool.
+function eggstrMintNonce() {
+  const nonce = new Uint8Array(12);
+  try { crypto.getRandomValues(nonce); }
+  catch (e) {
+    // Fallback - warn caller and use a seeded PRNG.
+    const rng = new Rng((Date.now() ^ eggstrState.nonceSeq) >>> 0);
+    for (let i = 0; i < 12; i++) nonce[i] = rng.u8();
+    qrSetStatus("egg-mint-status", "warning: crypto.getRandomValues unavailable; used seeded PRNG (nonce collision risk)", "warn");
+  }
+  // Guard: never mint the same nonce twice this session.
+  for (const n of eggstrState.nonces) {
+    let same = true;
+    for (let i = 0; i < 12; i++) if (n.bytes[i] !== nonce[i]) { same = false; break; }
+    if (same) return eggstrMintNonce();  // vanishingly rare, but re-roll
+  }
+  const wire = new Uint8Array(16 + 12);
+  wire.set(DC34_HEADER, 0);
+  wire.set(nonce, 16);
+  const b45 = b45encode(wire);
+  eggstrState.nonceSeq++;
+  const entry = {
+    bytes: nonce,
+    b45,
+    ts: new Date(),
+    used: false,
+    seq: eggstrState.nonceSeq,
+  };
+  eggstrState.nonces.push(entry);
+  return entry;
+}
+
+// Parse the pasted textarea into individual base45 lines. Empty lines ignored.
+function eggstrParseSealInputs(raw) {
+  return (raw || "")
+    .split(/\r?\n+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+}
+
+// Try opening `sealed` against the outstanding-nonce pool. Returns
+// { ok: true, pt, nonceEntry } on success or { ok: false, reason } otherwise.
+function eggstrTryOpenAgainstPool(sealed) {
+  if (!qrK) return { ok: false, reason: "k not loaded" };
+  if (sealed.length !== 32) return { ok: false, reason: `expected 32 sealed bytes, got ${sealed.length}` };
+  // Try unused first, then any nonce (some users manually clear-mark; be permissive).
+  const order = [
+    ...eggstrState.nonces.filter(n => !n.used),
+    ...eggstrState.nonces.filter(n =>  n.used),
+  ];
+  for (const n of order) {
+    try {
+      const pt = gcmSivOpen(qrK, n.bytes, sealed);
+      return { ok: true, pt, nonceEntry: n };
+    } catch (_e) { /* try next */ }
+  }
+  return { ok: false, reason: "no outstanding nonce opened this seal (wrong k, wrong badge, or all nonces exhausted)" };
+}
+
+function eggstrRecordGamete(pt, nonceEntry) {
+  const gam = new Uint8Array(pt.subarray(0, 9));
+  const b15 = pt[15];
+
+  // Every gamete is a valid observation under the mutation-aware model. We
+  // don't reject anything as "mixed-badge" -- each locus is per-locus
+  // Baseline-mutated at ~25%, so novel values are expected. Just log the
+  // observation and let the reconstruction estimator sort it out.
+  const pattern = eggstrCoinPattern(gam);
+
+  // Note: eggstrCoinPattern still uses the legacy seen-tuple bookkeeping to
+  // classify. It's a best-effort tag for the observed-gametes row display;
+  // reconstruction no longer depends on it. We still append newly-seen tuples
+  // for the display, but multiple entries per group are now allowed.
+  const noveltyPerGroup = new Array(5);
+  for (let g = 0; g < 5; g++) {
+    const idx = eggstrFindGroupValue(g, gam);
+    if (idx < 0) {
+      eggstrState.groups[g].seen.push(eggstrExtractGroupTuple(g, gam));
+      noveltyPerGroup[g] = "new";
+    } else {
+      noveltyPerGroup[g] = idx === 0 ? "h0" : "h1";
+    }
+  }
+
+  const anyNew = noveltyPerGroup.includes("new");
+  eggstrState.obs.push({
+    gamete: gam,
+    b15,
+    ts: new Date(),
+    nonceSeq: nonceEntry.seq,
+    pattern,
+    stamp: anyNew ? "new coverage" : "redundant",
+  });
+  eggstrState.lastLandedIdx = eggstrState.obs.length - 1;
+  eggstrState.histogram[pattern & 31]++;
+  eggstrState.byte15Counts.set(b15, (eggstrState.byte15Counts.get(b15) || 0) + 1);
+
+  // Populate per-locus histograms - primary evidence for modal estimator.
+  for (let li = 0; li < N_LOCI; li++) eggstrState.perLocusHist[li][gam[li]]++;
+
+  nonceEntry.used = true;
+  return { ok: true, gam, b15, pattern, noveltyPerGroup };
+}
+
+// One-shot "open the whole pasted textarea" flow. Tries each pasted seal in
+// turn; each opens against any outstanding nonce (order-insensitive fallback).
+// A seal we've already recorded once (same base45 blob) is skipped as a
+// duplicate rather than double-counted.
+function eggstrDoOpen() {
+  if (!qrK) { qrSetStatus("egg-open-status", "load k first", "bad"); return; }
+  const raw = document.getElementById("egg-seal-input").value;
+  const lines = eggstrParseSealInputs(raw);
+  if (lines.length === 0) { qrSetStatus("egg-open-status", "paste at least one base45 seal", "bad"); return; }
+  if (eggstrState.nonces.filter(n => !n.used).length === 0 &&
+      eggstrState.nonces.length === 0) {
+    qrSetStatus("egg-open-status", "mint at least one nonce first", "bad"); return;
+  }
+  const results = [];
+  for (const line of lines) {
+    const norm = line.replace(/\s+/g, "");
+    if (eggstrState.seenSeals.has(norm)) {
+      results.push({ line, ok: false, reason: "duplicate seal (already recorded this exact base45 blob)" });
+      continue;
+    }
+    let sealed;
+    try { sealed = b45decode(line); }
+    catch (e) { results.push({ line, ok: false, reason: `base45 decode failed: ${e.message}` }); continue; }
+    const opened = eggstrTryOpenAgainstPool(sealed);
+    if (!opened.ok) { results.push({ line, ok: false, reason: opened.reason }); continue; }
+    const rec = eggstrRecordGamete(opened.pt, opened.nonceEntry);
+    if (!rec.ok) { results.push({ line, ok: false, reason: rec.reason }); continue; }
+    eggstrState.seenSeals.add(norm);
+    results.push({ line, ok: true, gam: rec.gam, b15: rec.b15, pattern: rec.pattern, noveltyPerGroup: rec.noveltyPerGroup });
+  }
+  const okCount = results.filter(r => r.ok).length;
+  const badCount = results.length - okCount;
+  const cov = eggstrCoverage();
+  let status = `recorded ${okCount}/${results.length} :: ${cov.locked}/5 linkage groups locked :: P(diploid known)=${cov.pDone.toFixed(3)}`;
+  if (badCount) status += `\n${badCount} failed:\n` + results.filter(r => !r.ok).map(r => `  - ${r.reason}`).join("\n");
+  qrSetStatus("egg-open-status", status, badCount ? (okCount ? "warn" : "bad") : "good");
+  if (okCount) document.getElementById("egg-seal-input").value = "";
+  // Mark whether we ended in an error state - the mint-next-nonce button
+  // reads this to know whether to discard the current unused nonce (the one
+  // that just failed) before minting a fresh one, so pressing MINT after an
+  // error rolls the QR instead of stacking two outstanding nonces.
+  eggstrState.lastOpenFailed = badCount > 0 && okCount === 0;
+  // Render last-preview from the most recent successful record.
+  const lastOk = [...results].reverse().find(r => r.ok);
+  if (lastOk) eggstrRenderLastPreview(lastOk);
+  renderEggstrAll();
+}
+
+function eggstrRenderLastPreview(rec) {
+  const el = document.getElementById("egg-last-preview");
+  const parts = [`<span class="k">last opened :: pattern </span><span class="val">${eggstrPatternLabel(rec.pattern)}</span> <span class="k">byte 15</span> = <span class="val">${rec.b15} (${BADGE_TYPES[rec.b15] || "?"})</span>`];
+  parts.push(`<br>`);
+  for (let g = 0; g < 5; g++) {
+    const loci = EGG_GROUPS[g];
+    const vals = loci.map(li => rec.gam[li]).join(",");
+    const nov = rec.noveltyPerGroup[g];
+    let tint;
+    if (nov === "new") tint = `<span class="val">${vals}</span>`;
+    else               tint = `<span class="dim">${vals}</span>`;
+    parts.push(`&nbsp;<span class="k">${EGG_GROUP_LETTERS[g]}=</span>${tint}${nov === "new" ? " <span style='color:var(--warn)'>[NEW]</span>" : " <span style='color:var(--fg-dim)'>[rpt]</span>"}`);
+  }
+  el.innerHTML = parts.join("");
+}
+
+// ---------- rendering ----------
+
+function ensureEggstrInitialized() {
+  if (eggstrInitialized) return;
+  eggstrInitialized = true;
+
+  // k slot: seed from the same localStorage key vim/skeet use.
+  const stored = localStorage.getItem("badge-genetics-sim.k");
+  const initial = stored || DEFAULT_K0;
+  document.getElementById("egg-qr-k").value = initial;
+  if (qrK) {
+    eggstrMirrorKStatus();
+  } else {
+    qrTryLoadK(initial, true);
+    eggstrMirrorKStatus();
+  }
+
+  document.getElementById("egg-qr-k-save").addEventListener("click", () => {
+    const raw = document.getElementById("egg-qr-k").value;
+    document.getElementById("qr-k").value = raw;
+    qrTryLoadK(raw, false);
+    eggstrMirrorKStatus();
+  });
+  document.getElementById("egg-qr-k-reset").addEventListener("click", () => {
+    document.getElementById("egg-qr-k").value = DEFAULT_K0;
+    document.getElementById("qr-k").value = DEFAULT_K0;
+    qrTryLoadK(DEFAULT_K0, false);
+    eggstrMirrorKStatus();
+  });
+
+  const mintHandler = () => {
+    // If the last open attempt failed, the current unused nonce is the one
+    // the user tried to scan. Discard it and clear the error so pressing
+    // mint after an error rolls the QR in place instead of stacking a
+    // second outstanding nonce on top.
+    if (eggstrState.lastOpenFailed) {
+      eggstrState.nonces = eggstrState.nonces.filter(n => n.used);
+      eggstrState.lastOpenFailed = false;
+      qrSetStatus("egg-open-status", "[ prior failed nonce discarded ]", "");
+      document.getElementById("egg-seal-input").value = "";
+      const lp = document.getElementById("egg-last-preview");
+      if (lp) lp.innerHTML = "";
+    }
+    const e = eggstrMintNonce();
+    qrSetStatus("egg-mint-status", `minted nonce #${e.seq} :: ${hexStr(e.bytes)}: scan the QR with your badge, then paste the returned seal below`, "good");
+    eggstrRenderNoncePool();
+    eggstrRenderCoverageInline();
+  };
+  document.getElementById("egg-btn-mint-one").addEventListener("click", mintHandler);
+  document.getElementById("egg-btn-mint-next").addEventListener("click", mintHandler);
+
+  document.getElementById("egg-btn-open").addEventListener("click", eggstrDoOpen);
+
+  document.getElementById("egg-btn-reset").addEventListener("click", () => {
+    if (eggstrState.obs.length && !confirm("reset the accumulator? this clears all observed gametes for this badge.")) return;
+    eggstrReset();
+  });
+
+  document.getElementById("egg-label-input").addEventListener("input", (ev) => {
+    eggstrState.label = ev.target.value;
+    eggstrRenderPanelA();
+  });
+
+  document.getElementById("egg-btn-send-to-vim").addEventListener("click", eggstrSendToVim);
+
+  // Export / import (JSON round-trip so a physical scan can be paused + resumed).
+  const ioText = document.getElementById("egg-io-text");
+  document.getElementById("egg-btn-export").addEventListener("click", () => {
+    const blob = eggstrBuildExport();
+    const text = JSON.stringify(blob, null, 2);
+    ioText.value = text;
+    qrSetStatus("egg-io-status", `exported: ${blob.obs.length} obs, ${blob.nonces.length} nonces, ${text.length} chars (copy the JSON below and stash it)`, "good");
+    ioText.focus();
+    try { ioText.select(); } catch (_e) { /* ignore */ }
+  });
+  document.getElementById("egg-btn-io-copy").addEventListener("click", async () => {
+    if (!ioText.value) { qrSetStatus("egg-io-status", "nothing to copy - press export first", "bad"); return; }
+    try {
+      await navigator.clipboard.writeText(ioText.value);
+      qrSetStatus("egg-io-status", `copied ${ioText.value.length} chars to clipboard`, "good");
+    } catch (e) {
+      // Clipboard API can be blocked (insecure origin, no user gesture on some browsers) - fall back to select.
+      try { ioText.select(); document.execCommand && document.execCommand("copy"); qrSetStatus("egg-io-status", "clipboard API blocked; selected text - copy manually (cmd/ctrl+c)", "warn"); }
+      catch (_e2) { qrSetStatus("egg-io-status", `clipboard failed: ${e.message}`, "bad"); }
+    }
+  });
+  document.getElementById("egg-btn-import").addEventListener("click", () => {
+    qrSetStatus("egg-io-status", "paste an eggstraction export JSON, then press \"load import\"", "");
+    ioText.focus();
+  });
+  document.getElementById("egg-btn-io-load").addEventListener("click", () => {
+    const raw = (ioText.value || "").trim();
+    if (!raw) { qrSetStatus("egg-io-status", "paste some JSON first", "bad"); return; }
+    let obj;
+    try { obj = JSON.parse(raw); }
+    catch (e) { qrSetStatus("egg-io-status", `JSON parse failed: ${e.message}`, "bad"); return; }
+    // Only prompt if the current accumulator has data that would be lost.
+    if (eggstrState.obs.length > 0 && !confirm(`this will replace the current accumulator (${eggstrState.obs.length} obs). continue?`)) return;
+    const res = eggstrLoadImport(obj);
+    qrSetStatus("egg-io-status", res.msg, res.ok ? "good" : "bad");
+  });
+
+  // Build static header rows for the accumulator grid.
+  eggstrBuildGrouphead();
+  eggstrBuildLocushead();
+  eggstrBuildHistogram();
+}
+
+function eggstrMirrorKStatus() {
+  const vimStat = document.getElementById("qr-k-status");
+  const eggStat = document.getElementById("egg-qr-k-status");
+  if (vimStat && eggStat) {
+    eggStat.textContent = vimStat.textContent;
+    eggStat.className = vimStat.className;
+  }
+}
+
+function eggstrBuildGrouphead() {
+  const gHead = document.getElementById("egg-gam-grouphead");
+  const parts = ['<div class="gh-spacer"></div>'];
+  for (let g = 0; g < EGG_GROUPS.length; g++) {
+    const span = EGG_GROUPS[g].length;
+    parts.push(`<div class="gh" style="grid-column: span ${span};">window ${EGG_GROUP_LETTERS[g]}</div>`);
+    if (g < EGG_GROUPS.length - 1) parts.push('<div class="gh-spacer"></div>');
+  }
+  parts.push('<div class="gh-spacer"></div>');
+  gHead.innerHTML = parts.join("");
+}
+
+function eggstrBuildLocushead() {
+  const head = document.getElementById("egg-gam-head");
+  const parts = ['<div class="h pat">obs</div>'];
+  for (let g = 0; g < EGG_GROUPS.length; g++) {
+    for (const li of EGG_GROUPS[g]) parts.push(`<div class="h">${EGG_SHORT_NAMES[li]}</div>`);
+    if (g < EGG_GROUPS.length - 1) parts.push('<div class="h" style="border-bottom:none;"></div>');
+  }
+  parts.push('<div class="h pick">stamp</div>');
+  head.innerHTML = parts.join("");
+}
+
+// Format an observation index (1-based) as a 7-bit binary label. Sized for
+// up to 128 scans - if we ever go beyond that, the label still renders
+// correctly, just wider than the header expects.
+function eggstrObsLabel(idx1) {
+  return (idx1 & 0x7f).toString(2).padStart(7, "0");
+}
+
+function eggstrBuildHistogram() {
+  const el = document.getElementById("egg-histogram");
+  const parts = [];
+  for (let p = 0; p < 32; p++) {
+    parts.push(`<div class="bin" data-p="${p}" title="pattern ${eggstrPatternLabel(p)}"><div class="fill" style="height:0%"></div></div>`);
+  }
+  el.innerHTML = parts.join("");
+}
+
+function renderEggstrAll() {
+  if (!eggstrInitialized) return;
+  eggstrRenderPanelA();
+  eggstrRenderReconInfo();
+  eggstrRenderGameteRows();
+  eggstrRenderCoverageLine();
+  eggstrRenderCoverageInline();
+  eggstrRenderNoncePool();
+  eggstrRenderHistogram();
+  eggstrUpdateSendToVimEnabled();
+}
+
+// Compact status shown right in the phase-1 QR panel body so the user sees
+// live progress without ever scrolling. Text only, no flash/highlight.
+function eggstrRenderCoverageInline() {
+  const el = document.getElementById("egg-coverage-inline");
+  if (!el) return;
+  const cov = eggstrCoverage();
+  const n = eggstrState.obs.length;
+  const outstanding = eggstrState.nonces.filter(x => !x.used).length;
+  const done = cov.locked === 5;
+  const line =
+    `<span class="k">scans</span> <span class="val">${n}</span>` +
+    `   <span class="k">linkage groups locked</span> <span class="val">${cov.locked}/5</span>` +
+    `   <span class="k">P(diploid known)</span> <span class="val">${cov.pDone.toFixed(3)}</span>` +
+    `   <span class="k">unused nonces</span> <span class="val">${outstanding}</span>` +
+    (done ? `   <span class="pheno">RECONSTRUCTION COMPLETE</span>` : "");
+  el.innerHTML = line;
+
+  // Exactly one mint button is ever visible: the top phase-1 button before any
+  // scan has been recorded, the big bottom phase-2 button after that.
+  const scanned = eggstrState.obs.length > 0;
+  const topBtn = document.getElementById("egg-btn-mint-one");
+  const btmRow = document.getElementById("egg-next-nonce-row");
+  if (topBtn) topBtn.style.display = scanned ? "none" : "";
+  if (btmRow) btmRow.style.display = scanned ? "" : "none";
+}
+
+function eggstrRenderPanelA() {
+  const labelEl = document.getElementById("egg-slot-label");
+  const infoEl  = document.getElementById("egg-slot-info");
+  const n = eggstrState.obs.length;
+  if (n === 0) {
+    labelEl.textContent = eggstrState.label ? `[ ${eggstrState.label} :: no exchanges yet ]` : "[ no exchanges recorded yet ]";
+    infoEl.innerHTML = `<span class="dim">[ mint a nonce below, scan into badge, paste the returned QR ]</span>`;
+    return;
+  }
+  const cov = eggstrCoverage();
+  // Byte-15 breakdown.
+  const b15Parts = [];
+  for (const [b, c] of eggstrState.byte15Counts.entries()) {
+    b15Parts.push(`${b} (${BADGE_TYPES[b] || "?"}): ${c}`);
+  }
+  const lbl = eggstrState.label ? `${eggstrState.label}` : "unlabelled badge";
+  labelEl.textContent = `[ ${lbl} :: n=${n} exchanges :: ${cov.locked}/5 linkage groups locked ]`;
+  const perGroupLines = cov.perGroup.map(p => `  ${p.msg}`).join("\n");
+  infoEl.innerHTML =
+    `<span class="k">badge label          </span><span class="val">${eggstrState.label || "(none)"}</span>\n` +
+    `<span class="k">byte 15 seen         </span><span class="val">${b15Parts.join(", ")}</span>\n` +
+    `<span class="k">exchanges            </span><span class="val">${n}</span>\n` +
+    `<span class="k">linkage groups locked</span><span class="val"> ${cov.locked} / 5</span>\n` +
+    `<span class="k">P(diploid known)     </span><span class="val">${cov.pDone.toFixed(4)}</span>\n` +
+    `<span class="k">per-group:</span>\n${perGroupLines}`;
+}
+
+// Reconstructed-diploid specimen inspector - mutation-aware. Rendered as an
+// actual HTML table so the columns actually line up (previous mono/pre-based
+// attempt drifted because CSS-width tiles didn't match text-column widths).
+// Per-locus modal estimator (eggstrEstimateLocus) produces {v0, v1, conf};
+// tiles glow gold at solid > LOCK_CONF, translucent gold for lower confidence
+// but still-showable, dashed [??] for below-threshold or no-data loci.
+function eggstrRenderReconInfo() {
+  const el = document.getElementById("egg-recon-info");
+  // Rescue the persistent send-to-vim button before we clobber innerHTML.
+  // Between renders the button lives inside the recon-info slot; if we let
+  // el.innerHTML wipe run with the button still in there, it gets destroyed
+  // along with the old slot and its click handler is gone forever. Park it
+  // on the panel (el's parent) until we've rebuilt the HTML, then the
+  // appendChild-into-slot at the bottom of this function moves it back.
+  const persistBtn = document.getElementById("egg-btn-send-to-vim");
+  if (persistBtn && el.contains(persistBtn) && el.parentNode) {
+    el.parentNode.appendChild(persistBtn);
+  }
+  const locusNames = VIM_LOCUS_NAMES;
+
+  const LOCK_CONF = 0.85;
+  const SHOW_CONF = 0.20;
+
+  const est = eggstrEstimateAll();
+
+  const dip = new Uint8Array(2 * N_LOCI);
+  for (let li = 0; li < N_LOCI; li++) {
+    dip[li]          = est[li].v0 >= 0 ? est[li].v0 : 0;
+    dip[N_LOCI + li] = est[li].v1 >= 0 ? est[li].v1 : 0;
+  }
+  const pheno = new Uint8Array(N_LOCI);
+  const mode = (typeof currentVimNonlinMode === "function") ? currentVimNonlinMode() : "shipped";
+  phenotype(dip, 0, pheno, 0, mode);
+
+  const tile = (val, conf, title) => {
+    const cls = conf >= LOCK_CONF ? "gold" : "gold prov";
+    return `<span class="${cls}" title="${title}">${val}</span>`;
+  };
+  const blank = (title) => `<span class="blank" title="${title}">??</span>`;
+
+  const rowsHtml = locusNames.map((n, li) => {
+    const e = est[li];
+    const title = `n=${e.nObs} scans :: conf=${(e.conf*100).toFixed(1)}% :: ${e.homCandidate ? "estimator says HOMOZYGOUS (only one value seen; second value would just be noise)" : "heterozygous"}`;
+    const showable = e.nObs > 0 && e.conf >= SHOW_CONF;
+    let tilesTd;
+    if (showable && e.homCandidate) {
+      // True hom: one wide tile spanning both haplo columns, labeled "hom".
+      const cls = e.conf >= LOCK_CONF ? "gold hom" : "gold prov hom";
+      tilesTd = `<td colspan="2" class="tile-cell"><span class="${cls}" title="${title}">${e.v0}<span class="hom-tag">hom</span></span></td>`;
+    } else if (showable) {
+      tilesTd = `<td class="tile-cell">${tile(e.v0, e.conf, title)}</td>` +
+                `<td class="tile-cell">${tile(e.v1, e.conf, title)}</td>`;
+    } else {
+      tilesTd = `<td class="tile-cell">${blank(title)}</td>` +
+                `<td class="tile-cell">${blank(title)}</td>`;
+    }
+    const confPct = e.nObs === 0 ? "-" : (e.conf * 100).toFixed(0) + "%";
+    const confCls = e.nObs > 0 && e.conf >= LOCK_CONF ? "pheno" : "pheno-blank";
+    const phenoTxt = showable ? String(pheno[li]) : "??";
+    const phenoCls = showable ? "pheno" : "pheno-blank";
+    return (
+      `<tr>` +
+        `<td class="locus">${n}</td>` +
+        tilesTd +
+        `<td class="${confCls} num">${confPct}</td>` +
+        `<td class="${phenoCls} num">${phenoTxt}</td>` +
+      `</tr>`
+    );
+  }).join("");
+
+  const cov = eggstrCoverage();
+  const summary =
+    `<div class="egg-recon-summary">` +
+      `<span class="k">exchanges</span> <span class="pheno">${eggstrState.obs.length}</span>` +
+      `<span class="sep">::</span>` +
+      `<span class="k">linkage groups locked</span> <span class="pheno">${cov.locked}/5</span>` +
+      `<span class="sep">::</span>` +
+      `<span class="k">P(diploid known)</span> <span class="pheno">${cov.pDone.toFixed(3)}</span>` +
+    `</div>`;
+  // Button placeholder: we render an empty container immediately under the
+  // summary line, then move the actual <button id="egg-btn-send-to-vim">
+  // element into it (see below). Moving preserves the existing click
+  // handler, disabled state, and label, so eggstrUpdateSendToVimEnabled
+  // keeps working without special-casing.
+  const sendRow = `<div id="egg-send-row-slot"></div>`;
+
+  el.innerHTML =
+    summary +
+    sendRow +
+    `<table class="egg-recon-table">` +
+      `<thead>` +
+        `<tr>` +
+          `<th></th>` +
+          `<th colspan="2" class="group-hdr">diploid genome (reconstructed)</th>` +
+          `<th rowspan="2" class="col-hdr num">conf</th>` +
+          `<th rowspan="2" class="col-hdr num">phenome</th>` +
+        `</tr>` +
+        `<tr>` +
+          `<th></th>` +
+          `<th class="col-hdr tile-hdr">haplo0</th>` +
+          `<th class="col-hdr tile-hdr">haplo1</th>` +
+        `</tr>` +
+      `</thead>` +
+      `<tbody>${rowsHtml}</tbody>` +
+    `</table>`;
+
+  // Move the persistent send-to-vim button into the slot between the
+  // summary row and the table. appendChild preserves listeners + disabled
+  // state so this is safe on every re-render.
+  const slot = document.getElementById("egg-send-row-slot");
+  const btn = document.getElementById("egg-btn-send-to-vim");
+  if (slot && btn && btn.parentNode !== slot) slot.appendChild(btn);
+}
+
+function eggstrRenderGameteRows() {
+  const rowsEl = document.getElementById("egg-gam-rows");
+  if (eggstrState.obs.length === 0) {
+    rowsEl.innerHTML = `<div style="grid-column: 1 / -1; padding: 0.6rem; color: var(--fg-dim); font-size:0.7rem;">[ no gametes observed yet ]</div>`;
+    return;
+  }
+  // Per-cell classification uses the mutation-aware per-locus estimator, but
+  // only paints h0/h1 backgrounds when the estimator is fully confident (>=
+  // LOCK_CONF). At lower confidence, cells are left uncolored (no dark blue
+  // or teal) - because we don't yet know which value is h0 vs h1.
+  const LOCK_CONF = 0.85;
+  const est = eggstrEstimateAll();
+
+  const parts = [];
+  for (let r = 0; r < eggstrState.obs.length; r++) {
+    const o = eggstrState.obs[r];
+    const landed = r === eggstrState.lastLandedIdx;
+    parts.push(`<div class="egg-gam-row${landed ? " landed" : ""}">`);
+    parts.push(`<div class="pat">${eggstrObsLabel(r + 1)}</div>`);
+    for (let g = 0; g < 5; g++) {
+      const loci = EGG_GROUPS[g];
+      for (let i = 0; i < loci.length; i++) {
+        const li = loci[i];
+        const v = o.gamete[li];
+        const e = est[li];
+        let cls = "";   // default: no color (matches values not confidently
+                        // matched, or an estimate we don't trust yet)
+        if (e.nObs > 0 && e.conf >= LOCK_CONF) {
+          if (e.homCandidate) {
+            // Hom locus: both parents contribute the same value, so h0/h1
+            // labels don't apply. Paint any cell matching the hom value
+            // with a teal->navy gradient - distinct from the flat h0/h1
+            // fills used for het loci, so hom rows still visually stand
+            // out from mutations without lying about which parent they came from.
+            if (v === e.v0) cls = "hom";
+          } else {
+            if      (v === e.v0) cls = "h0";
+            else if (v === e.v1) cls = "h1";
+          }
+        }
+        const pos = EGG_CELL_POSITION[li];
+        let posCls = "";
+        if (pos === "first") posCls = " g-first";
+        else if (pos === "last") posCls = " g-last";
+        else if (pos === "solo") posCls = " g-first g-last";
+        parts.push(`<div class="cell ${cls}${posCls}">${v}</div>`);
+      }
+      if (g < 4) parts.push(`<div class="cell-spacer"></div>`);
+    }
+    const stampCls = "stamp" + (o.stamp === "new coverage" ? " new" : "");
+    const stampTxt = o.stamp === "new coverage" ? "new" : "rpt";
+    parts.push(`<div class="${stampCls}">${stampTxt}</div>`);
+    parts.push(`</div>`);
+  }
+  rowsEl.innerHTML = parts.join("");
+  // Clear the "landed" marker after a short beat so it only glows briefly.
+  if (eggstrState.lastLandedIdx >= 0) {
+    const wasIdx = eggstrState.lastLandedIdx;
+    setTimeout(() => {
+      if (eggstrState.lastLandedIdx === wasIdx) {
+        eggstrState.lastLandedIdx = -1;
+        // Only repaint if the tab is still active (cheap otherwise).
+        if (document.getElementById("tab-eggstraction").classList.contains("active")) {
+          eggstrRenderGameteRows();
+        }
+      }
+    }, 900);
+  }
+}
+
+function eggstrRenderCoverageLine() {
+  const el = document.getElementById("egg-coverage-line");
+  const cov = eggstrCoverage();
+  const n = eggstrState.obs.length;
+  let cls = "";
+  if (cov.pDone >= 0.99) cls = "good";
+  el.className = "mono " + cls;
+  const perGroup = cov.perGroup.map(p => p.msg).join(" | ");
+  el.textContent = `[ ${n} exchange${n === 1 ? "" : "s"} :: ${cov.locked}/5 linkage groups locked :: P(diploid known) ≈ ${cov.pDone.toFixed(4)} ]\n${perGroup}`;
+}
+
+function eggstrRenderNoncePool() {
+  const el = document.getElementById("egg-nonce-list");
+  if (eggstrState.nonces.length === 0) { el.innerHTML = ""; return; }
+  const parts = [];
+  for (const n of eggstrState.nonces) {
+    parts.push(`<div class="egg-nonce-item${n.used ? " used" : ""}">`);
+    parts.push(`<div class="idx">#${n.seq}</div>`);
+    parts.push(`<div class="qr-canvas-wrap" style="background:#fff; padding:3px;"><div class="qr-canvas" data-nonce-seq="${n.seq}"></div></div>`);
+    parts.push(`<div class="meta">nonce=${hexStr(n.bytes)}<br>b45=${n.b45}<br>${n.used ? "USED" : "outstanding"}</div>`);
+    parts.push(`</div>`);
+  }
+  el.innerHTML = parts.join("");
+  // Render QRs into each canvas div (must happen after HTML is in DOM).
+  for (const n of eggstrState.nonces) {
+    const c = el.querySelector(`.qr-canvas[data-nonce-seq="${n.seq}"]`);
+    if (c) {
+      try { qrRender(c, n.b45); }
+      catch (e) { c.textContent = "QR render failed: " + e.message; }
+    }
+  }
+}
+
+function eggstrRenderHistogram() {
+  const el = document.getElementById("egg-histogram");
+  let maxCount = 0;
+  for (let p = 0; p < 32; p++) if (eggstrState.histogram[p] > maxCount) maxCount = eggstrState.histogram[p];
+  const bins = el.querySelectorAll(".bin");
+  for (let p = 0; p < 32; p++) {
+    const bin = bins[p]; if (!bin) continue;
+    const fill = bin.querySelector(".fill");
+    const c = eggstrState.histogram[p];
+    const h = maxCount > 0 ? Math.round(100 * c / maxCount) : 0;
+    if (fill) fill.style.height = h + "%";
+    bin.title = `pattern ${eggstrPatternLabel(p)} :: ${c} obs`;
+  }
+}
+
+function eggstrUpdateSendToVimEnabled() {
+  const btn = document.getElementById("egg-btn-send-to-vim");
+  // Enable once at least one group has any evidence at all - the user can
+  // always send an incomplete reconstruction with unknown slots defaulted to 0.
+  btn.disabled = eggstrState.obs.length === 0;
+}
+
+// Send the reconstructed diploid to vim gene using the mutation-aware
+// per-locus estimator. Loci with no evidence default to 0; low-confidence
+// estimates are still sent but flagged in the status.
+function eggstrSendToVim() {
+  const LOW_CONF = 0.85;
+  const h0 = new Uint8Array(N_LOCI);
+  const h1 = new Uint8Array(N_LOCI);
+  const unknownLoci = [];
+  const lowConfLoci = [];
+  const homLoci = [];
+  const estAll = eggstrEstimateAll();
+  for (let li = 0; li < N_LOCI; li++) {
+    const e = estAll[li];
+    if (e.nObs === 0 || e.v0 < 0) {
+      unknownLoci.push(VIM_LOCUS_NAMES[li]);
+      h0[li] = 0; h1[li] = 0;
+    } else {
+      h0[li] = e.v0; h1[li] = e.v1;
+      if (e.conf < LOW_CONF) lowConfLoci.push(`${VIM_LOCUS_NAMES[li]}(${(e.conf*100).toFixed(0)}%)`);
+      if (e.homCandidate) homLoci.push(VIM_LOCUS_NAMES[li]);
+    }
+  }
+  // Vim gene lazy-initializes on first activation and would clobber our
+  // writes. Prime it first so ensureVimGeneInitialized is a no-op later.
+  if (typeof ensureVimGeneInitialized === "function") ensureVimGeneInitialized();
+  for (let li = 0; li < N_LOCI; li++) {
+    const name = VIM_LOCUS_NAMES[li];
+    vimGene.haplo0[name] = h0[li];
+    vimGene.haplo1[name] = h1[li];
+  }
+  // Most-common byte-15 as the badge type hint.
+  let bestB15 = -1, bestC = -1;
+  for (const [b, c] of eggstrState.byte15Counts.entries()) if (c > bestC) { bestC = c; bestB15 = b; }
+  if (bestB15 >= 0) vimGeneType = BADGE_TYPES[bestB15] || vimGeneType;
+  if (typeof refreshAllGeneControls === "function") refreshAllGeneControls();
+  activateTab("vim-gene");
+  scrollToTop();
+  let note = "sent reconstructed diploid to vim gene";
+  if (lowConfLoci.length) note += ` :: low-confidence loci: ${lowConfLoci.join(", ")}`;
+  if (homLoci.length)     note += ` :: appears homozygous at ${homLoci.join(", ")}`;
+  if (unknownLoci.length) note += ` :: no data (zero-filled): ${unknownLoci.join(", ")}`;
+  const kind = (unknownLoci.length || lowConfLoci.length) ? "warn" : "good";
+  qrSetStatus("egg-open-status", note, kind);
+}
+
+// ---------- export / import ----------
+// Snapshot the current accumulator as a plain JSON object. Groups.seen,
+// perLocusHist, byte15Counts, histogram, and lastLandedIdx are all derived
+// from `obs`, so we do not serialise them - rehydration replays obs through
+// eggstrRecordGamete and rebuilds them exactly.
+function eggstrBuildExport() {
+  return {
+    v: 1,
+    kind: "dc34-eggstraction-scan",
+    label: eggstrState.label || "",
+    nonceSeq: eggstrState.nonceSeq,
+    nonces: eggstrState.nonces.map(n => ({
+      seq: n.seq,
+      bytes: hexStr(n.bytes),
+      ts: n.ts instanceof Date ? n.ts.toISOString() : new Date(n.ts).toISOString(),
+      used: !!n.used,
+    })),
+    obs: eggstrState.obs.map(o => ({
+      gamete: hexStr(o.gamete),
+      b15: o.b15,
+      pattern: o.pattern,
+      nonceSeq: o.nonceSeq,
+      ts: o.ts instanceof Date ? o.ts.toISOString() : new Date(o.ts).toISOString(),
+      stamp: o.stamp,
+    })),
+    seenSeals: [...eggstrState.seenSeals],
+  };
+}
+
+// Rehydrate eggstrState from a parsed export object. Returns { ok, msg }.
+// This is destructive - we clear state first so partial-import doesn't leave
+// a hybrid accumulator. Any validation error aborts before touching state.
+function eggstrLoadImport(obj) {
+  if (!obj || typeof obj !== "object") return { ok: false, msg: "not a JSON object" };
+  if (obj.kind !== "dc34-eggstraction-scan") return { ok: false, msg: `wrong kind (expected "dc34-eggstraction-scan", got ${JSON.stringify(obj.kind)})` };
+  if (obj.v !== 1) return { ok: false, msg: `unsupported version ${obj.v} (this build reads v=1)` };
+  if (!Array.isArray(obj.nonces)) return { ok: false, msg: "missing nonces array" };
+  if (!Array.isArray(obj.obs))    return { ok: false, msg: "missing obs array" };
+  // Pre-decode nonces + gametes; bail on any structural error.
+  const nonces = [];
+  for (let i = 0; i < obj.nonces.length; i++) {
+    const n = obj.nonces[i];
+    if (!n || typeof n.bytes !== "string") return { ok: false, msg: `nonces[${i}]: missing bytes` };
+    let bytes;
+    try { bytes = unhexStr(n.bytes); }
+    catch (e) { return { ok: false, msg: `nonces[${i}].bytes: ${e.message}` }; }
+    if (bytes.length !== 12) return { ok: false, msg: `nonces[${i}].bytes: expected 12 bytes, got ${bytes.length}` };
+    const seq = Number(n.seq);
+    if (!Number.isInteger(seq) || seq < 1) return { ok: false, msg: `nonces[${i}].seq: expected positive integer` };
+    const wire = new Uint8Array(16 + 12);
+    wire.set(DC34_HEADER, 0); wire.set(bytes, 16);
+    nonces.push({ bytes, b45: b45encode(wire), ts: new Date(n.ts || Date.now()), used: !!n.used, seq });
+  }
+  const obsList = [];
+  for (let i = 0; i < obj.obs.length; i++) {
+    const o = obj.obs[i];
+    if (!o || typeof o.gamete !== "string") return { ok: false, msg: `obs[${i}]: missing gamete` };
+    let gam;
+    try { gam = unhexStr(o.gamete); }
+    catch (e) { return { ok: false, msg: `obs[${i}].gamete: ${e.message}` }; }
+    if (gam.length !== N_LOCI) return { ok: false, msg: `obs[${i}].gamete: expected ${N_LOCI} bytes, got ${gam.length}` };
+    const b15 = Number(o.b15);
+    if (!Number.isInteger(b15) || b15 < 0 || b15 > 255) return { ok: false, msg: `obs[${i}].b15: expected 0..255 byte` };
+    const nonceSeq = Number(o.nonceSeq);
+    if (!Number.isInteger(nonceSeq)) return { ok: false, msg: `obs[${i}].nonceSeq: expected integer` };
+    obsList.push({ gam, b15, nonceSeq, ts: new Date(o.ts || Date.now()) });
+  }
+  // Everything parsed - now wipe and rebuild.
+  eggstrReset();  // clears state + rerenders empty
+  eggstrState.label = typeof obj.label === "string" ? obj.label : "";
+  // Renumber nonces 1..N on import so the visible pool doesn't have gaps
+  // from mid-session discarded nonces (which would confusingly appear as
+  // e.g. seq 12 with no 10/11 above it after a resume). The 12-byte nonce
+  // value is what's cryptographically load-bearing; the seq label is just
+  // a display index. We rewrite obs.nonceSeq to preserve the obs -> nonce
+  // linkage under the new labeling.
+  const seqRemap = new Map();
+  nonces.forEach((n, i) => { seqRemap.set(n.seq, i + 1); n.seq = i + 1; });
+  eggstrState.nonces = nonces;
+  eggstrState.nonceSeq = nonces.length;
+  // Replay obs through eggstrRecordGamete to reconstitute groups/histogram/
+  // byte15Counts. Build a synthetic 16-byte plaintext so we can reuse the
+  // existing record path unchanged. eggstrRecordGamete no longer rejects
+  // anything under the mutation-aware model, so every replay records cleanly.
+  for (const o of obsList) {
+    const pt = new Uint8Array(16);
+    pt.set(o.gam, 0);
+    pt[15] = o.b15;
+    const mappedSeq = seqRemap.get(o.nonceSeq) || o.nonceSeq;
+    const nEntry = nonces.find(n => n.seq === mappedSeq) || { seq: mappedSeq, used: true, bytes: new Uint8Array(12), b45: "", ts: o.ts };
+    eggstrRecordGamete(pt, nEntry);
+  }
+  // Restore seenSeals for dedup continuity across the round-trip.
+  if (Array.isArray(obj.seenSeals)) for (const s of obj.seenSeals) eggstrState.seenSeals.add(String(s));
+  // Sync the label input.
+  const labInp = document.getElementById("egg-label-input");
+  if (labInp) labInp.value = eggstrState.label;
+  renderEggstrAll();
+  const gaps = obj.nonceSeq && obj.nonceSeq > nonces.length
+    ? ` (source had gaps up to seq ${obj.nonceSeq}; renumbered 1..${nonces.length})`
+    : "";
+  return { ok: true, msg: `imported ${obsList.length} observation(s), ${nonces.length} nonce(s)${gaps}` };
+}
+
 selfTests();
 initPopulation(popsimView);
+// Preselect popsim cell (0,0) so vim gene, borg, badgecestry, and skeet all
+// have a live shared specimen from the very first frame instead of falling
+// back to a random Human. Users can click any other cell to change it.
+popsimView.selectedIdx = 0;
 animHandle = requestAnimationFrame(animLoop);
 qrInitPanel();
 qrSelfTests();
@@ -8805,8 +10738,10 @@ function bcInit() {
     window.bcRenderDirty = true;
   });
 
-  const tSlider = document.getElementById("bc-t-slider");
-  const tLabel  = document.getElementById("bc-t-label");
+  const tSlider  = document.getElementById("bc-t-slider");
+  const tLabel   = document.getElementById("bc-t-label");
+  const tSlider2 = document.getElementById("bc-t-slider-2");
+  const tLabel2  = document.getElementById("bc-t-label-2");
   // Force the slider back to its authored default. Browsers (Firefox in
   // particular) restore range-input values across reloads and bfcache
   // navigations without firing an `input` event, which leaves the thumb
@@ -8814,11 +10749,21 @@ function bcInit() {
   // t=128 slider position but decodes as if t=0.
   tSlider.value = String(bcState.tIdx);
   tLabel.textContent = `t = ${T_GRID[bcState.tIdx]}`;
-  tSlider.addEventListener("input", () => {
-    bcState.tIdx = parseInt(tSlider.value, 10);
-    tLabel.textContent = `t = ${T_GRID[bcState.tIdx]}`;
+  if (tSlider2) tSlider2.value = String(bcState.tIdx);
+  if (tLabel2)  tLabel2.textContent = `t = ${T_GRID[bcState.tIdx]}`;
+  // Two-way link: dragging either slider updates bcState.tIdx, both labels,
+  // and mirrors the value to the other slider so both thumbs stay in sync.
+  function bcTSliderChanged(fromEl) {
+    bcState.tIdx = parseInt(fromEl.value, 10);
+    const label = `t = ${T_GRID[bcState.tIdx]}`;
+    tLabel.textContent = label;
+    if (tLabel2) tLabel2.textContent = label;
+    if (fromEl !== tSlider)  tSlider.value  = fromEl.value;
+    if (tSlider2 && fromEl !== tSlider2) tSlider2.value = fromEl.value;
     scheduleRerender();
-  });
+  }
+  tSlider.addEventListener("input", () => bcTSliderChanged(tSlider));
+  if (tSlider2) tSlider2.addEventListener("input", () => bcTSliderChanged(tSlider2));
 
   const rateSelect = document.getElementById("bc-rate-select");
   rateSelect.value = bcState.rate;
