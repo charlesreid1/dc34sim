@@ -889,6 +889,26 @@
   }
   #skeet-gametes-panel .skeet-gam-legend .sw-h0 { background: #0d294a; }
   #skeet-gametes-panel .skeet-gam-legend .sw-h1 { background: var(--fg-dim); }
+  #skeet-gametes-panel .skeet-gam-howto {
+    font-size: 0.72rem;
+    color: var(--fg);
+    line-height: 1.5;
+    border: 1px dashed var(--fg-faint);
+    border-radius: 2px;
+    padding: 0.55rem 0.7rem;
+    margin-bottom: 0.6rem;
+  }
+  #skeet-gametes-panel .skeet-gam-howto .k { color: var(--warn); }
+  #skeet-gametes-panel .skeet-gam-howto ol {
+    margin: 0.35rem 0 0.4rem;
+    padding-left: 1.4rem;
+  }
+  #skeet-gametes-panel .skeet-gam-howto li { margin: 0.2rem 0; }
+  #skeet-gametes-panel .skeet-gam-howto b { color: var(--fg); }
+  #skeet-gametes-panel .skeet-gam-howto a {
+    color: var(--warn);
+    text-shadow: 0 0 4px rgba(241,180,53,0.5);
+  }
   /* 5 linkage groups (A=3 loci, B=1, C=3, D=1, E=1) with zero internal gap
      within each group and a small gap between groups. Column template:
      [pattern] [A A A] [gap] [B] [gap] [C C C] [gap] [D] [gap] [E] [action] */
@@ -981,13 +1001,14 @@
     color: var(--warn);
     text-shadow: 0 0 6px rgba(241,180,53,0.9);
   }
+  /* Picked row: thick red rectangle around each cell, simple outline. */
   .skeet-gam-row.picked .cell {
-    outline: 1px solid var(--fg);
+    outline: 3px solid var(--err);
     outline-offset: -1px;
   }
   .skeet-gam-row.picked .pickwrap button {
-    border-color: var(--warn);
-    color: var(--warn);
+    border-color: var(--err);
+    color: var(--err);
   }
   /* Skeet specimen sprite - same treatment as popsim/borg/vim specimens. */
   #skeet-specimen {
@@ -1879,6 +1900,16 @@
       <span class="k">bit convention:</span> pattern reads left-to-right = window ABCDE (bit 4 .. bit 0).
       &nbsp;<span class="sw sw-h0"></span> = haplo0
       &nbsp;<span class="sw sw-h1"></span> = haplo1
+    </div>
+    <div class="skeet-gam-howto mono">
+      <span class="k">handing a gamete to your physical badge:</span>
+      <ol>
+        <li><b>pick a gamete</b> &mdash; press <span class="mono">+ pick</span> on one of the 32 rows below. the <span class="k">QR gene exchange</span> panel opens on the right with that gamete loaded as its payload.</li>
+        <li><b>generate a nonce with your badge</b> &mdash; on your DC34 badge, display its phase-1 QR and scan it with your phone.</li>
+        <li><b>paste the nonce into the web tool</b> &mdash; drop the decoded string into <span class="k">phase 1</span> of the QR panel and press <span class="mono">extract nonce</span>.</li>
+        <li><b>scan the resulting QR (the sealed gamete) with your badge</b> &mdash; press <span class="mono">seal</span> in <span class="k">phase 2</span>, then point your badge's camera at the QR that appears.</li>
+      </ol>
+      full walkthrough: <a href="skeet.md" target="_blank" rel="noopener">skeet.md</a> &sect;6 &mdash; <i>Using Skeet With A Physical Badge</i>.
     </div>
     <div id="skeet-gam-grouphead" class="mono"></div>
     <div id="skeet-gam-head" class="mono"></div>
