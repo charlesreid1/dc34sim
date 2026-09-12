@@ -85,6 +85,19 @@
     gap: 1.25rem;
     align-items: start;
   }
+  /* popsim and borg tabs: pin the right controls column to a fixed width so
+     the badge grid can't squish it as N grows. The left column shrinks to its
+     grid track (min-width:0 overrides the default min-content sizing that
+     would otherwise stretch the track to the canvas's intrinsic pixel width).
+     The Population Field panel keeps its column width and grows in *height*
+     to match the canvas; the canvas itself visually overflows past the panel's
+     right border into/over the controls area. */
+  #tab-popsim .layout, #tab-borg .layout {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+  #grid-wrap, #borg-grid-wrap { min-width: 0; }
+  #grid-wrap .panel, #borg-grid-wrap .panel { min-width: 0; overflow: visible; }
+  #grid, #borg-grid { max-width: none; }
   #tab-badgecestry .layout {
     grid-template-columns: clamp(280px, 28%, 400px) minmax(0, 1fr);
   }
@@ -100,6 +113,23 @@
   @media (max-width: 1080px) {
     .layout { grid-template-columns: 1fr; }
     #tab-badgecestry .layout { grid-template-columns: 1fr; }
+    /* popsim / borg collapsed: dissolve #grid-wrap so its child panels become
+       direct flex children of .layout, then order them so the control column
+       sits between the population field and the specimen inspector rather
+       than sinking to the bottom of the stack. */
+    #tab-popsim .layout, #tab-borg .layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    #tab-popsim #grid-wrap,
+    #tab-borg #borg-grid-wrap { display: contents; }
+    #tab-popsim #grid-wrap > .panel:nth-child(1),
+    #tab-borg #borg-grid-wrap > .panel:nth-child(1) { order: 1; }
+    #tab-popsim #controls-col,
+    #tab-borg #borg-controls-col { order: 2; }
+    #tab-popsim #grid-wrap > .panel:nth-child(n+2),
+    #tab-borg #borg-grid-wrap > .panel:nth-child(n+2) { order: 3; }
   }
   .panel {
     border: 1px solid var(--fg-dim);
@@ -1512,7 +1542,7 @@
 | |_| | |___ ___) |__   _|  | |_) / ___ \| |_| | |_| | |___  | |_| | |___| |\  | |___  | |  | | |___ ___) |
 |____/ \____|____/   |_|    |____/_/   \_\____/ \____|_____|  \____|_____|_| \_|_____| |_| |___\____|____/
 
-                            &lt;&lt; POPULATION GENETICS TERMINAL // v3.14159 &gt;&gt;
+                            &lt;&lt; POPULATION GENETICS TERMINAL // v3.141592 &gt;&gt;
 </pre>
 <p class="tagline">// diploid genome :: nine loci :: monte carlo evolution <span class="blink">_</span></p>
 
@@ -1531,7 +1561,7 @@
 <div class="layout">
   <div id="grid-wrap">
     <div class="panel">
-      <h2>&gt; population field <span class="hint">10,000 individuals</span></h2>
+      <h2>&gt; population field <span class="hint" id="grid-hint">10,000 individuals</span></h2>
       <canvas id="grid" width="600" height="600"></canvas>
       <div class="status" id="grid-status">[ idle ]</div>
     </div>
@@ -2040,7 +2070,7 @@
     </div>
 
     <div class="panel">
-      <h2>&gt; population field <span class="hint">10,000 individuals</span></h2>
+      <h2>&gt; population field <span class="hint" id="borg-grid-hint">10,000 individuals</span></h2>
       <canvas id="borg-grid" width="600" height="600"></canvas>
       <div class="status" id="borg-grid-status">[ idle ]</div>
     </div>
@@ -5593,6 +5623,7 @@ function makeView(ids) {
     specInfo: document.getElementById(ids.specimenInfo),
     mainStatus: document.getElementById(ids.mainStatus),
     gridStatus: document.getElementById(ids.gridStatus),
+    gridHint: ids.gridHint ? document.getElementById(ids.gridHint) : null,
     console: ids.console ? document.getElementById(ids.console) : null,
     gridW: 100, gridH: 100,
     selectedIdx: -1,
@@ -6239,6 +6270,7 @@ const popsimView = makeView({
   specimenInfo: "specimen-info",
   mainStatus: "main-status",
   gridStatus: "grid-status",
+  gridHint: "grid-hint",
   console: "console",
   popsize: "popsize", mix: "mix-preset", mutationRate: "mutation-rate",
   nonlinMode: "nonlin-mode", inbreedingMode: "inbreeding-mode",
@@ -6265,6 +6297,7 @@ const borgView = makeView({
   specimenInfo: "borg-specimen-info",
   mainStatus: "borg-main-status",
   gridStatus: "borg-grid-status",
+  gridHint: "borg-grid-hint",
   console: null,
   popsize: "borg-popsize", mix: "borg-mix-preset", mutationRate: "borg-mutation-rate",
   nonlinMode: "borg-nonlin-mode", inbreedingMode: null,
@@ -6297,6 +6330,9 @@ function updateStatus(view) {
   view.gridStatus.textContent =
     `[ field ] ${view.gridW}x${view.gridH} grid @ ${view.style.M}x${view.style.M} badge  ` +
     (view.running ? "  <RUNNING>" : "");
+  if (view.gridHint) {
+    view.gridHint.textContent = `${pop.N.toLocaleString("en-US")} individuals`;
+  }
 }
 
 function readParams(view) {
