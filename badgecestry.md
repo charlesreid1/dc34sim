@@ -194,7 +194,7 @@ P(T_{i+1} = T' | T_i = T) = f_{T'}(t)
 ```
 
 where `f_T(t)` is the current population fraction of type `T`. That's
-the entire transition structure. Simple, correct, and honest about the
+the entire transition structure. Simple, correct, and follows from the
 fact that the panmictic-baseline mating policy has no linkage
 autocorrelation to model.
 
@@ -203,8 +203,7 @@ inbreeding-pass amplification) could produce nonzero adjacent-window
 type correlations. If we ever ship a non-panmictic policy in the
 evolve-forward loop and want the HMM to model it faithfully, we'll
 measure the empirical correlation from the population buffer and plug
-it back in. Until then, `f_T(t)` alone is the whole transition matrix,
-and this is honest rather than window-dressing.
+it back in. Until then, `f_T(t)` alone is the whole transition matrix.
 
 ### 2.3 Emissions: convolution, not mixture
 
@@ -362,6 +361,8 @@ below it, a permanently-rendered "How the model got here" panel with
 top-to-bottom, in the order the algorithm produces them. Every one of
 them recomputes live as you drag the generation slider.
 
+![badgecestry tab: composition bar (38% Goon, 27% Human, 23% Other, 12% Community), generations-since-founding slider above it, mutation-rate + lineage-prior dropdowns below](img/badgecestry-composition.jpg)
+
 ### 4.1 Panel 1 - Emission distributions `E_{T,ℓ,t}(a)`
 
 A grid of 256-wide row heatmaps, one per (type, locus) pair. Each cell
@@ -377,6 +378,8 @@ mass out one bit at a time) and then progressively wider. At large `t`
 most rows collapse to a near-uniform gray - and *that*, visually, is
 why ancestry inference loses discriminative power over generational
 time.
+
+![Panel 1 emission distributions stacked t=0 (top: sharp allele peaks per type × locus) and t=128 (bottom: rows visibly smeared toward the prior)](img/badgecestry-panel1-emissions.jpg)
 
 Two rows always render identical across types regardless of `t`:
 `cd_rate` and `hue_ratedir`. Their founder priors are uniform-on-full-
@@ -400,6 +403,8 @@ at high `t` for loci where the priors have smeared into each other.
 
 This is what the patent's claim-4 language ("labels the haplotype's
 decode actually visits") means in concrete pixels.
+
+![Panel 2: stage-1 per-window posterior heatmaps, one grid per haplotype, rows = windows (W_A/W_B/W_C/W_DE), columns = 7 active types, numeric masses per cell](img/badgecestry-panel2-heatmaps.jpg)
 
 ### 4.3 Panel 3 - Stage-1 → stage-2 handoff, showing `C₀` and `C₁`
 
@@ -425,6 +430,8 @@ This block is what makes the two-stage patent architecture *legible*.
 The whole reason stage 2 has 18 states instead of 128 is right here on
 screen: the model made a decision about which types to consider
 jointly, and this is that decision.
+
+![Panel 3: stage-1 → stage-2 handoff. C₀ (haplo0) keeps Other/Goon/Human, prunes Community/Village/CtfContest/Uber; C₁ (haplo1) keeps Goon/Community/Human, prunes Village/Other/CtfContest/Uber](img/badgecestry-panel3-handoff.jpg)
 
 ### 4.4 Panel 4 - Stage-2 joint state posterior (the prominent one)
 
@@ -456,6 +463,10 @@ Three things this view lets you see directly:
   the other three don't. That is the nonlin bug of §4.1 of the
   pop-gen doc, made visible as a direct observable rather than as a
   statistical claim.
+
+![Panel 4: stage-2 joint posteriors γᵥᵥ(T₀, T₁, switch). Four windows (W_A / W_B / W_C / W_DE), each showing the switch=0 and switch=1 3×3 heatmaps side by side; W_DE flagged as "nonlin δ-factor active" with the switch=1 slice zeroed](img/badgecestry-panel4-stage2.jpg)
+
+<!-- SCREENSHOT: Panel 4 before/after "swap haplo0 ↔ haplo1", side by side, so W_DE's grid visibly shifts while W_A/W_B/W_C do not - the nonlin bug made visible -->
 
 ### 4.5 Panel 5 - Forward/backward message trace
 

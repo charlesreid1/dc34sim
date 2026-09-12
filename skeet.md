@@ -4,6 +4,8 @@ Meiosis as a truth table. One diploid in, every gamete it can produce out,
 laid out at once. This page covers what the skeet tab does, the genetics it
 rests on, and how to hand a picked gamete to a physical DEF CON 34 badge.
 
+![skeet tab: parent diploid on the left, phenome column on the right, first rows of the 32-gamete enumeration table below](img/skeet-overview.jpg)
+
 Related:
 - [`synthetic-population-genetics.md`](synthetic-population-genetics.md) - the genetics core (haploids, loci, meiosis, mating). Read that first for the math.
 - [`gene-exchange.md`](gene-exchange.md) - the three-phase QR protocol skeet's Panel C rides on top of.
@@ -112,6 +114,8 @@ Populated by pressing `send to skeet` from any specimen inspector
 (popsim, borg, vim gene). Sending is a snapshot; edits in vim gene
 afterward do not retroactively update the skeet slot.
 
+![Panel A: parent diploid with the 7×7 badge preview on the left and haplo0/haplo1 loci + phenome column on the right](img/skeet-panel-a.jpg)
+
 **Panel B - all 32 gametes.** 32 rows, one per coin pattern. Each row shows:
 
 - the 5-bit pattern label,
@@ -125,9 +129,13 @@ Row order is shuffled once when a badge is sent to skeet and held stable
 while you compare, so the display doesn't jump under you between renders.
 Sending a different badge triggers a fresh shuffle.
 
+![Panel B: all 32 gametes in a table, one row per 5-bit coin pattern, cells colored by source haploid, + Pick button on the right of each row](img/skeet-panel-b.jpg)
+
 **Panel C - QR gene exchange.** Hidden until a gamete is picked. Then it
 reveals a three-phase panel that mirrors vim gene's QR exchange 1:1,
 minus the "gamete source" picker - here the source *is* the picked row.
+
+![Panel C: QR Gene Exchange after picking a gamete, with the k row, phase-1 nonce input, and phase-2 seal panel](img/skeet-panel-c.jpg)
 
 Skeet does not run mutation, phenotype expression, or fertilization.
 Mutation happens on the receiving badge when it accepts the sealed
@@ -157,6 +165,8 @@ browser, and a phone or QR-reader app. No camera on the page.
    penalty) and press `seal`. A QR appears.
 5. **Show your badge the QR.** Your badge scans it, treats it as a mate's
    gamete, mutates it on the way in, and updates its own diploid.
+
+![physical DC34 badge held up with "Scan QR code…" on its OLED, ready to read the sealed phase-2 QR from the widget](img/phase3a.jpg)
 6. **(Optional) Round-trip check.** Panel C phase 3's `decode phase 2`
    button opens the sealed bytes back to a haploid preview under the
    same key and nonce, so you can confirm the recovered bytes match the

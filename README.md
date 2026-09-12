@@ -6,6 +6,8 @@ your physical DC34 badge over the QR exchange.
 
 Live at **[dc34sim.com](https://dc34sim.com)**.
 
+![popsim tab: 100×100 evolving population grid with the six-tab strip above and the control panel to the right](img/hero-popsim.jpg)
+
 Open [`index.html`](index.html) in a browser. No install, no build step, no
 camera required.
 
@@ -14,7 +16,8 @@ camera required.
 > ```
 > git clone -b gh-pages --single-branch https://github.com/charlesreid1/dc34sim.git
 > python3 -m http.server 8000
-> 
+> ```
+>
 > **Then visit `http://localhost:8000`.**
 
 ## Tabs
@@ -29,21 +32,12 @@ genetics core:
 - **borg** - same as popsim, but every mating uses one frozen partner, ROOT.
 - **badgecestry** - decode one badge's ancestry composition with a two-stage hidden Markov model.
 
+![the six-tab strip: POPSIM, VIM GENE, SKEET, EGGSTRACTION, BORG, BADGECESTRY](img/tab-strip.png)
+
 Any specimen inspector can send its selected badge to **vim gene**, **skeet**,
 or **badgecestry**, so the tabs compose into a pipeline: evolve a population,
 pull out an individual, edit it, enumerate its gametes, seal one, then hand
 the QR to a physical badge.
-
-## Skeet in one paragraph
-
-Skeet is meiosis-as-a-truth-table. One diploid in, all 32 possible gametes
-out (5 linkage groups, fair independent coins, exact enumeration - no
-sampling). Each row shows the 5-bit coin pattern, 9 locus cells colored by
-source haploid so the linkage blocks are visible, and a `+ Pick` button.
-Picking a gamete reveals a QR gene-exchange panel that mirrors vim gene's
-three-phase flow: paste your badge's nonce, seal the picked gamete under
-that nonce, and hand back a QR your badge will accept as a mate. See the
-[`skeet.md`](skeet.md) and the [FAQ's Skeet section](faq.md#skeet).
 
 ## Docs
 

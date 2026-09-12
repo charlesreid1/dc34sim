@@ -11,6 +11,8 @@ badge's returned QRs, an evidence store for the observed gametes, and a
 statistical reconstruction of the diploid that produced them. If you don't
 have a real badge in your hand, the tab does nothing useful.
 
+![eggstraction tab mid-scan: 18 exchanges, 5/5 linkage groups locked, reconstructed diploid on the right with confidence % per locus, observed-gametes table starting below](img/eggstraction-overview.jpg)
+
 Related:
 - [`synthetic-population-genetics.md`](synthetic-population-genetics.md) - haploids, loci, meiosis, linkage groups, mutation. The whole math core the tab inverts. Read §3 (meiosis / linkage groups) and §5 (mutation) first.
 - [`skeet.md`](skeet.md) - the *forward* direction: one diploid, all 32 possible gametes enumerated at once. Eggstraction is the inverse.
@@ -461,8 +463,8 @@ of `v`'s Gray neighbors, `{v, v}` fits about 10x better per scan (in
 log-likelihood terms) than any `{v, v'}`. After ~10 scans this becomes
 decisive.
 
-Under fewer scans, the estimator honestly returns lower confidence rather
-than committing early. And in a group with multiple loci, the *tuple*
+With fewer scans, the estimator will return lower confidence, to avoid
+committing early to a bad guess. In a group with multiple loci, the *tuple*
 consensus of §6.2 gets there faster: even 4-6 scans concentrated on one
 3-tuple with only mutation-shape scatter around it is a strong homozygous
 signal.
@@ -506,6 +508,8 @@ something like:
 ```
 [ 8 exchanges :: 4/5 linkage groups locked :: P(diploid known) ≈ 0.71 ]
 ```
+
+![reconstructed diploid close-up: HOM tags on hue_ratedir, hue_base, hue_bound (window C), 100% confidence on the locked loci and 90% on hue_ratedir](img/eggstraction-diploid-hom.jpg)
 
 That is composed as follows:
 
@@ -594,13 +598,6 @@ Three concrete use cases.
    partners, run generations forward, compare its phenotype under
    different mutation rates, look for rare children. Eggstraction is the
    bridge from atoms to bits.
-3. **Empirical check on the fairness of meiosis.** The badge's firmware
-   coin is *supposed* to be fair, one flip per group, uniformly random.
-   The coin-pattern coverage histogram at the bottom of Panel B is a
-   direct visual audit: 32 bins, one per 5-bit coin pattern, counting how
-   many scans hit that pattern. Over 50-100 exchanges you can literally
-   see whether the RNG is fair. Consistent skew is evidence of a firmware
-   issue worth reporting.
 
 None of these require the sim to know anything about a specific badge in
 advance. The badge just has to be willing to mate - which is what it does

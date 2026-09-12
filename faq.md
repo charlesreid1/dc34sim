@@ -58,6 +58,8 @@ through the colony until, without mutation, every badge is ROOT. See
 See [`synthetic-population-genetics.md`](synthetic-population-genetics.md)
 section 5 (mutation) and section 7 (mating).
 
+![popsim tab: 100×100 badge grid on the left, control panel on the right with population size, badge-type mix preset, mutation rate, run/step/reset buttons](img/popsim-controls.jpg)
+
 ### How do I select and inspect a simulated badge?
 
 popsim and borg simulate badges (and the firmware running them) entirely in
@@ -70,6 +72,8 @@ straight to **vim gene** to edit, to **skeet** to enumerate its gametes, or
 to **badgecestry** to decode. So the whole pipeline is: pull a gene out of a
 popsim run, send it to vim gene, edit it, and borg draws its frozen ROOT
 from the vim gene state.
+
+![specimen inspector: 7×7 badge preview, idx/type/gen header, haplo0/haplo1/phenome columns for the 9 loci, and Send to vim gene / skeet / badgecestry buttons on the right](img/specimen-inspector.jpg)
 
 ### What do the allele-frequency histograms mean?
 
@@ -146,6 +150,8 @@ is "all 32 mathematically possible patterns," not "unique gametes").
 Row order is randomized once per loaded organism and held stable while you
 compare and pick, so the layout doesn't jump under you between renders.
 Sending a different badge triggers a fresh shuffle.
+
+![skeet Panel B: full 32-row gamete table with 5-bit pattern labels down the left, per-window locus cells colored by source haploid, + Pick buttons on the right](img/skeet-panel-b.jpg)
 
 ### How do I pick a gamete?
 
@@ -235,7 +241,7 @@ Yes. Unlike every other tab, eggstraction is exclusively about physical
 badges - there is no simulated counterpart. Without a real badge in your
 hand, the tab does nothing useful.
 
-<!-- SCREENSHOT: the eggstraction tab overview with a badge nearby -->
+![eggstraction tab overview: label ch4zm, 18 exchanges, 5/5 linkage groups locked, reconstructed diploid populated on the right](img/eggstraction-overview.jpg)
 
 ### How do I run a scan?
 
@@ -314,7 +320,7 @@ representative is loaded into vim gene, from which you can phenotype it,
 edit it, feed it to borg as ROOT, or draw sim gametes off it. Eggstraction
 is the bridge from atoms to bits.
 
-<!-- SCREENSHOT: reconstructed-diploid header with "send to vim gene" enabled -->
+![reconstructed-diploid header with Send to vim gene enabled: haplo0/haplo1 filled in, confidence 100% on locked loci, HOM tags where haplo0 = haplo1](img/eggstraction-diploid-hom.jpg)
 
 ### Can I pause a scan and resume later?
 
@@ -370,7 +376,7 @@ Your badge scans the QRs the widget draws. You scan your badge's screen with
 your own phone/device, and copy-paste the QR code contents into the widget.
 There is no camera on the page. See [`gene-exchange.md`](gene-exchange.md) PHASE 3.
 
-<!-- SCREENSHOT: phone scanning the widget QR / badge screen -->
+![physical DC34 badge held up, its OLED showing "Scan QR code…" ready to accept a QR from the widget](img/phase3a.jpg)
 
 ## Under the hood
 
