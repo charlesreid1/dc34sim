@@ -2281,7 +2281,7 @@
                         padding:0.3rem; font-family:inherit; font-size:0.9rem;">
         </div>
       </div>
-      <div class="status" id="bc-gamete-status" style="margin-top:0.4rem;">[ using provided genome ]</div>
+      <div class="status" id="bc-gamete-status" style="margin-top:0.4rem;">[ using provided gametes ]</div>
     </div>
 
     <div class="panel">
@@ -10718,7 +10718,7 @@ function bcLoadFromGametes() {
 
   if (gametes.length === 0) {
     bcState.overrideDiploid = null;
-    set("[ using provided genome ]");
+    set("[ using provided gametes ]");
     scheduleRerender();
     return;
   }
@@ -10788,7 +10788,7 @@ function resetGametePanel() {
     if (hex) hex.textContent = "";
   }
   const statusEl = document.getElementById("bc-gamete-status");
-  if (statusEl) statusEl.textContent = "[ using provided genome ]";
+  if (statusEl) statusEl.textContent = "[ using provided gametes ]";
 }
 
 function bcInit() {
